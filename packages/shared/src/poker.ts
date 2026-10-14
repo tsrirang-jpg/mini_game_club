@@ -115,4 +115,4 @@ export interface PokerSnapshot {
   players: PokerPlayer[]; board: Card[]; pot: number; pots: PokerPot[]; results: PokerResult[];
 }
 export type PokerAction = 'setReady' | 'startRound' | 'prepareRound' | 'resetTablePoints' | 'addBot' | 'removeBot'
-  | 'fold' | 'check' | 'call' | 'raise' | 'allIn';
+  | 'fold' | 'check' | 'call' | 'raise' | 'allIn' | 'showCards';

@@ -54,6 +54,9 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const seconds = Math.max(0, Math.min(Math.ceil(s.turnDurationMs / 1000), Math.ceil((s.deadline - now) / 1000)));
   const bySeat = [...s.players].sort((a, b) => a.seat - b.seat);
   const pots = pokerPotSummaries(s.pots);
+  const myResult = s.results.find(r => r.id === state.playerId);
+  const canShowCards = s.phase === 'ROUND_END' && myResult?.cards.length === 0
+    && s.pots.some(pot => !pot.refund && pot.winners.includes(state.playerId));
   const playerName = (id: string) => s.players.find(p => p.id === id)?.name ?? s.results.find(r => r.id === id)?.name ?? 'ผู้เล่นที่ออกแล้ว';
   const playerLabel = (id: string) => { const p = s.players.find(p => p.id === id); return p ? '#' + (p.seat + 1) + ' ' + p.name : playerName(id); };
   const seatName = (id: string) => { const p = s.players.find(p => p.id === id); return p ? '#' + (p.seat + 1) : playerName(id); };
@@ -87,6 +90,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
       </div>
     </section></div>
     <div className="poker-action-dock" aria-label="การเล่นและเดิมพัน">
+      {canShowCards && <button className="show-cards-button" disabled={!active} onClick={() => pokerSession.send('showCards')}>Show cards / เปิดไพ่</button>}
       {canAct && me ? <section className="poker-actions">
         <div className="quick-actions"><button className="fold-button" onClick={() => pokerSession.send('fold')}>Fold / หมอบ</button>{call === 0 ? <button onClick={() => pokerSession.send('check')}>Check / ผ่าน</button> : <button className="primary" onClick={() => pokerSession.send('call')}>Call {Math.min(call, me.points)}</button>}<button disabled={max > s.currentBet && !raiseAllowed} onClick={() => pokerSession.send('allIn')}>All-in {me.points}</button></div>
         {raiseAllowed && max > s.currentBet && <div className="raise-panel">

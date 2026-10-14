@@ -19,8 +19,16 @@ export async function checkPokerViewport(page, label) {
       if (Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1 && Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1) overlaps.push([a, b]);
     }
     const cutAmounts = [...document.querySelectorAll('.pot-entry strong')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent);
+    const obscuredRanks = [];
+    if (!document.querySelector('.poker-table.dealing')) for (const card of document.querySelectorAll('.poker-seat .card:not(.back)')) {
+      const label = card.querySelector('span:not(.bottom)');
+      const range = document.createRange(); range.selectNodeContents(label.firstChild);
+      const r = range.getBoundingClientRect(), c = card.getBoundingClientRect();
+      const hit = document.elementFromPoint((r.left+r.right)/2, (r.top+r.bottom)/2);
+      if (!r.width || !r.height || r.left<c.left || r.right>c.right || r.top<c.top || r.bottom>c.bottom || !label.contains(hit)) obscuredRanks.push(card.getAttribute('aria-label'));
+    }
     const shell = document.querySelector('.poker-shell');
-    return { clipped, outside, overlaps, cutAmounts, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
+    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight,
       shellOverflow: shell.scrollHeight > shell.clientHeight + 1, shellWidth: shell.clientWidth, scrollY, shellScroll: shell.scrollTop };
   });
@@ -28,6 +36,7 @@ export async function checkPokerViewport(page, label) {
   assert.deepEqual(report.outside, [], label + ': content outside table ' + JSON.stringify(report));
   assert.deepEqual(report.overlaps, [], label + ': overlapping content ' + JSON.stringify(report));
   assert.deepEqual(report.cutAmounts, [], label + ': pot amounts must fit');
+  assert.deepEqual(report.obscuredRanks, [], label + ': card ranks must fit and remain unobscured');
   assert.equal(report.tableDockOverlap, false, label + ': table/actions overlap');
   assert.equal(report.shellOverflow, false, label + ': hidden overflow is not fitting');
   assert.ok(report.shellWidth <= 1280, label + ': desktop width cap');

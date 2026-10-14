@@ -59,6 +59,27 @@ afterAll(async () => {
   await server.gracefullyShutdown(false);
 });
 describe('real WebSocket clients', () => {
+  it('broadcasts voluntarily shown winner cards to the other player only after a win', async () => {
+    let aState: PokerSnapshot | undefined, bState: PokerSnapshot | undefined;
+    let bHand: Card[] = [];
+    const a = await new Client(endpoint).create('poker', { name: 'Host' }); rooms.push(a); a.reconnection.enabled=false;
+    a.onMessage('snapshot',(s:PokerSnapshot)=>{aState=s;});a.onMessage('hand',()=>{});a.onMessage('error',()=>{});
+    const b = await new Client(endpoint).joinById(a.roomId,{name:'Winner',game:'poker'});rooms.push(b);b.reconnection.enabled=false;
+    b.onMessage('snapshot',(s:PokerSnapshot)=>{bState=s;});b.onMessage('hand',(h:{cards:Card[]})=>{bHand=h.cards;});b.onMessage('error',()=>{});
+    a.send('sync');b.send('sync');await until(()=>aState?.players.length===2&&bState?.players.length===2);
+    b.send('action',{type:'setReady',value:true,roundId:0,actionId:'show-ready'});
+    await until(()=>aState?.players.find(p=>p.id===b.sessionId)?.ready===true);
+    a.send('action',{type:'startRound',roundId:0,actionId:'show-start'});
+    await until(()=>aState?.turnId===a.sessionId&&bHand.length===2);
+    a.send('action',{type:'fold',roundId:1,actionId:'show-fold'});
+    await until(()=>aState?.phase==='ROUND_END'&&bState?.phase==='ROUND_END');
+    expect(aState!.results.every(r=>r.cards.length===0)).toBe(true);
+    b.send('action',{type:'showCards',roundId:1,actionId:'show-own'});
+    await until(()=>aState?.results.find(r=>r.id===b.sessionId)?.cards.length===2);
+    expect(aState!.results.find(r=>r.id===b.sessionId)?.cards).toEqual(bHand);
+    expect(aState!.results.find(r=>r.id===a.sessionId)?.cards).toEqual([]);
+    await b.leave();await a.leave();
+  });
   it('Poker room reconnects a human, isolates private hands, rejects wrong game and plays with bots', async () => {
     let room = await new Client(endpoint).create('poker', { name: 'Poker Host', botCount: 2 });
     rooms.push(room); room.reconnection.enabled = false;

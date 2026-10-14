@@ -1,0 +1,12 @@
+/* Small hole cards use one clear rank and suit, with no central glyph over them. */
+.poker-game .poker-seat .card:not(.back) { display: flex; align-items: center; justify-content: center; padding: 2px; }
+.poker-game .poker-seat .card:not(.back) > span:not(.bottom) { position: relative; font-size: clamp(11px, calc(var(--seat-card) * .5), 22px); line-height: 1; text-align: center; z-index: 1; }
+.poker-game .poker-seat .card:not(.back) small { font-size: clamp(9px, calc(var(--seat-card) * .28), 14px); line-height: 1; margin-top: 2px; }
+.poker-game .poker-seat .card:not(.back) > b, .poker-game .poker-seat .card .bottom { display: none; }
+.poker-game .poker-seat .hand { flex-wrap: nowrap; gap: 4px; }
+.poker-game .poker-action-dock:has(.show-cards-button) { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.show-cards-button { color: #f0cf89; border-color: #b89d69; font-size: 12px; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .poker-game .poker-seat .poker-badges { right: calc(var(--seat-card) * 2 + 12px); max-width: calc(100% - var(--seat-card) * 2 - 20px); }
+  .poker-game .poker-seat .hand { gap: 2px; }
+}

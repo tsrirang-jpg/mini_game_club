@@ -8,11 +8,13 @@
 | Poker viewport layout: 6 players, 11 portrait/landscape/tablet/desktop sizes in lobby/raise/results | PASS |
 | Poker controls fully inside viewport; no page/hidden overflow or seat/board overlap after chip selection | PASS |
 | Poker rules/management/results dialogs, Escape/close and exit restores site header | PASS |
-| Vitest all-games/state-machine/WebSocket suites | PASS — 65 tests, 8 files |
+| Vitest all-games/state-machine/WebSocket suites | PASS — 68 tests, 8 files |
 | Pok Deng: all seven hand categories, special-hand priority, ties and ×2/×3/×5 payouts | PASS |
 | Pok Deng: five-times collateral, bot preserves special hands, no stacked multipliers | PASS |
 | Pok Deng: home button on entry/table returns to game selector; private hand category and rule examples | PASS |
-| Oval Poker table: positions for 2–6 players, own hand at bottom, total/side pots in one top strip | PASS |
+| Poker table: original blue-green felt/border, positions for 2–6 players, own hand at bottom, total/side pots in one top strip | PASS |
+| Show cards: winner-only, post-round, exact own cards, no payout change, reconnect and next-round reset | PASS |
+| Two real WebSocket clients observe voluntarily revealed cards; losing hand remains private | PASS |
 | 1420-chip example: main 640/side 780 paid to different eligible hands | PASS |
 | Live pots hide winners/refunds until settlement; final total survives departed players | PASS |
 | Six real browser players create unequal stacks; main + 4 side pots + refund, exact per-player shares | PASS |
@@ -83,6 +85,7 @@ npm.cmd run test:browser
 npm.cmd run test:poker
 npm.cmd run test:poker-layout
 npm.cmd run test:poker-pots
+npm.cmd run test:poker-show
 npm.cmd run test:spyfall
 ```
 

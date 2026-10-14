@@ -90,6 +90,35 @@ describe('No-limit betting state machine',()=>{
     expect(g.snapshot().results.every(r=>r.cards.length===0)).toBe(true);
     expect(()=>act('b','call')).toThrow();expect(g.players.get('b')!.points).toBe(1010);
   });
+  it('lets an uncalled winner reveal only their own cards after the round',()=>{
+    start();
+    expect(()=>act('a','showCards')).toThrow('หลังจบรอบ');
+    act('a','fold');
+    expect(()=>act('b','showCards')).toThrow('หลังจบรอบ');
+    vi.advanceTimersByTime(10);
+    const before=g.snapshot(); const balance=g.players.get('b')!.points;
+    expect(()=>act('a','showCards')).toThrow('ผู้ชนะ');
+    expect(()=>act('b','showCards','a')).toThrow('ตัวเอง');
+    act('b','showCards',undefined,g.roundId,'reveal');
+    expect(g.snapshot().results.find(r=>r.id==='b')?.cards).toEqual(privateHands.b);
+    expect(g.snapshot().results.find(r=>r.id==='a')?.cards).toEqual([]);
+    act('b','showCards',undefined,g.roundId,'reveal');
+    act('b','showCards');
+    expect(g.players.get('b')!.points).toBe(balance); expect(g.snapshot().pots).toEqual(before.pots);
+    g.reconnect('b'); expect(g.snapshot().results.find(r=>r.id==='b')?.cards).toEqual(privateHands.b);
+    act('a','prepareRound');
+    expect(g.snapshot().results).toEqual([]);
+    expect(()=>act('b','showCards')).toThrow('หลังจบรอบ');
+    start();expect(()=>act('b','showCards',undefined,g.roundId-1)).toThrow('รอบเก่า');
+  });
+  it('keeps folded losers private when the winner also receives an unmatched refund',()=>{
+    g.add('C','c'); g.players.get('a')!.points=100;
+    start();act('a','raise',40);act('b','fold');act('c','fold');vi.advanceTimersByTime(10);
+    expect(g.snapshot().results.find(r=>r.id==='a')?.cards).toEqual([]);
+    expect(g.snapshot().pots.some(pot=>pot.refund)).toBe(true);
+    act('a','showCards');expect(g.snapshot().results.find(r=>r.id==='a')?.cards).toEqual(privateHands.a);
+    expect(()=>act('b','showCards')).toThrow('ผู้ชนะ');
+  });
   it('unequal all-in stacks run out the board, produce side pots and conserve chips',()=>{
     g.add('C','c');g.players.get('a')!.points=100;g.players.get('b')!.points=60;g.players.get('c')!.points=20;
     start();act('a','allIn');act('b','allIn');finish();

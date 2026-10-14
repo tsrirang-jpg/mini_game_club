@@ -71,7 +71,14 @@ export class PokerGame {
       && /^[a-zA-Z0-9-]{1,80}$/.test(a.actionId), 'คำสั่งไม่ถูกต้องหรือเป็นรอบเก่า');
     if (p!.seen.has(a.actionId)) return;
     demand(p!.seen.size < 2048, 'ส่งคำสั่งมากเกินไป');
-    if (['setReady', 'startRound', 'prepareRound', 'addBot', 'removeBot', 'resetTablePoints'].includes(a.type)) {
+    if (a.type === 'showCards') {
+      demand(this.phase === 'ROUND_END', 'เปิดไพ่ได้หลังจบรอบเท่านั้น');
+      demand(this.pots.some(pot => !pot.refund && pot.winners.includes(id)), 'เฉพาะผู้ชนะกองเดิมพันเท่านั้น');
+      demand(a.value === undefined, 'เปิดได้เฉพาะไพ่ของตัวเอง');
+      const result = this.results.find(r => r.id === id);
+      demand(result && this.hands[id]?.length === 2, 'ไม่มีไพ่ของรอบนี้');
+      result!.cards = this.hands[id].map(card => ({ ...card }));
+    } else if (['setReady', 'startRound', 'prepareRound', 'addBot', 'removeBot', 'resetTablePoints'].includes(a.type)) {
       demand(this.idle(), 'เปลี่ยนได้ก่อนเริ่มรอบเท่านั้น');
       if (a.type === 'setReady') { demand(typeof a.value === 'boolean', 'สถานะพร้อมไม่ถูกต้อง'); p!.ready = a.value as boolean; }
       else {
