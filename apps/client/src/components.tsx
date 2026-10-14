@@ -9,14 +9,5 @@ export function Card({ card, index = 0 }: { card?: CardData; index?: number }) {
   </div>;
 }
 export function Rules() {
-  const examples: { name: string; note: string; cards: CardData[] }[] = [
-    { name: 'ป๊อก 9', note: 'สูงสุด · ชนะทุกประเภทอื่น', cards: [{ rank: 9, suit: 'clubs' }, { rank: 13, suit: 'hearts' }] },
-    { name: 'ป๊อก 8', note: 'แพ้เฉพาะป๊อก 9', cards: [{ rank: 8, suit: 'clubs' }, { rank: 12, suit: 'hearts' }] },
-    { name: 'ตอง ×5', note: 'สามใบเลขเดียวกัน', cards: [{ rank: 7, suit: 'clubs' }, { rank: 7, suit: 'hearts' }, { rank: 7, suit: 'spades' }] },
-    { name: 'สามใบหน้า ×5', note: 'ทั้งสามใบเป็น J/Q/K (ซ้ำได้)', cards: [{ rank: 11, suit: 'clubs' }, { rank: 12, suit: 'hearts' }, { rank: 13, suit: 'spades' }] },
-    { name: 'สามใบเรียง ×3', note: 'เลขต่อกัน · A-2-3 หรือ Q-K-A ได้', cards: [{ rank: 5, suit: 'clubs' }, { rank: 6, suit: 'hearts' }, { rank: 7, suit: 'spades' }] },
-    { name: 'ดอกเดียวกัน ×3', note: 'ไพ่สองใบดอกเดียวกัน', cards: [{ rank: 2, suit: 'hearts' }, { rank: 5, suit: 'hearts' }] },
-    { name: 'ไพ่คู่ ×2', note: 'ไพ่สองใบเลขเดียวกัน', cards: [{ rank: 7, suit: 'clubs' }, { rank: 7, suit: 'hearts' }] },
-  ];
-  return <details className="rules pok-rules"><summary>กติกาประจำโต๊ะ</summary><p>ไพ่ 52 ใบ · A = 1 · 10/J/Q/K = 0 · คะแนนคือผลรวมหลักหน่วย</p><p>เรียงจากสูงไปต่ำตามรายการด้านล่าง ไพ่พิเศษชนะมือธรรมดาทุกแต้ม และแพ้ป๊อก 8/9 ประเภทเดียวกันใช้แต้มตัดสิน แต้มเท่ากันเสมอ (ป๊อก 9 ชนป๊อก 9 ก็เสมอ)</p><div className="pok-rank-list">{examples.map(e => <section className="pok-rank" key={e.name}><div><strong>{e.name}</strong><small>{e.note}</small></div><div className="hand">{e.cards.map((card, i) => <Card key={i} card={card} index={i}/>)}</div></section>)}</div><p>สองใบ 8/9 เป็นป๊อกและอยู่ทันที ห้ามจั่ว ถ้าเจ้ามือป๊อกเปิดทันที มิฉะนั้นผู้เล่นตัดสินใจก่อนเจ้ามือ จั่วได้ 1 ใบ หมดเวลา 20 วินาทีให้อยู่</p><p>ไม่คูณซ้อน ใช้ตัวคูณสูงสุดของผู้ชนะ ป๊อกที่เป็นคู่หรือสองใบดอกเดียวกันยังได้ ×2 หรือ ×3 สามใบดอกเดียวกันเพียงอย่างเดียวไม่มีเด้ง และ K-A-2 ไม่ถือว่าเรียง แต้มจะจ่ายเมื่อเปิดไพ่สรุปรอบ</p></details>;
+  return <details className="rules"><summary>กติกาประจำโต๊ะ</summary><p>ไพ่ 52 ใบ · A = 1 · 10/J/Q/K = 0 · คะแนนคือผลรวมหลักหน่วย</p><p>สองใบ 8/9 เป็นป๊อก ห้ามจั่ว และชนะมือไม่ป๊อก ถ้าเจ้ามือป๊อกเปิดทันที มิฉะนั้นผู้เล่นตัดสินใจก่อนเจ้ามือ จั่วได้ 1 ใบ หมดเวลา 20 วินาทีให้อยู่</p><p>คู่หรือสองใบดอกเดียวกัน = 2 เด้ง · สามใบดอกเดียวกัน = 3 เด้ง · ไม่คูณซ้อน ใช้เด้งของผู้ชนะ แต้มเท่ากันและสถานะป๊อกเหมือนกันเสมอ ไม่มีตอง เรียง หรือเซียน</p></details>;
 }

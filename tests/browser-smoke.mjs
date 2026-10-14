@@ -20,7 +20,8 @@ async function noOverflow(page) {
 }
 try {
   await a.goto(url); await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click(); await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
-  assert.equal(await a.locator('.pok-rank').count(), 7);
+  assert.match(await a.locator('.rules').textContent(), /คู่หรือสองใบดอกเดียวกัน = 2 เด้ง/);
+  assert.match(await a.locator('.rules').textContent(), /ไม่มีตอง เรียง หรือเซียน/);
   await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();

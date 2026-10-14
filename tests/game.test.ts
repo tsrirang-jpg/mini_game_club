@@ -22,7 +22,7 @@ describe('state machine', () => {
     expect(game.players.get(bot)?.ready).toBe(true);
     act('d', 'startRound'); vi.advanceTimersByTime(600);
     expect(game.phase).toBe('DEALER_ACTION');
-    expect(game.players.get(bot)?.cardCount).toBe(2);
+    expect(game.players.get(bot)?.cardCount).toBe(3);
     expect(game.snapshot().results).toEqual([]);
     act('d', 'stand'); vi.advanceTimersByTime(200);
     expect(game.phase).toBe('ROUND_END');
@@ -33,7 +33,7 @@ describe('state machine', () => {
     game.expire('p'); const bot = game.addBot();
     act('d', 'selectDealer', bot); act('d', 'startRound'); vi.advanceTimersByTime(100);
     act('d', 'stand'); vi.advanceTimersByTime(500);
-    expect(game.phase).toBe('REVEAL'); expect(game.players.get(bot)?.cardCount).toBe(2);
+    expect(game.phase).toBe('REVEAL'); expect(game.players.get(bot)?.cardCount).toBe(3);
     vi.advanceTimersByTime(200); game.disconnect('d');
     expect(game.hostId).toBe('');
     game.reconnect('d'); expect(game.hostId).toBe('d');
@@ -109,14 +109,14 @@ describe('state machine', () => {
     game.players.get('p')!.points = 1000; game.players.get('d')!.points = 1;
     expect(() => act('d', 'startRound')).toThrow('เจ้ามือ');
   });
-  it('reserves enough collateral for a five-times special-hand payout', () => {
+  it('reserves the original three-times maximum payout', () => {
     act('p', 'setBet', 50); act('p', 'setReady', true);
-    game.players.get('p')!.points = 249;
+    game.players.get('p')!.points = 149;
     expect(() => act('d', 'startRound')).toThrow('ผู้เล่นมีแต้มไม่พอ');
-    game.players.get('p')!.points = 250; game.players.get('d')!.points = 249;
+    game.players.get('p')!.points = 150; game.players.get('d')!.points = 149;
     expect(() => act('d', 'startRound')).toThrow('เจ้ามือมีแต้มไม่พอ');
     expect(game.phase).toBe('LOBBY');
-    game.players.get('d')!.points = 250;
+    game.players.get('d')!.points = 150;
     act('d', 'startRound'); expect(game.phase).toBe('DEALING');
   });
   it('retains connected seats and transfers host when host leaves', () => {

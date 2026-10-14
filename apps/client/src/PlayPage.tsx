@@ -29,9 +29,9 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
               <div className="player-name">{p.name} {p.isBot && <span className="bot-badge">บอท</span>} {own && <small>คุณ</small>}{p.id === s.dealerId && <span className="dealer">เจ้ามือ</span>}</div>
               <div className="hand">{Array.from({ length: p.cardCount }, (_, i) => <Card key={`${s.roundId}-${i}`} card={cards[i]} index={i}/>)}</div>
               <div className="points">{p.points.toLocaleString()} <small>แต้ม</small></div>
-              {ownValue && <div className="pok-own-value">{ownValue.handName} · {ownValue.score} แต้ม · ×{ownValue.multiplier}</div>}
+              {ownValue && <div className="pok-own-value">{ownValue.pok ? 'ป๊อก · ' : ''}{ownValue.score} แต้ม · ×{ownValue.multiplier}</div>}
               <div className="player-status">{!p.connected ? 'กำลังเชื่อมต่อใหม่' : idle ? p.ready || p.id === s.hostId ? '● พร้อม' : 'รอพร้อม' : p.acted ? 'ตัดสินใจแล้ว' : 'รอตัดสินใจ'}{p.id !== s.dealerId && ` · วาง ${p.bet}`}</div>
-              {result && <div className={`result ${result.delta > 0 ? 'win' : result.delta < 0 ? 'lose' : ''}`}>{result.handName} · {result.score} แต้ม · {result.multiplier} เด้ง<br/>{result.outcome === 'TIE' ? 'เสมอ' : result.outcome === 'DEALER' ? 'รวมเจ้ามือ' : result.outcome === 'WIN' ? 'ชนะ' : 'แพ้'} {result.delta > 0 ? '+' : ''}{result.delta}{!s.settled && ' (รอสรุป)'}</div>}
+              {result && <div className={`result ${result.delta > 0 ? 'win' : result.delta < 0 ? 'lose' : ''}`}>{result.pok ? 'ป๊อก · ' : ''}{result.score} แต้ม · {result.multiplier} เด้ง<br/>{result.outcome === 'TIE' ? 'เสมอ' : result.outcome === 'DEALER' ? 'รวมเจ้ามือ' : result.outcome === 'WIN' ? 'ชนะ' : 'แพ้'} {result.delta > 0 ? '+' : ''}{result.delta}{!s.settled && ' (รอสรุป)'}</div>}
             </article>;
           })}</div>
         </div>

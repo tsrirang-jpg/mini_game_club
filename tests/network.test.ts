@@ -122,8 +122,7 @@ describe('real WebSocket clients', () => {
     expect(latest(a).players.every(p => !('cards' in p))).toBe(true);
     send(a, 'stand'); await until(() => latest(a).phase === 'ROUND_END');
     expect(latest(a).players.reduce((sum, p) => sum + p.points, 0)).toBe(2000);
-    expect(latest(a).results.find(r => r.id === bot.id)?.cards).toHaveLength(2);
-    expect(latest(a).results.find(r => r.id === bot.id)?.handType).toBe('SUITED');
+    expect(latest(a).results.find(r => r.id === bot.id)?.cards).toHaveLength(3);
     send(a, 'prepareRound'); await until(() => latest(a).phase === 'LOBBY');
     send(a, 'removeBot', bot.id); await until(() => latest(a).players.length === 1);
     send(a, 'addBot'); await until(() => latest(a).players.length === 2);

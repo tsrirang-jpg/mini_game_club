@@ -1,15 +1,4 @@
 .pok-home { grid-column: 1 / -1; justify-self: start; }
 .pok-navigation { display: flex; flex-wrap: wrap; gap: 6px; }
 .pok-own-value { color: #eac781; font-size: 11px; margin: 5px 0; }
-.pok-rank-list { display: grid; gap: 8px; }
-.pok-rank { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #35515a; padding-bottom: 8px; }
-.pok-rank > div:first-child { min-width: 0; }
-.pok-rank strong { display: block; color: #eac781; font-size: 13px; }
-.pok-rank small { display: block; color: #aec5cd; font-size: 10px; }
-.pok-rank .hand { min-height: 0; flex: none; gap: 3px; }
-.pok-rank .card { width: 28px; height: 41px; padding: 3px; border-radius: 4px; }
-.pok-rank .card > span { font-size: 10px; }
-.pok-rank .card small { font-size: 8px; }
-.pok-rank .card > b { font-size: 15px; }
-.pok-rank .bottom { display: none; }
 @media (max-width: 600px) { .game > .room-bar { flex-wrap: wrap; } .pok-navigation button { font-size: 11px; padding: 7px 10px; } }

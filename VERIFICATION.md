@@ -9,10 +9,11 @@
 | Poker controls fully inside viewport; no page/hidden overflow or seat/board overlap after chip selection | PASS |
 | Poker rules/management/results dialogs, Escape/close and exit restores site header | PASS |
 | Vitest all-games/state-machine/WebSocket suites | PASS — 68 tests, 8 files |
-| Pok Deng: all seven hand categories, special-hand priority, ties and ×2/×3/×5 payouts | PASS |
-| Pok Deng: five-times collateral, bot preserves special hands, no stacked multipliers | PASS |
-| Pok Deng: home button on entry/table returns to game selector; private hand category and rule examples | PASS |
-| Poker table: original blue-green felt/border, positions for 2–6 players, own hand at bottom, total/side pots in one top strip | PASS |
+| Pok Deng rollback: original Pok-before-score comparison, pair/two-suited ×2, three-suited ×3, ties and payouts | PASS |
+| Pok Deng: three-times collateral, original bot policy and no trips/face/straight priority | PASS |
+| Pok Deng: home button and private score/multiplier display; original rule text matches server | PASS |
+| Poker table: original blue-green felt/border, own hand at bottom, total POT immediately above five board cards | PASS |
+| Desktop 1366×768: hole cards at least 60px, board cards at least 76px, enlarged unobscured ranks | PASS |
 | Show cards: winner-only, post-round, exact own cards, no payout change, reconnect and next-round reset | PASS |
 | Two real WebSocket clients observe voluntarily revealed cards; losing hand remains private | PASS |
 | 1420-chip example: main 640/side 780 paid to different eligible hands | PASS |

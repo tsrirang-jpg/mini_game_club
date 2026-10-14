@@ -4,18 +4,14 @@ export type Phase = 'LOBBY' | 'DEALING' | 'PLAYER_ACTIONS' | 'DEALER_ACTION' | '
 export interface RoomRules {
   actionMs: number; dealMs: number; revealMs: number; settlementMs: number;
   reconnectSeconds: number; initialPoints: number; maxPlayers: number;
-  bets: readonly number[]; pairMultiplier: number; suitedTwoMultiplier: number;
-  tripsMultiplier: number; facesMultiplier: number; straightMultiplier: number;
+  bets: readonly number[]; pairMultiplier: number; suitedTwoMultiplier: number; suitedThreeMultiplier: number;
 }
 export const DEFAULT_RULES: RoomRules = {
   actionMs: 20_000, dealMs: 900, revealMs: 1800, settlementMs: 500,
   reconnectSeconds: 60, initialPoints: 1000, maxPlayers: 6,
-  bets: [10, 20, 50], pairMultiplier: 2, suitedTwoMultiplier: 3,
-  tripsMultiplier: 5, facesMultiplier: 5, straightMultiplier: 3,
+  bets: [10, 20, 50], pairMultiplier: 2, suitedTwoMultiplier: 2, suitedThreeMultiplier: 3,
 };
-export type PokHandType = 'NORMAL' | 'PAIR' | 'SUITED' | 'STRAIGHT' | 'FACES' | 'TRIPS' | 'POK8' | 'POK9';
-export interface HandValue { score: number; pok: boolean; multiplier: number; handType: PokHandType; handName: string }
-const handOrder: Record<PokHandType, number> = { NORMAL: 0, PAIR: 1, SUITED: 2, STRAIGHT: 3, FACES: 4, TRIPS: 5, POK8: 6, POK9: 7 };
+export interface HandValue { score: number; pok: boolean; multiplier: number }
 export function deck(): Card[] {
   return (['clubs', 'diamonds', 'hearts', 'spades'] as Suit[]).flatMap(suit =>
     Array.from({ length: 13 }, (_, index) => ({ rank: index + 1, suit })));
@@ -34,22 +30,13 @@ export function evaluate(cards: readonly Card[], rules: RoomRules = DEFAULT_RULE
   if (cards.length !== 2 && cards.length !== 3) throw new Error('Hand must contain 2 or 3 cards');
   const score = cards.reduce((sum, card) => sum + (card.rank >= 10 ? 0 : card.rank), 0) % 10;
   const sameSuit = cards.every(card => card.suit === cards[0].suit);
-  const ranks = cards.map(c => c.rank).sort((a, b) => a - b);
-  const pair = cards.length === 2 && ranks[0] === ranks[1];
-  const trips = cards.length === 3 && ranks[0] === ranks[2];
-  const faces = cards.length === 3 && ranks.every(rank => rank >= 11);
-  // Ace is low (A-2-3) or high (Q-K-A), never a wrap such as K-A-2.
-  const straight = cards.length === 3 && ((ranks[1] === ranks[0] + 1 && ranks[2] === ranks[1] + 1) || (ranks[0] === 1 && ranks[1] === 12 && ranks[2] === 13));
-  const suited = cards.length === 2 && sameSuit;
-  const pok = cards.length === 2 && score >= 8;
-  const handType: PokHandType = pok ? score === 9 ? 'POK9' : 'POK8' : trips ? 'TRIPS' : faces ? 'FACES' : straight ? 'STRAIGHT' : suited ? 'SUITED' : pair ? 'PAIR' : 'NORMAL';
-  const names: Record<PokHandType, string> = { NORMAL: 'มือธรรมดา', PAIR: 'ไพ่คู่', SUITED: 'ดอกเดียวกัน', STRAIGHT: 'สามใบเรียง', FACES: 'สามใบหน้า', TRIPS: 'ตอง', POK8: 'ป๊อก 8', POK9: 'ป๊อก 9' };
-  const multiplier = Math.max(1, pair ? rules.pairMultiplier : 1, suited ? rules.suitedTwoMultiplier : 1,
-    trips ? rules.tripsMultiplier : 1, faces ? rules.facesMultiplier : 1, straight ? rules.straightMultiplier : 1);
-  return { score, pok, multiplier, handType, handName: names[handType] };
+  const multiplier = Math.max(1,
+    cards.length === 2 && cards[0].rank === cards[1].rank ? rules.pairMultiplier : 1,
+    sameSuit ? (cards.length === 2 ? rules.suitedTwoMultiplier : rules.suitedThreeMultiplier) : 1);
+  return { score, pok: cards.length === 2 && score >= 8, multiplier };
 }
 export function compare(player: HandValue, dealer: HandValue): -1 | 0 | 1 {
-  if (player.handType !== dealer.handType) return handOrder[player.handType] > handOrder[dealer.handType] ? 1 : -1;
+  if (player.pok !== dealer.pok) return player.pok ? 1 : -1;
   return player.score === dealer.score ? 0 : player.score > dealer.score ? 1 : -1;
 }
 export interface PlayerView {

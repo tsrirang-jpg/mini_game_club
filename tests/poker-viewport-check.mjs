@@ -8,6 +8,13 @@ export async function checkPokerViewport(page, label) {
     }
     const table = document.querySelector('.poker-table').getBoundingClientRect();
     const dock = document.querySelector('.poker-action-dock').getBoundingClientRect();
+    const potElement = document.querySelector('.pot-display'), pot = potElement.getBoundingClientRect();
+    const board = document.querySelector('.community').getBoundingClientRect();
+    const potAboveBoard = potElement.parentElement.classList.contains('poker-center') && pot.bottom <= board.top + 1;
+    const desktopCards = innerWidth >= 1000 && innerHeight >= 760 ? {
+      hole: Math.min(...[...document.querySelectorAll('.poker-seat .card')].map(e=>e.getBoundingClientRect().width)),
+      board: document.querySelector('.community .card,.card-slot').getBoundingClientRect().width,
+    } : null;
     const items = [...document.querySelectorAll('.poker-seat,.poker-center,.pot-breakdown')].map(e => {
       const r = e.getBoundingClientRect();
       return { element: e.className, top: r.top, bottom: r.bottom, left: r.left, right: r.right };
@@ -28,7 +35,7 @@ export async function checkPokerViewport(page, label) {
       if (!r.width || !r.height || r.left<c.left || r.right>c.right || r.top<c.top || r.bottom>c.bottom || !label.contains(hit)) obscuredRanks.push(card.getAttribute('aria-label'));
     }
     const shell = document.querySelector('.poker-shell');
-    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
+    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, potAboveBoard, desktopCards, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight,
       shellOverflow: shell.scrollHeight > shell.clientHeight + 1, shellWidth: shell.clientWidth, scrollY, shellScroll: shell.scrollTop };
   });
@@ -37,6 +44,11 @@ export async function checkPokerViewport(page, label) {
   assert.deepEqual(report.overlaps, [], label + ': overlapping content ' + JSON.stringify(report));
   assert.deepEqual(report.cutAmounts, [], label + ': pot amounts must fit');
   assert.deepEqual(report.obscuredRanks, [], label + ': card ranks must fit and remain unobscured');
+  assert.equal(report.potAboveBoard, true, label + ': total POT must be immediately above the board');
+  if(report.desktopCards) {
+    assert.ok(report.desktopCards.hole >= 60, label + ': desktop hole cards must be enlarged');
+    assert.ok(report.desktopCards.board >= 76, label + ': desktop board cards must be enlarged');
+  }
   assert.equal(report.tableDockOverlap, false, label + ': table/actions overlap');
   assert.equal(report.shellOverflow, false, label + ': hidden overflow is not fitting');
   assert.ok(report.shellWidth <= 1280, label + ': desktop width cap');
