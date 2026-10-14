@@ -1,0 +1,40 @@
+import { useEffect, useSyncExternalStore } from 'react';
+import { createRoot } from 'react-dom/client';
+import { session, pokerSession, spySession } from './session';
+import { navigate, subscribeRoute, getRoute } from './router';
+import { CreateRoomPage } from './CreateRoomPage';
+import { PlayPage } from './PlayPage';
+import { GameSelectPage } from './GameSelectPage';
+import { PokerCreatePage } from './PokerCreatePage';
+import { PokerPlayPage } from './PokerPlayPage';
+import { SpyfallCreatePage } from './SpyfallCreatePage';
+import { SpyfallPlayPage } from './SpyfallPlayPage';
+import './style.css';
+import './poker.css';
+import './spyfall.css';
+function App() {
+  const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
+  const pokerState = useSyncExternalStore(pokerSession.subscribe, pokerSession.getSnapshot);
+  const spyState = useSyncExternalStore(spySession.subscribe, spySession.getSnapshot);
+  const route = useSyncExternalStore(subscribeRoute, getRoute);
+  useEffect(() => {
+    if (location.pathname === '/') navigate('/games', true);
+    if (location.pathname.startsWith('/spyfall')) void spySession.restore(); else if (location.pathname.startsWith('/poker')) void pokerSession.restore(); else void session.restore();
+  }, []);
+  const match = /^\/play\/([A-F0-9]{10})$/.exec(route.split('?')[0]);
+  const join = route.split('?')[0] === '/rooms/join';
+  const pokerMatch = /^\/poker\/play\/([A-F0-9]{10})$/.exec(route.split('?')[0]);
+  const isPoker = route.startsWith('/poker');
+  const spyMatch = /^\/spyfall\/play\/([A-F0-9]{10})$/.exec(route.split('?')[0]);
+  const isSpy = route.startsWith('/spyfall');
+  const current = isSpy ? spyState : isPoker ? pokerState : state;
+  const currentSession = isSpy ? spySession : isPoker ? pokerSession : session;
+  return <div className="app">
+    <header className="top"><a className="brand" href="/games" onClick={e => { e.preventDefault(); navigate('/games'); }}>♠ <span>วงไพ่<small>CARD GAME CLUB</small></span></a><span className="tag">{isSpy?'ถาม · จับพิรุธ · โหวต':'เพื่อนและบอท · แต้มจำลอง'}</span></header>
+    {current.error && <div className="error" role="alert">{current.error}<button aria-label="ปิดข้อความ" onClick={() => currentSession.clearError()}>×</button></div>}
+    {current.status === 'reconnecting' && <div className="notice" role="status">กำลังเชื่อมต่อกลับโต๊ะ… <button onClick={() => currentSession.leave()}>กลับหน้าแรก</button></div>}
+    {route.split('?')[0] === '/games' ? <GameSelectPage/> : spyMatch ? <SpyfallPlayPage state={spyState} code={spyMatch[1]}/> : isSpy ? <SpyfallCreatePage key={route.split('?')[0]} state={spyState} join={route.split('?')[0] === '/spyfall/rooms/join'}/> : pokerMatch ? <PokerPlayPage state={pokerState} code={pokerMatch[1]}/> : isPoker ? <PokerCreatePage key={route.split('?')[0]} state={pokerState} join={route.split('?')[0] === '/poker/rooms/join'}/> : match ? <PlayPage state={state} code={match[1]}/> : <CreateRoomPage key={join ? 'join' : 'create'} state={state} join={join}/>}
+    <footer>{isSpy?'เล่นเพื่อความสนุกกับเพื่อน · บทบาทลับเฉพาะคุณ':'เล่นเพื่อความสนุก · แต้มจำลอง ไม่มีมูลค่าเงินจริง'}</footer>
+  </div>;
+}
+createRoot(document.getElementById('root')!).render(<App/>);

@@ -1,0 +1,108 @@
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { bestPokerHand, comparePoker, pokerPayout } from '../packages/shared/src/poker';
+import { PokerGame } from '../apps/server/src/poker-game';
+import type { Card, Suit } from '../packages/shared/src/index';
+const c = (rank: number, suit: Suit = 'clubs'): Card => ({ rank, suit });
+describe('Holdem hand evaluation and pots', () => {
+  it('recognizes all nine categories, ace-low straights and royal flush', () => {
+    const ranks = [
+      [c(1),c(13,'hearts'),c(9),c(6),c(3)], [c(1),c(1,'hearts'),c(9),c(6),c(3)],
+      [c(1),c(1,'hearts'),c(9),c(9,'hearts'),c(3)], [c(1),c(1,'hearts'),c(1,'spades'),c(6),c(3)],
+      [c(1),c(2,'hearts'),c(3),c(4),c(5)], [c(1),c(13),c(9),c(6),c(3)],
+      [c(1),c(1,'hearts'),c(1,'spades'),c(6),c(6,'hearts')], [c(1),c(1,'hearts'),c(1,'spades'),c(1,'diamonds'),c(3)],
+      [c(1),c(13),c(12),c(11),c(10)],
+    ];
+    ranks.forEach((hand,index)=>expect(bestPokerHand(hand).rank).toBe(index));
+    expect(bestPokerHand(ranks[4]).kickers).toEqual([5]); expect(bestPokerHand(ranks[8]).name).toBe('Royal flush');
+  });
+  it('finds the best 5 of 7, including board-only ties and double trips', () => {
+    const board = [c(10),c(11),c(12),c(13),c(1)];
+    expect(comparePoker(bestPokerHand([...board,c(2,'hearts'),c(3,'hearts')]),bestPokerHand([...board,c(9,'spades'),c(8,'spades')]))).toBe(0);
+    expect(bestPokerHand([c(13),c(13,'hearts'),c(13,'spades'),c(12),c(12,'hearts'),c(12,'spades'),c(1)]).kickers).toEqual([13,12]);
+    expect(comparePoker(bestPokerHand([c(5),c(5,'hearts'),c(1),c(13),c(7)]),bestPokerHand([c(5),c(5,'hearts'),c(1),c(12),c(7)]))).toBe(1);
+  });
+  it('awards independent side pots and returns unmatched chips', () => {
+    const high = bestPokerHand([c(1),c(13),c(12),c(11),c(10)]);
+    const middle = bestPokerHand([c(9),c(8),c(7),c(6),c(5)]);
+    const low = bestPokerHand([c(2),c(2,'hearts'),c(3),c(7),c(9)]);
+    const {payouts,pots}=pokerPayout({a:20,b:60,c:100},new Set(),{a:high,b:middle,c:low},['a','b','c']);
+    expect(payouts).toEqual({a:60,b:80,c:40}); expect(pots.map(p=>p.amount)).toEqual([60,80,40]); expect(pots[2].refund).toBe(true);
+  });
+  it('folded chips count toward pots and odd chips follow button order', () => {
+    const hand=bestPokerHand([c(1),c(13),c(12),c(11),c(10)]);
+    expect(pokerPayout({a:5,b:5,c:5},new Set(['c']),{a:hand,b:hand},['b','c','a']).payouts).toEqual({a:7,b:8,c:0});
+  });
+});
+let g: PokerGame; let privateHands: Record<string,Card[]>; let serial=0;
+function act(id:string,type:string,value?:unknown,roundId=g.roundId,actionId=`t-${++serial}`){g.action(id,{type,value,roundId,actionId});}
+function start(){for(const p of g.players.values())if(p.id!==g.hostId)act(p.id,'setReady',true);act(g.hostId,'startRound');vi.advanceTimersByTime(10);}
+function finish(){for(let n=0;n<100&&g.phase!=='ROUND_END';n++){const s=g.snapshot();if(s.turnId){const p=g.players.get(s.turnId)!;act(p.id,p.streetBet<s.currentBet?'call':'check');}else vi.advanceTimersByTime(10);}expect(g.phase).toBe('ROUND_END');}
+beforeEach(()=>{vi.useFakeTimers();privateHands={};g=new PokerGame('TEST',{changed(){},privateHand(id,cards){privateHands[id]=[...cards];}},()=>0,{deal:10,turn:1000,reveal:10,bot:50});g.add('A','a');g.add('B','b');});
+afterEach(()=>{g.dispose();vi.useRealTimers();});
+describe('No-limit betting state machine',()=>{
+  it('allows 30 seconds on the production timer and only folds at the deadline',()=>{
+    g.dispose();g=new PokerGame('THIRTY',{changed(){},privateHand(){}},()=>0);g.add('A','a');g.add('B','b');
+    act('b','setReady',true);act('a','startRound');vi.advanceTimersByTime(1200);
+    expect(g.snapshot().turnDurationMs).toBe(30000);expect(g.deadline-Date.now()).toBe(30000);
+    vi.advanceTimersByTime(29999);expect(g.phase).toBe('PREFLOP');expect(g.turnId).toBe('a');
+    vi.advanceTimersByTime(1);expect(g.phase).toBe('SHOWDOWN');expect(g.snapshot().results.find(r=>r.id==='a')?.handName).toBe('Fold');
+  });
+  it('heads-up button posts SB, acts first preflop, BB retains option and acts first postflop',()=>{
+    start();expect(g.buttonId).toBe('a');expect(g.smallBlindId).toBe('a');expect(g.bigBlindId).toBe('b');expect(g.turnId).toBe('a');
+    act('a','call');expect(g.turnId).toBe('b');act('b','check');vi.advanceTimersByTime(10);
+    expect(g.phase).toBe('FLOP');expect(g.turnId).toBe('b');finish();
+    expect(g.snapshot().board).toHaveLength(5);expect(g.snapshot().players.reduce((sum,p)=>sum+p.points,0)).toBe(2000);
+    act('a','prepareRound');start();expect(g.buttonId).toBe('b');expect(g.turnId).toBe('b');
+  });
+  it('does not expose private hands before showdown; no duplicate cards including board',()=>{
+    start();expect(g.snapshot().results).toEqual([]);expect(g.snapshot().players.every(p=>!('cards'in p))).toBe(true);
+    finish();const all=[...Object.values(privateHands).flat(),...g.snapshot().board];expect(new Set(all.map(c=>`${c.suit}:${c.rank}`)).size).toBe(9);
+  });
+  it('rejects out-of-turn, invalid checks/minimum raises, stale and duplicate actions',()=>{
+    start();expect(()=>act('b','call')).toThrow();expect(()=>act('a','check')).toThrow();expect(()=>act('a','raise',25)).toThrow();
+    act('a','raise',40,g.roundId,'same');act('a','raise',40,g.roundId,'same');expect(g.currentBet).toBe(40);
+    expect(()=>act('b','call',undefined,0)).toThrow();expect(()=>act('b','raise',-1)).toThrow();
+  });
+  it('fold winner is settled once without revealing hole cards',()=>{
+    start();act('a','fold');vi.advanceTimersByTime(10);expect(g.phase).toBe('ROUND_END');
+    expect(g.players.get('a')!.points).toBe(990);expect(g.players.get('b')!.points).toBe(1010);
+    expect(g.snapshot().results.every(r=>r.cards.length===0)).toBe(true);
+    expect(()=>act('b','call')).toThrow();expect(g.players.get('b')!.points).toBe(1010);
+  });
+  it('unequal all-in stacks run out the board, produce side pots and conserve chips',()=>{
+    g.add('C','c');g.players.get('a')!.points=100;g.players.get('b')!.points=60;g.players.get('c')!.points=20;
+    start();act('a','allIn');act('b','allIn');finish();
+    expect(g.snapshot().board).toHaveLength(5);expect(g.snapshot().pots.map(p=>p.amount)).toEqual([60,80,40]);
+    expect(g.snapshot().players.reduce((sum,p)=>sum+p.points,0)).toBe(180);
+  });
+  it('short all-in requires another call but does not reopen a previous caller raise',()=>{
+    g.add('C','c');g.players.get('c')!.points=25;start();act('a','call');act('b','call');act('c','allIn');
+    expect(g.currentBet).toBe(25);expect(g.turnId).toBe('a');expect(g.snapshot().raiseAllowedIds).not.toContain('a');
+    expect(()=>act('a','raise',50)).toThrow('Short all-in');act('a','call');act('b','call');vi.advanceTimersByTime(10);expect(g.phase).toBe('FLOP');
+  });
+  it('cumulative short all-ins reopen raising once the full raise threshold is met',()=>{
+    g.add('C','c');g.add('D','d');g.players.get('b')!.points=30;g.players.get('c')!.points=40;
+    start();act('d','call');act('a','call');act('b','allIn');act('c','allIn');
+    expect(g.turnId).toBe('d');expect(g.snapshot().raiseAllowedIds).toContain('d');act('d','raise',60);expect(g.currentBet).toBe(60);
+  });
+  it('times out to fold when facing a call and check otherwise',()=>{
+    start();vi.advanceTimersByTime(1010);expect(g.phase).toBe('ROUND_END');expect(g.snapshot().results.find(r=>r.id==='a')?.handName).toBe('Fold');
+  });
+  it('short heads-up BB all-in only requires matching actual blind',()=>{
+    g.players.get('b')!.points=15;start();expect(g.currentBet).toBe(15);act('a','call');finish();
+    expect(g.snapshot().players.reduce((sum,p)=>sum+p.points,0)).toBe(1015);
+  });
+  it('reconnect restores the exact hand and bot can complete the hand',()=>{
+    g.expire('b');const bot=g.addBot();start();const before=[...privateHands.a];g.disconnect('a');g.reconnect('a');expect(privateHands.a).toEqual(before);
+    for(let n=0;n<100&&g.phase!=='ROUND_END';n++){if(g.turnId==='a'){const p=g.players.get('a')!;act('a',p.streetBet<g.currentBet?'call':'check');}else vi.advanceTimersByTime(100);}
+    expect(g.phase).toBe('ROUND_END');expect(g.snapshot().results.some(r=>r.id===bot)).toBe(true);
+  });
+  it('removing bots after a hand does not expose stale seats in public state',()=>{
+    const bot=g.addBot();start();finish();act('a','prepareRound');act('a','removeBot',bot);
+    expect(g.snapshot().players).toHaveLength(2);expect(g.snapshot().raiseAllowedIds).toEqual([]);
+    expect(g.snapshot().players.every(p=>!p.folded&&!p.allIn&&!p.inHand)).toBe(true);
+  });
+  it('button advances from the departed button seat, not from the first seat',()=>{
+    g.add('C','c');start();finish();act('a','prepareRound');g.expire('a');start();expect(g.buttonId).toBe('b');
+  });
+});
