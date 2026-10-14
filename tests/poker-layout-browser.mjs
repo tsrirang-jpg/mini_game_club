@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import { checkPokerViewport } from './poker-viewport-check.mjs';
 import { fileURLToPath } from 'node:url';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const context = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
@@ -14,39 +15,7 @@ async function wait(fn, ms = 15000) {
   while (!await fn()) { if (Date.now() > until) throw new Error('Poker layout timeout'); await pause(80); }
 }
 async function fits(label, actions = false) {
-  const report = await page.evaluate(() => {
-    const clipped = [];
-    const selectors = ['.room-bar', '.poker-seat', '.community', '.pot-display', '.poker-self', '.poker-action-dock', '.poker-actions button', '.raise-controls input'];
-    for (const element of document.querySelectorAll(selectors.join(','))) {
-      const r = element.getBoundingClientRect();
-      if (r.width && r.height && (r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || r.bottom > innerHeight + 1)) {
-        clipped.push({ element: element.className, text: element.textContent.slice(0, 60), x: r.x, y: r.y, width: r.width, height: r.height });
-      }
-    }
-    const table = document.querySelector('.poker-table').getBoundingClientRect();
-    const dock = document.querySelector('.poker-action-dock').getBoundingClientRect();
-    const items = [...document.querySelectorAll('.poker-seat,.poker-center')].map(e => {
-      const r = e.getBoundingClientRect();
-      return { element: e.className, top: r.top, bottom: r.bottom, left: r.left, right: r.right };
-    });
-    const tableItems = items.filter(r => r.top < table.top - 1 || r.bottom > table.bottom + 1 || r.left < table.left - 1 || r.right > table.right + 1);
-    const overlaps = [];
-    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
-      const a = items[i], b = items[j];
-      if (Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1 && Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1) overlaps.push([a, b]);
-    }
-    const shell = document.querySelector('.poker-shell');
-    return { clipped, tableItems, overlaps, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
-      scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight,
-      shellOverflow: shell.scrollHeight > shell.clientHeight + 1, scrollY, shellScroll: shell.scrollTop };
-  });
-  assert.deepEqual(report.clipped, [], label + ': viewport clipping ' + JSON.stringify(report));
-  assert.deepEqual(report.tableItems, [], label + ': seats must remain inside table ' + JSON.stringify(report));
-  assert.deepEqual(report.overlaps, [], label + ': seats/board must not overlap');
-  assert.equal(report.tableDockOverlap, false, label + ': table/actions overlap');
-  assert.equal(report.shellOverflow, false, label + ': hidden overflow is not a substitute for fitting');
-  assert.ok(report.scrollWidth <= report.width && report.scrollHeight <= report.height, label + ': page scroll');
-  assert.equal(report.scrollY + report.shellScroll, 0, label + ': browser scrolled to reach controls');
+  await checkPokerViewport(page, label);
   if (actions) assert.equal(await page.getByRole('button', { name: 'ยืนยัน Raise', exact: true }).isVisible(), true);
 }
 try {

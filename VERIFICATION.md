@@ -8,7 +8,11 @@
 | Poker viewport layout: 6 players, 11 portrait/landscape/tablet/desktop sizes in lobby/raise/results | PASS |
 | Poker controls fully inside viewport; no page/hidden overflow or seat/board overlap after chip selection | PASS |
 | Poker rules/management/results dialogs, Escape/close and exit restores site header | PASS |
-| Vitest all-games/state-machine/WebSocket suites | PASS — 55 tests, 7 files |
+| Vitest all-games/state-machine/WebSocket suites | PASS — 59 tests, 7 files |
+| 1420-chip example: main 640/side 780 paid to different eligible hands | PASS |
+| Live pots hide winners/refunds until settlement; final total survives departed players | PASS |
+| Six real browser players create unequal stacks; main + 4 side pots + refund, exact per-player shares | PASS |
+| Pot UI, no clipped amounts/overlaps/scroll in 13 sizes, including 1903px/2560px desktop; 1280px width cap | PASS |
 | Vite production client build | PASS |
 | Compiled Node.js server build | PASS |
 | Compiled production server create/join with two clients in all three games | PASS |
@@ -74,6 +78,7 @@ With `npm.cmd run dev` running in another terminal:
 npm.cmd run test:browser
 npm.cmd run test:poker
 npm.cmd run test:poker-layout
+npm.cmd run test:poker-pots
 npm.cmd run test:spyfall
 ```
 

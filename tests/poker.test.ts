@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { bestPokerHand, comparePoker, pokerPayout } from '../packages/shared/src/poker';
+import { bestPokerHand, comparePoker, pokerPayout, pokerPotSummaries } from '../packages/shared/src/poker';
 import { PokerGame } from '../apps/server/src/poker-game';
 import type { Card, Suit } from '../packages/shared/src/index';
 const c = (rank: number, suit: Suit = 'clubs'): Card => ({ rank, suit });
@@ -31,6 +31,27 @@ describe('Holdem hand evaluation and pots', () => {
   it('folded chips count toward pots and odd chips follow button order', () => {
     const hand=bestPokerHand([c(1),c(13),c(12),c(11),c(10)]);
     expect(pokerPayout({a:5,b:5,c:5},new Set(['c']),{a:hand,b:hand},['b','c','a']).payouts).toEqual({a:7,b:8,c:0});
+  });
+  it('splits the 1420-chip example into 640 for the short-stack trips and 780 for the deeper two pair', () => {
+    const pair=bestPokerHand([c(13),c(13,'hearts'),c(11,'spades'),c(5,'diamonds'),c(4)]);
+    const twoPair=bestPokerHand([c(11),c(11,'hearts'),c(8),c(8,'diamonds'),c(1,'spades')]);
+    const trips=bestPokerHand([c(13),c(13,'hearts'),c(13,'spades'),c(10),c(7,'hearts')]);
+    const {payouts,pots}=pokerPayout({a:420,b:420,c:160,d:420},new Set(),{a:pair,b:pair,c:trips,d:twoPair},['a','b','c','d']);
+    const summaries=pokerPotSummaries(pots);
+    expect(summaries.map(p=>p.amount)).toEqual([640,780]);
+    expect(summaries[0].awards).toEqual({c:640});expect(summaries[1].awards).toEqual({d:780});
+    expect(summaries[1].eligible).not.toContain('c');
+    expect(payouts.c-160).toBe(480);expect(payouts.d-420).toBe(360);
+  });
+  it('groups identical eligibility without losing each layer odd-chip allocation or mixing refunds', () => {
+    const summaries = pokerPotSummaries([
+      { amount: 3, eligible: ['a','b'], winners: ['a','b'], refund: false },
+      { amount: 5, eligible: ['b','a'], winners: ['a','b'], refund: false },
+      { amount: 4, eligible: ['a'], winners: ['a'], refund: true },
+    ]);
+    expect(summaries.map(p => p.amount)).toEqual([8,4]);
+    expect(summaries[0].awards).toEqual({a:5,b:3});
+    expect(summaries[1].awards).toEqual({a:4});
   });
 });
 let g: PokerGame; let privateHands: Record<string,Card[]>; let serial=0;
@@ -74,6 +95,30 @@ describe('No-limit betting state machine',()=>{
     start();act('a','allIn');act('b','allIn');finish();
     expect(g.snapshot().board).toHaveLength(5);expect(g.snapshot().pots.map(p=>p.amount)).toEqual([60,80,40]);
     expect(g.snapshot().players.reduce((sum,p)=>sum+p.points,0)).toBe(180);
+  });
+  it('publishes live all-in pots, excludes a short stack from higher pots, and never reveals winners early',()=>{
+    g.add('C','c');g.players.get('a')!.points=100;g.players.get('b')!.points=60;g.players.get('c')!.points=20;
+    start();act('a','allIn');
+    const s=g.snapshot();expect(s.pots.map(p=>p.amount)).toEqual([50,80]);
+    expect(s.pots[0].eligible).toEqual(['a','b','c']);expect(s.pots[1].eligible).toEqual(['a']);
+    expect(s.pots.every(p=>!p.refund&&!p.winners.length)).toBe(true);
+    expect(s.pots.reduce((sum,p)=>sum+p.amount,0)).toBe(s.pot);
+    act('b','allIn');
+    expect(g.snapshot().pots.map(p=>p.amount)).toEqual([60,80,40]);
+    expect(g.snapshot().pots[1].eligible).toEqual(['a','b']);finish();
+    const ended=g.snapshot();expect(ended.pots[2].refund).toBe(true);
+    const awards=pokerPotSummaries(ended.pots).reduce((totals,p)=>{
+      for(const[id,amount]of Object.entries(p.awards))totals[id]=(totals[id]??0)+amount;return totals;
+    },{} as Record<string,number>);
+    for(const r of ended.results)expect(awards[r.id]??0).toBe(r.payout);
+  });
+  it('does not split normal pending bets into side pots and keeps folded dead money in the main pot',()=>{
+    start();act('a','raise',100);
+    expect(g.snapshot().pots).toHaveLength(1);expect(g.snapshot().pots[0].amount).toBe(120);
+    act('b','fold');vi.advanceTimersByTime(10);
+    const total=g.snapshot().pot;g.expire('b');
+    expect(g.snapshot().pot).toBe(total);expect(g.snapshot().results.find(r=>r.id==='b')?.name).toBe('B');
+    act('a','prepareRound');expect(g.snapshot().pot).toBe(0);expect(g.snapshot().pots).toEqual([]);
   });
   it('short all-in requires another call but does not reopen a previous caller raise',()=>{
     g.add('C','c');g.players.get('c')!.points=25;start();act('a','call');act('b','call');act('c','allIn');

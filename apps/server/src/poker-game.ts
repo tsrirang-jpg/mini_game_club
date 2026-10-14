@@ -1,7 +1,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { deck, shuffle } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
-import { bestPokerHand, pokerPayout, POKER_ACTION_MS } from '../../../packages/shared/src/poker.js';
+import { bestPokerHand, pokerPayout, pokerLivePots, POKER_ACTION_MS } from '../../../packages/shared/src/poker.js';
 import type { PokerPlayer, PokerPhase, PokerSnapshot, PokerResult, PokerPot, PokerHand } from '../../../packages/shared/src/poker.js';
 import { GameError } from './game.js';
 import type { GameHooks } from './game.js';
@@ -59,8 +59,8 @@ export class PokerGame {
       turnDurationMs: this.timings.turn,
       raiseAllowedIds: this.actionable().filter(id => this.canRaise(this.players.get(id)!) && this.actionable().some(other => other !== id)),
       board: this.board.map(c => ({ ...c })), players: [...this.players.values()].map(({ expired, seen, ...p }) => ({ ...p })),
-      pot: [...this.players.values()].reduce((sum, p) => sum + p.contribution, 0),
-      pots: this.pots.map(p => ({ ...p, winners: [...p.winners], eligible: [...p.eligible] })),
+      pot: this.settled ? this.pots.reduce((sum, p) => sum + p.amount, 0) : [...this.players.values()].reduce((sum, p) => sum + p.contribution, 0),
+      pots: (this.settled ? this.pots : pokerLivePots([...this.players.values()])).map(p => ({ ...p, winners: [...p.winners], eligible: [...p.eligible] })),
       results: this.results.map(r => ({ ...r, cards: r.cards.map(c => ({ ...c })) })) };
   }
   action(id: string, raw: unknown) {
@@ -221,7 +221,7 @@ export class PokerGame {
     this.pots = pots;
     this.results = this.order.map(id => {
       const p = this.players.get(id)!; p.points += payouts[id];
-      return { id, cards: showdown && !p.folded ? [...this.hands[id]] : [], handName: p.folded ? 'Fold' : showdown ? hands[id].name : 'ชนะโดยไม่ต้องเปิดไพ่',
+      return { id, name: p.name, cards: showdown && !p.folded ? [...this.hands[id]] : [], handName: p.folded ? 'Fold' : showdown ? hands[id].name : 'ชนะโดยไม่ต้องเปิดไพ่',
         payout: payouts[id], delta: payouts[id] - p.contribution };
     });
     this.settled = true; this.phase = 'SHOWDOWN';

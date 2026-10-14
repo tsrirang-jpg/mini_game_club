@@ -1,0 +1,66 @@
+.seat-number { color: #c8b181; font-size: .8em; }
+.poker-game .pot-breakdown { grid-column: 3; grid-row: 3; align-self: center; min-width: 0; container-type: inline-size; }
+.pot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.pot-entry { min-width: 0; min-height: 44px; padding: 5px; border-radius: 9px; border-color: #668577; background: #193d37; text-align: center; line-height: 1.25; }
+.pot-entry.pot-side { border-color: #637ea0; background: #213649; }
+.pot-entry.pot-refund { border-color: #84715b; background: #3e352b; }
+.pot-title { display: block; color: #bacfd0; font-size: 9px; white-space: nowrap; }
+.pot-title-short { display: none; color: #bacfd0; font-size: 7px; }
+.pot-entry strong { display: block; color: #f0cf8e; font-size: 16px; }
+.pot-players { display: block; color: #c4ddd4; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.pot-detail { padding: 12px 0; border-top: 1px solid #36545d; }
+.pot-detail h3 { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 5px; }
+.pot-detail p { margin: 5px 0; overflow-wrap: anywhere; }
+.pot-explanation { font-size: 11px; }
+.pot-awards { list-style: none; padding: 0; margin: 8px 0 0; }
+.pot-awards li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; }
+.pot-awards span { overflow-wrap: anywhere; }
+.pot-awards b { white-space: nowrap; color: #f0cf8e; }
+/* On roomy desktops the breakdown sits directly beside the total POT and board. */
+@media (min-width: 1101px) and (min-height: 700px) {
+  .poker-game.has-side-pots .poker-table { grid-template-columns: minmax(0, .95fr) minmax(0, 1.2fr) minmax(130px, .55fr) minmax(0, .95fr); }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(2),
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(4) { grid-column: 4; }
+  .poker-game.has-side-pots .poker-self { grid-column: 2 / 4; }
+  .poker-game.has-side-pots .pot-breakdown { grid-column: 3; grid-row: 1 / 3; padding-left: 8px; border-left: 1px solid #67838b66; }
+  .poker-game.has-side-pots .pot-grid { grid-template-columns: 1fr; gap: 4px; }
+  .poker-game.has-side-pots .pot-entry { padding: 4px; }
+  .poker-game.has-side-pots .pot-title { display: block; }
+  .poker-game.has-side-pots .pot-title-short { display: none; }
+}
+@media (max-width: 1100px) {
+  .pot-grid { gap: 3px; }
+  .pot-entry { min-height: 27px; padding: 2px; border-radius: 6px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: center; align-items: center; line-height: 1; }
+  .pot-title { font-size: 8px; }
+  .pot-entry strong { font-size: 12px; text-align: right; }
+  .pot-players { grid-column: 1 / -1; margin: 1px 0 0; font-size: 7px; line-height: 1.2; }
+}
+@container (max-width: 300px) {
+  .pot-title { display: none; }
+  .pot-title-short { display: block; text-align: left; font-size: 8px; }
+}
+@container (max-width: 150px) {
+  .pot-entry { display: block; }
+  .pot-players { display: none; }
+  .pot-title { display: none; }
+  .pot-title-short { display: block; text-align: center; font-size: 7px; }
+  .pot-entry strong { font-size: 9px; text-align: center; }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+  .poker-game .pot-breakdown { grid-column: auto; grid-row: auto; }
+}
+@media (orientation: landscape) and (max-height: 380px) {
+  .poker-game.has-side-pots .poker-table { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .poker-game.has-side-pots .poker-opponents { display: contents; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat { grid-row: 1; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(1) { grid-column: 1; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(2) { grid-column: 2; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(3) { grid-column: 3; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(4) { grid-column: 4; }
+  .poker-game.has-side-pots .poker-opponents > .poker-seat:nth-child(5) { grid-column: 5; }
+  .poker-game.has-side-pots .poker-center { grid-column: 1 / 3; }
+  .poker-game.has-side-pots .poker-self { grid-column: 3 / 5; }
+  .poker-game.has-side-pots .pot-breakdown { grid-column: 5; grid-row: 2; }
+  .poker-game.has-side-pots .pot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+  .poker-game.has-side-pots .pot-entry { min-height: 22px; padding: 1px; }
+}

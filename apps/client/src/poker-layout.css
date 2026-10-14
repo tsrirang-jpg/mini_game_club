@@ -1,6 +1,6 @@
 /* Only a joined Poker table uses the viewport layout. Entry pages stay unchanged. */
 .app.poker-shell {
-  max-width: none;
+  width: 100%; max-width: 1280px;
   height: 100vh;
   height: 100dvh;
   padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
@@ -30,11 +30,11 @@
   grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 10px 22px;
 }
 .poker-game .poker-opponents { display: contents; }
-.poker-game .poker-opponents > :nth-child(1) { grid-column: 1; grid-row: 1; }
-.poker-game .poker-opponents > :nth-child(2) { grid-column: 3; grid-row: 1; }
-.poker-game .poker-opponents > :nth-child(3) { grid-column: 1; grid-row: 2; }
-.poker-game .poker-opponents > :nth-child(4) { grid-column: 3; grid-row: 2; }
-.poker-game .poker-opponents > :nth-child(5) { grid-column: 1; grid-row: 3; }
+.poker-game .poker-opponents > .poker-seat:nth-child(1) { grid-column: 1; grid-row: 1; }
+.poker-game .poker-opponents > .poker-seat:nth-child(2) { grid-column: 3; grid-row: 1; }
+.poker-game .poker-opponents > .poker-seat:nth-child(3) { grid-column: 1; grid-row: 2; }
+.poker-game .poker-opponents > .poker-seat:nth-child(4) { grid-column: 3; grid-row: 2; }
+.poker-game .poker-opponents > .poker-seat:nth-child(5) { grid-column: 1; grid-row: 3; }
 .poker-game .poker-seat { min-height: 0; padding: 8px; align-self: center; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 6px; text-align: left; }
 .poker-game .player-name { min-height: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .poker-game .poker-badges { height: auto; min-height: 12px; justify-content: flex-start; grid-row: 2; gap: 3px; font-size: 9px; }
@@ -117,7 +117,7 @@
   .poker-game .turn-banner { font-size: 10px; }
   .poker-game .poker-table { --seat-card: clamp(20px, 6vw, 29px); --board-card: clamp(36px, 10vw, 52px); padding: 8px 6px; border-width: 3px; border-radius: 24px; grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto auto; gap: 5px; }
   .poker-game .poker-opponents { display: grid; grid-column: 1; grid-row: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: center; gap: 5px; }
-  .poker-game .poker-opponents > .poker-seat { grid-row: auto; grid-column: auto; }
+  .poker-game .poker-opponents > .poker-seat:nth-child(n) { grid-row: auto; grid-column: auto; }
   .poker-game .poker-seat { padding: 4px; gap: 1px 3px; border-radius: 10px; }
   .poker-game .player-name { font-size: 10px; line-height: 1.4; }
   .poker-game .poker-opponents .player-name { grid-column: 1 / -1; }
@@ -218,7 +218,7 @@
   .poker-game.hand-active .poker-action-dock { min-height: 98px; }
   .poker-game .poker-table { --seat-card: 20px; --board-card: 27px; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); grid-template-rows: minmax(46px, .75fr) minmax(64px, 1fr); padding: 4px 7px; gap: 4px 12px; }
   .poker-game .poker-opponents { display: grid; grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; gap: 4px; }
-  .poker-game .poker-opponents > .poker-seat { grid-column: auto; grid-row: auto; }
+  .poker-game .poker-opponents > .poker-seat:nth-child(n) { grid-column: auto; grid-row: auto; }
   .poker-game .poker-seat { position: relative; padding: 3px; gap: 0 2px; }
   .poker-game .player-name { font-size: 9px; line-height: 1.4; }
   .poker-game .player-name small, .poker-game .bot-badge { display: none; }

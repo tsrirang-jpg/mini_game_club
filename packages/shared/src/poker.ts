@@ -42,6 +42,38 @@ export function bestPokerHand(cards: readonly Card[]): PokerHand {
   return best!;
 }
 export interface PokerPot { amount: number; winners: string[]; eligible: string[]; refund: boolean }
+// During betting, only committed all-ins establish pot boundaries. Pending calls
+// still change amounts; never publish a winner or promise an uncalled refund yet.
+export function pokerLivePots(players: readonly PokerPlayer[]): PokerPot[] {
+  const contributors = players.filter(p => p.inHand && p.contribution > 0);
+  const maximum = Math.max(0, ...contributors.map(p => p.contribution));
+  const levels = [...new Set([...contributors.filter(p => p.allIn && !p.folded).map(p => p.contribution), maximum])]
+    .filter(level => level > 0).sort((a, b) => a - b);
+  let previous = 0;
+  return levels.map(level => {
+    const amount = contributors.reduce((sum, p) => sum + Math.max(0, Math.min(p.contribution, level) - previous), 0);
+    previous = level;
+    return { amount, winners: [], refund: false,
+      eligible: players.filter(p => p.inHand && !p.folded && p.contribution + p.points >= level).map(p => p.id) };
+  });
+}
+export interface PokerPotSummary extends PokerPot { awards: Record<string, number> }
+// Folded contributions can create adjacent accounting layers with identical
+// eligibility. Combine them for display while preserving each layer's odd chips.
+export function pokerPotSummaries(pots: readonly PokerPot[]): PokerPotSummary[] {
+  const summaries: PokerPotSummary[] = [];
+  const same = (a: string[], b: string[]) => a.length === b.length && a.every(id => b.includes(id));
+  for (const pot of pots) {
+    const awards = Object.fromEntries(pot.winners.map((id, i) => [id,
+      Math.floor(pot.amount / pot.winners.length) + (i < pot.amount % pot.winners.length ? 1 : 0)]));
+    const previous = summaries.at(-1);
+    if (previous && !pot.refund && !previous.refund && same(previous.eligible, pot.eligible) && same(previous.winners, pot.winners)) {
+      previous.amount += pot.amount;
+      for (const [id, amount] of Object.entries(awards)) previous.awards[id] = (previous.awards[id] ?? 0) + amount;
+    } else summaries.push({ ...pot, eligible: [...pot.eligible], winners: [...pot.winners], awards });
+  }
+  return summaries;
+}
 // order is clockwise starting left of the dealer button (odd-chip priority).
 export function pokerPayout(contributions: Record<string, number>, folded: Set<string>,
   hands: Record<string, PokerHand>, order: string[]): { payouts: Record<string, number>; pots: PokerPot[] } {
@@ -73,7 +105,7 @@ export interface PokerPlayer {
   id: string; name: string; seat: number; points: number; isBot: boolean; connected: boolean; ready: boolean;
   folded: boolean; allIn: boolean; inHand: boolean; streetBet: number; contribution: number; lastAction: string;
 }
-export interface PokerResult { id: string; cards: Card[]; handName: string; payout: number; delta: number }
+export interface PokerResult { id: string; name?: string; cards: Card[]; handName: string; payout: number; delta: number }
 export interface PokerSnapshot {
   game: 'poker'; code: string; phase: PokerPhase; roundId: number; deadline: number;
   hostId: string; buttonId: string; smallBlindId: string; bigBlindId: string; turnId: string;
