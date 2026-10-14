@@ -17,6 +17,7 @@ import './poker-pots.css';
 import './poker-ring.css';
 import './poker-card-clarity.css';
 import './poker-sizing.css';
+import './poker-desktop.css';
 import './spyfall.css';
 function App() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);

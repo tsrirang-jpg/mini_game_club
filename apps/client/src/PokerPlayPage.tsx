@@ -42,6 +42,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const [raiseTo, setRaiseTo] = useState(40);
   const [copied, setCopied] = useState(false);
   const [panel, setPanel] = useState<Panel | null>(null);
+  const [cardSize, setCardSize] = useState<'normal' | 'high'>(() => localStorage.getItem('poker.cardSize') === 'normal' ? 'normal' : 'high');
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 200); return () => clearInterval(timer); }, []);
   const s = state.snapshot;
   useEffect(() => { if (s) setRaiseTo(s.currentBet + s.minRaise); }, [s?.roundId, s?.phase, s?.currentBet, s?.minRaise]);
@@ -67,7 +68,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   </section>)}</div>;
   const playing = !['LOBBY', 'ROUND_END'].includes(s.phase);
   const canStart = active && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
-  return <main className={'game poker-game ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
+  return <main className={'game poker-game card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
     <div className="room-bar">
       <div className="poker-room-id"><span className="poker-wordmark">♠ <span>Poker</span></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); } catch { setCopied(false); } }}>{copied ? '✓' : 'คัดลอก'}</button></div>
       <div className="poker-tools"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}>ออกจากห้อง</button></div>
@@ -110,6 +111,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
     {panel && <PokerPanel panel={panel} close={() => setPanel(null)}>
       {panel === 'rules' ? <PokerRules/> : panel === 'pots' ? potDetails : panel === 'table' ? <>
         <p className="muted">{s.players.length}/6 คน · Blinds 10/20 · ชิปจำลอง</p>
+        <label>ขนาดไพ่บนจอคอม<select value={cardSize} onChange={e => { const size = e.target.value === 'normal' ? 'normal' : 'high'; setCardSize(size); localStorage.setItem('poker.cardSize', size); }}><option value="high">ใหญ่ (High)</option><option value="normal">ปกติ</option></select></label>
         {host && <><h3>บอทในโต๊ะ</h3>{s.players.filter(p => p.isBot).map(p => <div className="bot-row" key={p.id}><span>{p.name}</span><button className="small" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('removeBot', p.id)}>นำออก</button></div>)}<button className="ghost full" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('resetTablePoints')}>รีเซ็ตทั้งโต๊ะ 1,000 ชิป</button></>}
         <p className="fine">ปรับบอทและรีเซ็ตชิปได้ก่อนเริ่มรอบ<br/>ห้องและชิปหายเมื่อ server restart</p>
       </> : <><div className="poker-result-list">{s.results.map(r => <p key={r.id}><strong>{playerName(r.id)}</strong><span>{r.handName} · {r.delta > 0 ? '+' : ''}{r.delta} ชิป · รับ {r.payout}</span></p>)}</div>{potDetails}</>}

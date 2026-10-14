@@ -16,6 +16,7 @@
     "test:poker-layout": "node tests/poker-layout-browser.mjs",
     "test:poker-pots": "node tests/poker-pots-browser.mjs",
     "test:poker-show": "node tests/poker-show-browser.mjs",
+    "test:poker-high": "node tests/poker-high-browser.mjs",
     "test:spyfall": "node tests/spyfall-browser.mjs"
   },
   "devDependencies": {

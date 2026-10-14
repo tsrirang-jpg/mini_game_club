@@ -14,6 +14,9 @@
 | Pok Deng: home button and private score/multiplier display; original rule text matches server | PASS |
 | Poker table: original blue-green felt/border, own hand at bottom, total POT immediately above five board cards | PASS |
 | Desktop 1366×768: hole cards at least 60px, board cards at least 76px, enlarged unobscured ranks | PASS |
+| High card size defaults on desktop; Normal/High selection persists across refresh | PASS |
+| Scaled Windows: DPR 2, CSS viewport 952×442, centered POT/board and own hand at bottom | PASS |
+| High cards during Raise and 12-card showdown, 8 desktop viewports including 800×400 and 1903×885 | PASS |
 | Show cards: winner-only, post-round, exact own cards, no payout change, reconnect and next-round reset | PASS |
 | Two real WebSocket clients observe voluntarily revealed cards; losing hand remains private | PASS |
 | 1420-chip example: main 640/side 780 paid to different eligible hands | PASS |
@@ -87,6 +90,7 @@ npm.cmd run test:poker
 npm.cmd run test:poker-layout
 npm.cmd run test:poker-pots
 npm.cmd run test:poker-show
+npm.cmd run test:poker-high
 npm.cmd run test:spyfall
 ```
 
