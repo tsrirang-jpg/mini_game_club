@@ -9,11 +9,11 @@ import { Card } from './components';
 import { PokerRules } from './PokerRules';
 
 const stages = { LOBBY: 'รอผู้เล่นพร้อม', DEALING: 'กำลังแจกไพ่', PREFLOP: 'Pre-flop', FLOP: 'Flop', TURN: 'Turn', RIVER: 'River', SHOWDOWN: 'Showdown', ROUND_END: 'จบรอบ' };
-type Panel = 'rules' | 'table' | 'results' | 'pots';
+type Panel = 'rules' | 'table' | 'results' | 'pots' | 'close';
 const potLabel = (pots: { refund: boolean }[], i: number) => pots[i].refund ? 'คืนชิป' :
   pots.slice(0, i).filter(p => !p.refund).length === 0 ? 'Main Pot' : 'Side Pot ' + pots.slice(0, i).filter(p => !p.refund).length;
 
-function PokerSeat({ player: p, s, state }: { player: PokerPlayer; s: PokerSnapshot; state: SessionState<PokerSnapshot> }) {
+function PokerSeat({ player: p, s, state, now }: { player: PokerPlayer; s: PokerSnapshot; state: SessionState<PokerSnapshot>; now: number }) {
   const own = p.id === state.playerId;
   const result = s.results.find(r => r.id === p.id);
   const cards = result?.cards.length ? result.cards : own && state.handRound === s.roundId ? state.hand : [];
@@ -22,7 +22,7 @@ function PokerSeat({ player: p, s, state }: { player: PokerPlayer; s: PokerSnaps
     <div className="poker-badges">{s.buttonId === p.id && <span className="button-chip">D</span>}{s.smallBlindId === p.id && <span>SB</span>}{s.bigBlindId === p.id && <span>BB</span>}{p.allIn && <span className="all-in-tag">ALL-IN</span>}</div>
     <div className="hand">{p.inHand && [0, 1].map(i => <Card key={s.roundId + '-' + i} card={cards[i]} index={p.seat * 2 + i}/>)}</div>
     <div className="points">{p.points.toLocaleString()} <small>ชิป</small></div>
-    {!result && <div className="player-status" title={p.lastAction}>{!p.connected ? 'เชื่อมต่อใหม่…' : s.phase === 'LOBBY' ? p.points === 0 ? 'ไม่มีชิป / พัก' : p.ready || p.id === s.hostId ? '● พร้อม' : 'รอพร้อม' : p.lastAction || 'รอเล่น'}{p.streetBet > 0 && ' · วาง ' + p.streetBet}</div>}
+    {!result && <div className="player-status" title={p.lastAction}>{!p.connected ? p.reconnectUntil > now ? 'Reconnect ' + Math.ceil((p.reconnectUntil - now) / 1000) + 's' : 'ออกจากห้องแล้ว' : s.phase === 'LOBBY' ? p.points === 0 ? 'ไม่มีชิป / พัก' : p.ready || p.id === s.hostId ? '● พร้อม' : 'รอพร้อม' : p.lastAction || 'รอเล่น'}{p.streetBet > 0 && ' · วาง ' + p.streetBet}</div>}
     {result && <div title={result.handName + ' · ' + result.delta + ' ชิป · รับ ' + result.payout} className={'result ' + (result.delta > 0 ? 'win' : result.delta < 0 ? 'lose' : '')}><span>{result.handName}</span> <b>{result.delta > 0 ? '+' : ''}{result.delta}</b></div>}
   </article>;
 }
@@ -30,7 +30,7 @@ function PokerSeat({ player: p, s, state }: { player: PokerPlayer; s: PokerSnaps
 function PokerPanel({ panel, close, children }: { panel: Panel; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => { const dialog = ref.current!; dialog.showModal(); return () => dialog.close(); }, []);
-  const title = panel === 'rules' ? 'กติกา Poker' : panel === 'table' ? 'จัดการโต๊ะ' : panel === 'pots' ? 'แบ่ง POT' : 'ผลรอบและสรุป Pot';
+  const title = panel === 'close' ? 'ปิดห้องสำหรับทุกคน' : panel === 'rules' ? 'กติกา Poker' : panel === 'table' ? 'จัดการโต๊ะ' : panel === 'pots' ? 'แบ่ง POT' : 'ผลรอบและสรุป Pot';
   return <dialog ref={ref} className="poker-dialog" aria-labelledby="poker-dialog-title" onCancel={close}>
     <div className="poker-dialog-header"><h2 id="poker-dialog-title">{title}</h2><button aria-label="ปิดหน้าต่าง" onClick={close}>✕</button></div>
     <div className="poker-dialog-body">{children}</div>
@@ -42,9 +42,20 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const [raiseTo, setRaiseTo] = useState(40);
   const [copied, setCopied] = useState(false);
   const [panel, setPanel] = useState<Panel | null>(null);
+  const [hostNotice, setHostNotice] = useState('');
+  const lastHost = useRef<string | undefined>(undefined);
   const [cardSize, setCardSize] = useState<'normal' | 'high'>(() => localStorage.getItem('poker.cardSize') === 'normal' ? 'normal' : 'high');
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 200); return () => clearInterval(timer); }, []);
   const s = state.snapshot;
+  useEffect(() => {
+    if (!s) return;
+    const changed = lastHost.current !== undefined && lastHost.current !== s.hostId;
+    lastHost.current = s.hostId;
+    if (!changed || !s.hostId) return;
+    setHostNotice('Host เปลี่ยนเป็น ' + (s.players.find(p => p.id === s.hostId)?.name ?? 'ผู้เล่น'));
+    const timer = setTimeout(() => setHostNotice(''), 6000);
+    return () => clearTimeout(timer);
+  }, [s?.hostId]);
   useEffect(() => { if (s) setRaiseTo(s.currentBet + s.minRaise); }, [s?.roundId, s?.phase, s?.currentBet, s?.minRaise]);
   if (!s || s.code !== code) return <main className="page-message"><h1>{state.status === 'reconnecting' ? 'กำลังกลับเข้าโต๊ะ Poker…' : 'ยังไม่ได้เข้าห้อง Poker นี้'}</h1><p>{code}</p>{state.status === 'idle' && <button className="primary" onClick={() => navigate('/poker/rooms/join?code=' + code)}>เข้าห้องนี้</button>}<button onClick={() => navigate('/games')}>เลือกเกม</button></main>;
   const me = s.players.find(p => p.id === state.playerId), host = s.hostId === state.playerId;
@@ -67,19 +78,20 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
     {p.winners.length ? <ul className="pot-awards">{p.winners.map(id => <li key={id}><span>{playerLabel(id)}</span><b>{p.refund ? 'คืน ' : 'รับ '}{p.awards[id].toLocaleString()} ชิป</b></li>)}</ul> : <p className="muted">รอเปิดไพ่หรือผู้เล่นคนอื่นหมอบ</p>}
   </section>)}</div>;
   const playing = !['LOBBY', 'ROUND_END'].includes(s.phase);
-  const canStart = active && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
+  const canStart = active && !s.roomClosing && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
   return <main className={'game poker-game card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
     <div className="room-bar">
       <div className="poker-room-id"><span className="poker-wordmark">♠ <span>Poker</span></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); } catch { setCopied(false); } }}>{copied ? '✓' : 'คัดลอก'}</button></div>
       <div className="poker-tools"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}>ออกจากห้อง</button></div>
     </div>
     <div className="game-layout"><section className="table-area">
-      <div className="phase"><span>{stages[s.phase]} <small>· รอบ {s.roundId || '–'}</small></span>{s.turnId ? <div className="turn-banner" role="status">{canAct ? 'ถึงตาคุณ' : 'รอ ' + s.players.find(p => p.id === s.turnId)?.name} · {seconds} วินาที<div className="turn-time"><i style={{ width: Math.max(0, Math.min(100, (s.deadline - now) / s.turnDurationMs * 100)) + '%' }}/></div></div> : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
+      <div className="phase"><span>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></span>{s.turnId ? <div className="turn-banner" role="status">{canAct ? 'ถึงตาคุณ' : 'รอ ' + s.players.find(p => p.id === s.turnId)?.name} · {seconds} วินาที<div className="turn-time"><i style={{ width: Math.max(0, Math.min(100, (s.deadline - now) / s.turnDurationMs * 100)) + '%' }}/></div></div> : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
       <div data-opponents={bySeat.filter(p => p.id !== state.playerId).length} className={'poker-table ' + (s.phase === 'DEALING' ? 'dealing' : '')}>
+        {(s.roomClosing || hostNotice) && <div className="poker-room-notice" role="status">{s.roomClosing ? s.closeAt ? 'ปิดห้องใน ' + Math.max(0, Math.ceil((s.closeAt - now) / 1000)) + ' วินาที' : 'Host จะปิดห้องหลังจบรอบนี้' : hostNotice}</div>}
         <div className="poker-bank">{pots.length > 1 && <section className="pot-breakdown" aria-label="กองเดิมพันแยก"><div className="pot-grid">{pots.map((p, i) => <button key={i} className={'pot-entry ' + (p.refund ? 'pot-refund' : i ? 'pot-side' : 'pot-main')} aria-label={potLabel(pots, i) + ' ' + p.amount + ' ชิป'} title={(p.winners.length ? 'รับ: ' + p.winners.map(id => playerName(id) + ' ' + p.awards[id]).join(', ') : 'มีสิทธิ์: ' + p.eligible.map(playerName).join(', '))} onClick={() => setPanel('pots')}>
             <span className="pot-title">{potLabel(pots, i)}</span><span className="pot-title-short" aria-hidden="true">{p.refund ? 'คืน' : potLabel(pots, i) === 'Main Pot' ? 'Main' : 'S' + pots.slice(0, i).filter(pot => !pot.refund).length}</span><strong>{p.amount.toLocaleString()}</strong><small className="pot-players">{p.winners.length ? p.winners.map(id => seatName(id) + ' +' + p.awards[id].toLocaleString()).join(' · ') : 'สิทธิ์ ' + p.eligible.map(seatName).join(' ')}</small>
           </button>)}</div></section>}</div>
-        <div className="poker-opponents">{bySeat.filter(p => p.id !== state.playerId).map(p => <PokerSeat key={p.id} player={p} s={s} state={state}/>)}
+        <div className="poker-opponents">{bySeat.filter(p => p.id !== state.playerId).map(p => <PokerSeat key={p.id} player={p} s={s} state={state} now={now}/>)}
 
         </div>
         <section className="poker-center">
@@ -88,7 +100,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
           {s.phase === 'DEALING' && <div className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</div>}
           <div className="street-track">{['PREFLOP', 'FLOP', 'TURN', 'RIVER'].map(phase => <span className={s.phase === phase ? 'current' : ''} key={phase}>{phase === 'PREFLOP' ? 'Pre-flop' : phase.charAt(0) + phase.slice(1).toLowerCase()}</span>)}</div>
         </section>
-        {me && <div className="poker-self"><PokerSeat player={me} s={s} state={state}/></div>}
+        {me && <div className="poker-self"><PokerSeat player={me} s={s} state={state} now={now}/></div>}
       </div>
     </section></div>
     <div className="poker-action-dock" aria-label="การเล่นและเดิมพัน">
@@ -109,11 +121,13 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
       </div>}
     </div>
     {panel && <PokerPanel panel={panel} close={() => setPanel(null)}>
-      {panel === 'rules' ? <PokerRules/> : panel === 'pots' ? potDetails : panel === 'table' ? <>
+      {panel === 'close' ? <><p>{playing ? 'ห้องจะปิดหลังจบรอบและแจกชิปครบแล้ว ทุกคนมีเวลา 8 วินาทีดูผลก่อนกลับหน้าสร้างห้อง' : 'ทุกคนจะออกจากห้องใน 8 วินาที และรหัสห้องนี้จะใช้ไม่ได้อีก'}</p><p>หากต้องการออกคนเดียว ให้ใช้ปุ่ม “ออกจากห้อง” ระบบจะย้าย Host ให้คนที่เหลือ</p><div className="poker-close-actions"><button onClick={() => setPanel('table')}>ยกเลิก</button><button className="fold-button" disabled={!host || !active || s.roomClosing} onClick={() => { pokerSession.send('closeRoom'); setPanel(null); }}>ยืนยันปิดห้อง</button></div></> : panel === 'rules' ? <PokerRules/> : panel === 'pots' ? potDetails : panel === 'table' ? <>
         <p className="muted">{s.players.length}/6 คน · Blinds 10/20 · ชิปจำลอง</p>
         <label>ขนาดไพ่บนจอคอม<select value={cardSize} onChange={e => { const size = e.target.value === 'normal' ? 'normal' : 'high'; setCardSize(size); localStorage.setItem('poker.cardSize', size); }}><option value="high">ใหญ่ (High)</option><option value="normal">ปกติ</option></select></label>
         {host && <><h3>บอทในโต๊ะ</h3>{s.players.filter(p => p.isBot).map(p => <div className="bot-row" key={p.id}><span>{p.name}</span><button className="small" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('removeBot', p.id)}>นำออก</button></div>)}<button className="ghost full" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('resetTablePoints')}>รีเซ็ตทั้งโต๊ะ 1,000 ชิป</button></>}
         <p className="fine">ปรับบอทและรีเซ็ตชิปได้ก่อนเริ่มรอบ<br/>ห้องและชิปหายเมื่อ server restart</p>
+        <p className="fine">เน็ตหลุดหรือรีเฟรช กลับเข้าโต๊ะเดิมได้ภายใน 60 วินาที โดยเวลาตายังเดินต่อ<br/>กดออกจากห้องจะไม่ reconnect และย้าย Host ให้คนที่เหลือ</p>
+        {host && <button className="ghost full" disabled={!active || s.roomClosing} onClick={() => setPanel('close')}>{s.roomClosing ? 'กำลังปิดห้อง' : 'ปิดห้องสำหรับทุกคน'}</button>}
       </> : <><div className="poker-result-list">{s.results.map(r => <p key={r.id}><strong>{playerName(r.id)}</strong><span>{r.handName} · {r.delta > 0 ? '+' : ''}{r.delta} ชิป · รับ {r.payout}</span></p>)}</div>{potDetails}</>}
     </PokerPanel>}
   </main>;

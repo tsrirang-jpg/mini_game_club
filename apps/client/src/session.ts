@@ -2,6 +2,7 @@ import { Client, Room } from '@colyseus/sdk';
 import { navigate } from './router';
 import type { ActionType, Card, Snapshot } from '../../../packages/shared/src/index';
 import type { PokerSnapshot, PokerAction } from '../../../packages/shared/src/poker';
+import { POKER_RECONNECT_SECONDS } from '../../../packages/shared/src/poker';
 import type { SpySnapshot, SpyAction, SpySecret } from '../../../packages/shared/src/spyfall';
 
 type Status = 'idle' | 'connecting' | 'connected' | 'reconnecting';
@@ -22,6 +23,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   private listeners = new Set<() => void>();
   private generation = 0;
   private retryTimer?: ReturnType<typeof setTimeout>;
+  private reconnectTimer?: ReturnType<typeof setTimeout>;
   private snapshotRound = -1;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.state;
@@ -34,6 +36,12 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     room.reconnection.minUptime = 0;
     room.reconnection.maxRetries = 30;
     room.reconnection.maxEnqueuedMessages = 0;
+    // SDK backoff callbacks can outlive a deliberate exit. Do not reopen their
+    // socket after this session has left or been replaced.
+    const reconnect = room.connection.reconnect.bind(room.connection);
+    room.connection.reconnect = (...args) => {
+      if (generation === this.generation && room.reconnection.enabled) reconnect(...args);
+    };
     sessionStorage.setItem(this.key, room.reconnectionToken);
     this.update({ playerId: room.sessionId, status: 'connected', error: '' });
     navigate(`${this.playPath}/${room.roomId}`, location.pathname.startsWith(this.playPath + '/'));
@@ -54,23 +62,44 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     room.onMessage('error', (error: { message: string }) => {
       if (generation === this.generation) this.update({ error: error.message });
     });
+    let closedMessage = '';
+    room.onMessage('roomClosed', (message: { message: string }) => {
+      if (generation !== this.generation) return;
+      closedMessage = message.message;
+      room.reconnection.enabled = false;
+      sessionStorage.removeItem(this.key);
+    });
     room.onError(() => {
       if (generation === this.generation) this.update({ error: 'การเชื่อมต่อมีข้อผิดพลาด' });
     });
     room.onDrop(() => {
-      if (generation === this.generation) this.update({ status: 'reconnecting' });
+      if (generation !== this.generation) return;
+      this.update({ status: 'reconnecting' });
+      if (this.roomName === 'poker' && !this.reconnectTimer) this.reconnectTimer = setTimeout(() => {
+        if (generation !== this.generation) return;
+        this.leave(); this.update({ error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
+      }, POKER_RECONNECT_SECONDS * 1000);
     });
     room.onReconnect(() => {
-      if (generation !== this.generation) return;
-      sessionStorage.setItem(this.key, room.reconnectionToken);
-      this.update({ status: 'connected', error: '' }); room.send('sync');
+      if (generation !== this.generation) { void room.leave(); room.connection.close(1000); return; }
+      if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+      // SDK 0.18 emits onReconnect before assigning the rotated token. Persist
+      // after that handshake frame so a subsequent refresh uses the current token.
+      queueMicrotask(() => {
+        if (generation !== this.generation) return;
+        sessionStorage.setItem(this.key, room.reconnectionToken);
+        this.update({ status: 'connected', error: '' }); room.send('sync');
+      });
     });
     room.onLeave(code => {
       if (generation !== this.generation) return;
+      if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
       this.room = undefined;
       sessionStorage.removeItem(this.key);
       this.update({ status: 'idle', snapshot: null, hand: [], secret: null,
-        error: code === 4028 ? 'ส่งคำสั่งมากเกินไป กรุณาเข้าห้องใหม่' : code === 4000 || code === 1000 ? '' : 'การเชื่อมต่อสิ้นสุด กรุณาเข้าห้องอีกครั้ง' });
+        error: closedMessage || (code === 4028 ? 'ส่งคำสั่งมากเกินไป กรุณาเข้าห้องใหม่' : code === 4000 || code === 1000 ? '' : 'การเชื่อมต่อสิ้นสุด กรุณาเข้าห้องอีกครั้ง') });
       navigate(this.entryPath, true);
     });
     room.send('sync');
@@ -118,13 +147,26 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   leave(destination = this.entryPath) {
     ++this.generation;
     if (this.retryTimer) clearTimeout(this.retryTimer);
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.retryTimer = undefined; this.reconnectTimer = undefined;
     sessionStorage.removeItem(this.key);
     if (this.room) {
+      const wasDisconnected = !this.room.connection.isOpen;
+      const departingToken = this.room.reconnectionToken;
       // Send the consented-leave message before closing the socket. An intentional
       // exit must not start automatic reconnection if a proxy drops the close frame.
       this.room.reconnection.enabled = false;
       void this.room.leave();
       this.room.connection.close(1000);
+      if (this.roomName === 'poker' && wasDisconnected) {
+        // If transport has recovered, release the reserved seat without restoring
+        // the page. If still offline, the server's bounded reconnect window cleans it.
+        void client.reconnect(departingToken).then(departing => {
+          departing.reconnection.enabled = false;
+          departing.onMessage('*', () => {});
+          void departing.leave(); departing.connection.close(1000);
+        }).catch(() => {});
+      }
     }
     this.room = undefined; this.snapshotRound = -1;
     this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null });

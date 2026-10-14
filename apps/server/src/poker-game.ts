@@ -1,7 +1,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { deck, shuffle } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
-import { bestPokerHand, pokerPayout, pokerLivePots, POKER_ACTION_MS } from '../../../packages/shared/src/poker.js';
+import { bestPokerHand, pokerPayout, pokerLivePots, POKER_ACTION_MS, POKER_RECONNECT_SECONDS, POKER_CLOSE_DELAY_MS } from '../../../packages/shared/src/poker.js';
 import type { PokerPlayer, PokerPhase, PokerSnapshot, PokerResult, PokerPot, PokerHand } from '../../../packages/shared/src/poker.js';
 import { GameError } from './game.js';
 import type { GameHooks } from './game.js';
@@ -16,40 +16,55 @@ export class PokerGame {
   private order: string[] = []; private pending = new Set<string>(); private actedAt = new Map<string, number>();
   private timer?: ReturnType<typeof setTimeout>; private botTimer?: ReturnType<typeof setTimeout>;
   private settled = false;
+  private foldOrder: string[] = [];
   private buttonSeat = -1;
+  roomClosing = false; closeAt = 0;
   readonly smallBlind = 10; readonly bigBlind = 20;
   constructor(public code: string, private hooks: GameHooks,
     private random: (max: number) => number = randomInt,
-    public timings = { deal: 1200, turn: POKER_ACTION_MS, reveal: 900, bot: 700 }) {}
+    public timings = { deal: 1200, turn: POKER_ACTION_MS, reveal: 900, bot: 700 },
+    private closeDelayMs = POKER_CLOSE_DELAY_MS) {}
   private idle() { return this.phase === 'LOBBY' || this.phase === 'ROUND_END'; }
   add(name: unknown, id: string = randomUUID(), isBot = false) {
-    demand(this.idle(), 'กรุณารอรอบนี้จบก่อน'); demand(this.players.size < 6, 'ห้องเต็มแล้ว');
+    demand(!this.roomClosing, 'ห้องกำลังปิด'); demand(this.idle(), 'กรุณารอรอบนี้จบก่อน'); demand(this.players.size < 6, 'ห้องเต็มแล้ว');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นอยู่ในห้องแล้ว');
     const seat = Array.from({ length: 6 }, (_, i) => i).find(i => ![...this.players.values()].some(p => p.seat === i))!;
     this.players.set(id, { id, name: (name as string).trim(), seat, isBot, points: 1000, connected: true, ready: isBot,
-      folded: false, allIn: false, inHand: false, streetBet: 0, contribution: 0, lastAction: '', expired: false, seen: new Set() });
+      folded: false, allIn: false, inHand: false, streetBet: 0, contribution: 0, lastAction: '', reconnectUntil: 0, expired: false, seen: new Set() });
     if (!this.hostId && !isBot) this.hostId = id;
     this.changed(); return id;
   }
   addBot() { return this.add(`บอท Poker ${[...this.players.values()].filter(p => p.isBot).length + 1}`, `bot-${randomUUID()}`, true); }
   private changed() { this.hooks.changed(); }
   private reassign() {
-    if (!this.players.get(this.hostId)?.connected) this.hostId = [...this.players.values()].find(p => !p.isBot && p.connected)?.id ?? '';
+    if (!this.players.get(this.hostId)?.connected) this.hostId = [...this.players.values()].find(p => !p.isBot && p.connected && !p.expired)?.id ?? '';
   }
-  disconnect(id: string) {
+  disconnect(id: string, reconnectSeconds = POKER_RECONNECT_SECONDS) {
     const p = this.players.get(id); if (!p) return;
-    p.connected = false; p.ready = false; if (this.idle()) this.reassign(); this.changed();
+    p.connected = false; p.ready = false; p.reconnectUntil = Date.now() + reconnectSeconds * 1000;
+    this.reassign(); this.changed();
   }
   reconnect(id: string) {
     const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect');
-    p!.connected = true; if (!this.hostId) this.hostId = id;
+    p!.connected = true; p!.reconnectUntil = 0; if (!this.hostId && !p!.isBot) this.hostId = id;
     this.hooks.privateHand(id, this.hands[id] ?? []); this.changed();
   }
   expire(id: string) {
     const p = this.players.get(id); if (!p) return;
-    p.expired = true; p.connected = false;
-    if (this.idle()) { this.players.delete(id); this.reassign(); }
+    p.expired = true; p.connected = false; p.ready = false; p.reconnectUntil = 0;
+    this.reassign();
+    // Keep committed chips and all-in eligibility until settlement. A permanent
+    // departure otherwise folds immediately, including during the deal animation.
+    if (this.idle()) this.players.delete(id);
+    else if (!this.settled && p.inHand && !p.folded && !p.allIn) {
+      if (this.alive().length === 1) this.finish(false);
+      else {
+        p.folded = true; this.foldOrder.push(id); p.lastAction = 'ออกจากห้อง / Fold'; this.pending.delete(id);
+        if (this.alive().length === 1) this.finish(false);
+        else if (this.turnId === id) this.progress(id);
+      }
+    }
     this.changed();
   }
   snapshot(): PokerSnapshot {
@@ -57,6 +72,7 @@ export class PokerGame {
       hostId: this.hostId, buttonId: this.buttonId, turnId: this.turnId, smallBlindId: this.smallBlindId, bigBlindId: this.bigBlindId,
       smallBlind: this.smallBlind, bigBlind: this.bigBlind, currentBet: this.currentBet, minRaise: this.minRaise,
       turnDurationMs: this.timings.turn,
+      roomClosing: this.roomClosing, closeAt: this.closeAt,
       raiseAllowedIds: this.actionable().filter(id => this.canRaise(this.players.get(id)!) && this.actionable().some(other => other !== id)),
       board: this.board.map(c => ({ ...c })), players: [...this.players.values()].map(({ expired, seen, ...p }) => ({ ...p })),
       pot: this.settled ? this.pots.reduce((sum, p) => sum + p.amount, 0) : [...this.players.values()].reduce((sum, p) => sum + p.contribution, 0),
@@ -71,7 +87,11 @@ export class PokerGame {
       && /^[a-zA-Z0-9-]{1,80}$/.test(a.actionId), 'คำสั่งไม่ถูกต้องหรือเป็นรอบเก่า');
     if (p!.seen.has(a.actionId)) return;
     demand(p!.seen.size < 2048, 'ส่งคำสั่งมากเกินไป');
-    if (a.type === 'showCards') {
+    if (a.type === 'closeRoom') {
+      demand(id === this.hostId, 'เฉพาะ host เท่านั้น'); demand(a.value === undefined, 'คำสั่งปิดห้องไม่ถูกต้อง');
+      this.roomClosing = true;
+      if (this.idle() && !this.closeAt) this.closeAt = Date.now() + this.closeDelayMs;
+    } else if (a.type === 'showCards') {
       demand(this.phase === 'ROUND_END', 'เปิดไพ่ได้หลังจบรอบเท่านั้น');
       demand(this.pots.some(pot => !pot.refund && pot.winners.includes(id)), 'เฉพาะผู้ชนะกองเดิมพันเท่านั้น');
       demand(a.value === undefined, 'เปิดได้เฉพาะไพ่ของตัวเอง');
@@ -79,6 +99,7 @@ export class PokerGame {
       demand(result && this.hands[id]?.length === 2, 'ไม่มีไพ่ของรอบนี้');
       result!.cards = this.hands[id].map(card => ({ ...card }));
     } else if (['setReady', 'startRound', 'prepareRound', 'addBot', 'removeBot', 'resetTablePoints'].includes(a.type)) {
+      demand(!this.roomClosing, 'ห้องกำลังปิด ไม่สามารถเริ่มหรือจัดการรอบใหม่');
       demand(this.idle(), 'เปลี่ยนได้ก่อนเริ่มรอบเท่านั้น');
       if (a.type === 'setReady') { demand(typeof a.value === 'boolean', 'สถานะพร้อมไม่ถูกต้อง'); p!.ready = a.value as boolean; }
       else {
@@ -124,7 +145,7 @@ export class PokerGame {
     const button = eligible.find(p => p.seat > this.buttonSeat) ?? eligible[0];
     this.buttonId = button.id; this.buttonSeat = button.seat;
     this.order = eligible.map(p => p.id);
-    this.roundId++; this.settled = false; this.hands = {}; this.board = []; this.results = []; this.pots = [];
+    this.roundId++; this.settled = false; this.foldOrder = []; this.hands = {}; this.board = []; this.results = []; this.pots = [];
     this.stock = shuffle(deck(), this.random); this.pending.clear(); this.actedAt.clear();
     for (const p of all) {
       p.inHand = p.points > 0; p.folded = false; p.allIn = false; p.ready = false;
@@ -156,7 +177,7 @@ export class PokerGame {
   }
   private betAction(p: Player, type: string, value?: unknown) {
     const call = Math.max(0, this.currentBet - p.streetBet);
-    if (type === 'fold') { p.folded = true; p.lastAction = 'Fold'; }
+    if (type === 'fold') { p.folded = true; this.foldOrder.push(p.id); p.lastAction = 'Fold'; }
     else if (type === 'check') { demand(call === 0, 'Check ไม่ได้ ต้อง Call หรือ Fold'); p.lastAction = 'Check'; }
     else if (type === 'call') { demand(call > 0, 'ไม่มีเดิมพันให้ Call'); this.commit(p, call); p.lastAction = p.allIn ? 'All-in call' : 'Call'; }
     else if (type === 'raise' || type === 'allIn') {
@@ -224,7 +245,7 @@ export class PokerGame {
     if (showdown) for (const id of this.alive()) hands[id] = bestPokerHand([...this.hands[id], ...this.board]);
     const clockwise = [...this.order.slice(this.order.indexOf(this.buttonId) + 1), ...this.order.slice(0, this.order.indexOf(this.buttonId) + 1)];
     const { payouts, pots } = pokerPayout(Object.fromEntries(this.order.map(id => [id, this.players.get(id)!.contribution])),
-      new Set(this.order.filter(id => this.players.get(id)!.folded)), hands, clockwise);
+      new Set(this.order.filter(id => this.players.get(id)!.folded)), hands, clockwise, this.foldOrder);
     this.pots = pots;
     this.results = this.order.map(id => {
       const p = this.players.get(id)!; p.points += payouts[id];
@@ -234,6 +255,7 @@ export class PokerGame {
     this.settled = true; this.phase = 'SHOWDOWN';
     this.later(this.timings.reveal, () => {
       this.phase = 'ROUND_END'; this.deadline = 0;
+      if (this.roomClosing) this.closeAt = Date.now() + this.closeDelayMs;
       for (const p of this.players.values()) {
         if (p.expired) this.players.delete(p.id); else { p.ready = p.isBot; p.seen.clear(); }
       }

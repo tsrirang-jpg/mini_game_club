@@ -69,6 +69,16 @@ UI มี animation แจก hole cards, flip เปิดไพ่กลาง
 
 การเริ่มรอบถัดไปยังเป็นแบบ manual: host กดเตรียมรอบใหม่ ผู้เล่นกดพร้อม และเริ่มรอบ ผู้เล่นชิปหมดพักมือจน host รีเซ็ตแต้มใน lobby ไม่มี tournament, blind escalation, rebuy ระหว่างมือ หรือเงินจริง
 
+Poker แยกการออกโดยตั้งใจกับการหลุดจากเครือข่าย: เน็ตหลุดหรือ refresh มีเวลา reconnect 60 วินาที รักษา session/ไพ่/ชิปเดิม โดย timer ของตายังเดินต่อ หมดเวลาจะ Check เมื่อไม่ต้องตามเงินหรือ Fold เมื่อมีเดิมพันต้องตาม หลัง reconnect อัตโนมัติบันทึก token ที่เปลี่ยนใหม่ เพื่อให้ refresh ครั้งต่อไปกลับเข้าโต๊ะได้
+
+Host ที่ออกหรือหลุดย้ายสิทธิ์จัดการห้องให้มนุษย์ที่เชื่อมต่ออยู่ทันทีทุก phase บอทไม่ได้เป็น host และ host เก่าไม่แย่งสิทธิ์กลับเมื่อ reconnect ผู้เล่นที่กดออกไม่มี auto reconnect และ Fold ทันที แต่เงินที่ลงไว้ยังอยู่ใน Pot ผู้ที่ All-in ยังมีสิทธิ์ใน Pot จนแจกชิปเสร็จ จึงลบที่นั่งถาวร
+
+เมื่อทุกคนกดออก ห้อง บอท รหัสห้อง และตัวจับเวลาจะถูก dispose แม้อยู่กลางรอบ หากมีคนกำลัง reconnect ให้รอเฉพาะ reservation สูงสุด 60 วินาที ไม่มีการเริ่มรอบใหม่อัตโนมัติสำหรับโต๊ะที่เหลือแต่บอท ถ้ากดออกขณะกำลัง reconnect หน้าเว็บจะหยุด retry และพยายามคืน reservation ผ่านการเชื่อมต่อสั้น ๆ โดยไม่กลับหน้าเล่น หากยัง offline เซิร์ฟเวอร์จะล้างเมื่อหมดเวลา
+
+เมนู “โต๊ะ” ของ host มีปุ่ม “ปิดห้องสำหรับทุกคน” แยกจากปุ่มออก ต้องยืนยันก่อนปิด ถ้าอยู่กลางรอบจะให้เล่นและแจกชิปจบรอบก่อน แล้วนับถอยหลัง 8 วินาทีให้ดูผล ก่อนปิดทุก connection และยกเลิก reservation ระหว่างรอปิดไม่รับคนใหม่และไม่ให้เริ่มรอบใหม่ ผู้ชนะยัง Show cards ได้
+
+`npm run test:poker-lifecycle` ทดสอบ browser จริงสองคน: หลุดแล้ว reconnect อัตโนมัติ ตามด้วย refresh ตรวจ identity/ไพ่/ชิป ย้าย host ออกกลางรอบ ยืนยัน/ยกเลิกปิดห้อง และกดออกขณะ SDK กำลัง retry ใช้ `GAME_URL` ระบุ server ที่ build แล้ว เช่น `http://127.0.0.1:2569` ส่วน `tests/poker-lifecycle-network.test.ts` ตรวจ timeout/cleanup ด้วย WebSocket จริงและเวลาที่ลดลงใน test subclass เท่านั้น Production ยังใช้ 60 วินาที
+
 อ้างอิงกติกา: [PokerStars Texas Hold’em](https://www.pokerstars.com/poker/games/texas-holdem/) และ [Poker terms and rules](https://www.pokerstars.com/help/articles/poker-rules-master/229168/)
 
 เพิ่ม code ที่ `packages/shared/src/poker.ts` (hand evaluator/pots), `apps/server/src/poker-game.ts`, `poker-room.ts`, และ `apps/client/src/PokerCreatePage.tsx`, `PokerPlayPage.tsx` ใช้ GameSession generic ร่วมกับป๊อกเด้ง แยก reconnect token ของแต่ละเกม

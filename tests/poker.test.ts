@@ -179,4 +179,70 @@ describe('No-limit betting state machine',()=>{
   it('button advances from the departed button seat, not from the first seat',()=>{
     g.add('C','c');start();finish();act('a','prepareRound');g.expire('a');start();expect(g.buttonId).toBe('b');
   });
+  it('transfers host immediately during a hand and does not reclaim it on reconnect',()=>{
+    start(); const deadline=g.deadline, hand=[...privateHands.a], balance=g.players.get('a')!.points;
+    g.disconnect('a');expect(g.hostId).toBe('b');expect(g.deadline).toBe(deadline);
+    expect(g.players.get('a')!.reconnectUntil).toBe(Date.now()+60000);
+    g.reconnect('a');expect(g.hostId).toBe('b');expect(privateHands.a).toEqual(hand);
+    expect(g.players.get('a')!.points).toBe(balance);expect(g.players.get('a')!.reconnectUntil).toBe(0);
+  });
+  it('never assigns host to a bot and restores host when the only human reconnects',()=>{
+    g.expire('b');g.addBot();start();g.disconnect('a');expect(g.hostId).toBe('');
+    g.reconnect('a');expect(g.hostId).toBe('a');
+  });
+  it('permanent exit folds immediately but retains committed chips through settlement',()=>{
+    start();g.expire('a');expect(g.hostId).toBe('b');expect(g.players.get('a')!.folded).toBe(true);
+    expect(g.players.get('a')!.contribution).toBe(10);expect(g.players.get('a')!.reconnectUntil).toBe(0);
+    expect(()=>g.reconnect('a')).toThrow('reconnect');vi.advanceTimersByTime(10);
+    expect(g.players.has('a')).toBe(false);expect(g.players.get('b')!.points).toBe(1010);
+    expect(g.snapshot().results.find(r=>r.id==='a')?.delta).toBe(-10);
+  });
+  it('a non-turn exit does not reset the current player deadline',()=>{
+    g.add('C','c');start();vi.advanceTimersByTime(100);const deadline=g.deadline;
+    g.expire('b');expect(g.turnId).toBe('a');expect(g.deadline).toBe(deadline);
+    expect(g.players.get('b')!.folded).toBe(true);finish();
+  });
+  it('permanent all-in departure remains eligible for pots and is paid exactly once',()=>{
+    g.add('C','c');g.players.get('a')!.points=100;g.players.get('b')!.points=60;g.players.get('c')!.points=20;
+    start();act('a','allIn');g.expire('a');expect(g.players.get('a')!.folded).toBe(false);
+    expect(g.hostId).toBe('b');act('b','allIn');finish();
+    expect(g.snapshot().pots[0].eligible).toContain('a');expect(g.snapshot().pots[1].eligible).toContain('a');
+    expect(g.snapshot().results.reduce((sum,r)=>sum+r.payout,0)).toBe(180);
+    expect(g.players.has('a')).toBe(false);const results=g.snapshot().results;vi.advanceTimersByTime(10000);
+    expect(g.snapshot().results).toEqual(results);
+  });
+  it('intentional exit during dealing settles safely without orphaning the pot',()=>{
+    act('b','setReady',true);act('a','startRound');expect(g.phase).toBe('DEALING');g.expire('a');
+    vi.advanceTimersByTime(20);expect(g.phase).toBe('ROUND_END');expect(g.players.get('b')!.points).toBe(1010);
+  });
+  it('connection loss uses the original deadline to auto-fold or check',()=>{
+    start();g.disconnect('a');vi.advanceTimersByTime(1010);expect(g.phase).toBe('ROUND_END');
+    expect(g.snapshot().results.find(r=>r.id==='a')?.handName).toBe('Fold');g.reconnect('a');
+    act('b','prepareRound');act('a','setReady',true);act('b','startRound');vi.advanceTimersByTime(10);
+    act('b','call');g.disconnect('a');vi.advanceTimersByTime(1000);
+    expect(g.players.get('a')!.folded).toBe(false);expect(g.players.get('a')!.lastAction).toBe('Check');
+  });
+  it('host can schedule closure, betting finishes, and the next round is blocked',()=>{
+    start();expect(()=>act('b','closeRoom')).toThrow('host');
+    act('a','closeRoom');expect(g.snapshot().roomClosing).toBe(true);expect(g.snapshot().closeAt).toBe(0);
+    act('a','call');finish();expect(g.snapshot().closeAt).toBe(Date.now()+8000);
+    expect(g.snapshot().players.reduce((sum,p)=>sum+p.points,0)).toBe(2000);
+    expect(()=>act('a','prepareRound')).toThrow('กำลังปิด');
+    expect(()=>act('b','setReady',true)).toThrow('กำลังปิด');expect(()=>g.add('C','c')).toThrow('กำลังปิด');
+  });
+  it('closure in the lobby is host-only and repeated requests do not extend its deadline',()=>{
+    expect(()=>act('b','closeRoom')).toThrow('host');act('a','closeRoom');const closeAt=g.closeAt;
+    vi.advanceTimersByTime(100);act('a','closeRoom');expect(g.closeAt).toBe(closeAt);
+    expect(()=>act('a','startRound')).toThrow('กำลังปิด');
+  });
+  it('preserves an uncontested side pot when both deep stacks leave against a short all-in',()=>{
+    g.add('C','c');g.players.get('a')!.points=20;start();act('a','allIn');act('b','raise',100);act('c','call');
+    vi.advanceTimersByTime(10);expect(g.phase).toBe('FLOP');
+    g.expire('c');g.expire('b');vi.advanceTimersByTime(10);
+    expect(g.phase).toBe('ROUND_END');const s=g.snapshot();
+    expect(s.results.find(r=>r.id==='a')!.payout).toBe(60);
+    expect(s.results.find(r=>r.id==='b')!.payout).toBe(160);
+    expect(s.results.reduce((sum,r)=>sum+r.delta,0)).toBe(0);
+    expect(s.pots[1].winners).toEqual(['b']);
+  });
 });

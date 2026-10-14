@@ -1,6 +1,8 @@
 import type { Card } from './index.js';
 export type PokerPhase = 'LOBBY' | 'DEALING' | 'PREFLOP' | 'FLOP' | 'TURN' | 'RIVER' | 'SHOWDOWN' | 'ROUND_END';
 export const POKER_ACTION_MS = 30_000;
+export const POKER_RECONNECT_SECONDS = 60;
+export const POKER_CLOSE_DELAY_MS = 8_000;
 export const HAND_NAMES = ['High card', 'One pair', 'Two pair', 'Three of a kind', 'Straight', 'Flush', 'Full house', 'Four of a kind', 'Straight flush'];
 export interface PokerHand { rank: number; kickers: number[]; name: string; cards: Card[] }
 export function comparePoker(a: PokerHand, b: PokerHand): number {
@@ -76,7 +78,7 @@ export function pokerPotSummaries(pots: readonly PokerPot[]): PokerPotSummary[] 
 }
 // order is clockwise starting left of the dealer button (odd-chip priority).
 export function pokerPayout(contributions: Record<string, number>, folded: Set<string>,
-  hands: Record<string, PokerHand>, order: string[]): { payouts: Record<string, number>; pots: PokerPot[] } {
+  hands: Record<string, PokerHand>, order: string[], foldOrder: readonly string[] = []): { payouts: Record<string, number>; pots: PokerPot[] } {
   const payouts = Object.fromEntries(Object.keys(contributions).map(id => [id, 0]));
   const levels = [...new Set(Object.values(contributions).filter(v => v > 0))].sort((a, b) => a - b);
   const pots: PokerPot[] = []; let previous = 0;
@@ -88,7 +90,13 @@ export function pokerPayout(contributions: Record<string, number>, folded: Set<s
     const refund = contributors.length === 1;
     if (refund) winners = contributors;
     else {
-      if (!eligible.length) throw new Error('No eligible player');
+      if (!eligible.length) {
+        // A side pot is won when its other contenders fold. Its last contender
+        // keeps that award even if they later leave/fold against a shorter all-in.
+        const winner = [...foldOrder].reverse().find(id => contributors.includes(id));
+        if (!winner) throw new Error('No eligible player');
+        eligible.push(winner);
+      }
       winners = [eligible[0]];
       for (const id of eligible.slice(1)) {
         const comparison = hands[id] && hands[winners[0]] ? comparePoker(hands[id], hands[winners[0]]) : 0;
@@ -104,6 +112,7 @@ export function pokerPayout(contributions: Record<string, number>, folded: Set<s
 export interface PokerPlayer {
   id: string; name: string; seat: number; points: number; isBot: boolean; connected: boolean; ready: boolean;
   folded: boolean; allIn: boolean; inHand: boolean; streetBet: number; contribution: number; lastAction: string;
+  reconnectUntil: number;
 }
 export interface PokerResult { id: string; name?: string; cards: Card[]; handName: string; payout: number; delta: number }
 export interface PokerSnapshot {
@@ -111,8 +120,9 @@ export interface PokerSnapshot {
   hostId: string; buttonId: string; smallBlindId: string; bigBlindId: string; turnId: string;
   smallBlind: number; bigBlind: number; currentBet: number; minRaise: number;
   turnDurationMs: number;
+  roomClosing: boolean; closeAt: number;
   raiseAllowedIds: string[];
   players: PokerPlayer[]; board: Card[]; pot: number; pots: PokerPot[]; results: PokerResult[];
 }
 export type PokerAction = 'setReady' | 'startRound' | 'prepareRound' | 'resetTablePoints' | 'addBot' | 'removeBot'
-  | 'fold' | 'check' | 'call' | 'raise' | 'allIn' | 'showCards';
+  | 'fold' | 'check' | 'call' | 'raise' | 'allIn' | 'showCards' | 'closeRoom';

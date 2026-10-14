@@ -1,4 +1,8 @@
 /* Only a joined Poker table uses the viewport layout. Entry pages stay unchanged. */
+.poker-game .phase > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.poker-game .phase > .poker-table-info { flex-shrink: 0; }
+.poker-room-notice { position: absolute; z-index: 5; top: 24%; left: 50%; transform: translateX(-50%); max-width: 90%; padding: 5px 12px; border: 1px solid #bfa16a; border-radius: 12px; background: #0c252ef2; color: #f3d699; font-size: 12px; text-align: center; pointer-events: none; }
+.poker-close-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
 .app.poker-shell {
   width: 100%; max-width: 1280px;
   height: 100vh;
