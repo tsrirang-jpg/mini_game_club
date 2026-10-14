@@ -21,7 +21,7 @@ describe('rules', () => {
     expect(evaluate([c(4), c(5)]).multiplier).toBe(2);
     expect(evaluate([c(1), c(2), c(3)]).multiplier).toBe(3);
     expect(evaluate([c(1), c(2, 'spades'), c(3)]).multiplier).toBe(1);
-    expect(evaluate([c(4), c(4, 'hearts'), c(4, 'spades')]).multiplier).toBe(1);
+    expect(evaluate([c(4), c(4, 'hearts'), c(4, 'spades')]).multiplier).toBe(5);
   });
   it('compares pok before scores and ignores multipliers', () => {
     expect(compare(evaluate([c(8), c(10)]), evaluate([c(3), c(3), c(3)]))).toBe(1);

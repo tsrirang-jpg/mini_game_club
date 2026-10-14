@@ -10,15 +10,19 @@ function requireCondition(condition: unknown, code: string, message: string): as
   if (!condition) throw new GameError(code, message);
 }
 interface Player extends PlayerView { expired: boolean; seen: Set<string> }
+const copyResult = (r: Result): Result => ({ ...r, cards: r.cards.map(c => ({ ...c })),
+  ...(r.dealerCards ? { dealerCards: r.dealerCards.map(c => ({ ...c })) } : {}),
+  ...(r.dealerValue ? { dealerValue: { ...r.dealerValue } } : {}) });
 export interface GameHooks { changed(): void; privateHand(id: string, cards: Card[]): void }
 
-// Framework independent state machine. Private hands never enter public snapshots.
+// Framework independent state machine. Only intentionally revealed hands are public.
 export class Game {
   players = new Map<string, Player>();
   phase: Phase = 'LOBBY'; roundId = 0; deadline = 0; hostId = ''; dealerId = '';
   private hands: Record<string, Card[]> = {};
   private stock: Card[] = [];
   private results: Result[] = [];
+  private catches = new Map<string, Result>();
   private ledger?: RoundLedger;
   private settledRounds = new Set<number>();
   private timer?: ReturnType<typeof setTimeout>;
@@ -76,7 +80,9 @@ export class Game {
     return { code: this.code, phase: this.phase, roundId: this.roundId, deadline: this.deadline,
       hostId: this.hostId, dealerId: this.dealerId,
       players: [...this.players.values()].map(({ expired, seen, ...p }) => ({ ...p })),
-      results: this.results.map(r => ({ ...r, cards: r.cards.map(c => ({ ...c })) })),
+      results: this.results.map(copyResult), catches: [...this.catches.values()].map(copyResult),
+      revealedHands: Object.entries(this.hands).filter(([id, cards]) => id !== this.dealerId && cards.length === 2 && evaluate(cards, this.rules).pok)
+        .map(([id, cards]) => ({ id, cards: cards.map(c => ({ ...c })), ...evaluate(cards, this.rules) })),
       rules: { ...this.rules }, settled: this.settledRounds.has(this.roundId) };
   }
   action(id: string, raw: unknown) {
@@ -113,7 +119,7 @@ export class Game {
           for (const player of this.players.values()) player.ready = player.isBot;
         } else if (a.type === 'prepareRound') {
           requireCondition(this.phase === 'ROUND_END', 'WRONG_PHASE', 'รอรอบจบก่อน');
-          this.phase = 'LOBBY'; this.results = []; this.hands = {}; this.ledger = undefined;
+          this.phase = 'LOBBY'; this.results = []; this.catches.clear(); this.hands = {}; this.ledger = undefined;
           for (const player of this.players.values()) {
             player.ready = player.isBot; player.acted = false; player.cardCount = 0;
             this.hooks.privateHand(player.id, []);
@@ -123,6 +129,18 @@ export class Game {
           for (const player of this.players.values()) { player.points = this.rules.initialPoints; player.ready = player.isBot; }
         } else { this.start(); }
       }
+    } else if (a.type === 'catch') {
+      requireCondition(this.phase === 'DEALER_ACTION' && id === this.dealerId, 'WRONG_PHASE', 'เฉพาะเจ้ามือจับได้ในตาเจ้ามือ');
+      requireCondition(Date.now() < this.deadline, 'TIMEOUT', 'หมดเวลาตัดสินใจ');
+      requireCondition(!p.acted && this.hands[id]?.length === 2 && !evaluate(this.hands[id], this.rules).pok, 'CANNOT_CATCH', 'จับได้ก่อนเจ้ามือจั่วหรืออยู่เท่านั้น');
+      requireCondition(typeof a.value === 'string' && a.value !== id && this.players.has(a.value) && this.hands[a.value]?.length === 3, 'INVALID_CATCH', 'เลือกผู้เล่นที่มีไพ่ 3 ใบ');
+      requireCondition(!this.catches.has(a.value), 'ALREADY_CAUGHT', 'ผู้เล่นนี้ถูกจับแล้ว');
+      const dealerCards = this.hands[id].map(c => ({ ...c }));
+      const { results } = makeLedger(this.roundId, id, { [id]: dealerCards, [a.value]: this.hands[a.value] },
+        { [a.value]: this.players.get(a.value)!.bet }, this.rules, { [a.value]: dealerCards });
+      this.catches.set(a.value, results.find(r => r.id === a.value)!);
+      if (this.catches.size === this.players.size - 1) { p.acted = true; this.reveal(); }
+      else this.beginDealerAction();
     } else if (a.type === 'draw' || a.type === 'stand') {
       requireCondition((this.phase === 'PLAYER_ACTIONS' && id !== this.dealerId)
         || (this.phase === 'DEALER_ACTION' && id === this.dealerId), 'WRONG_PHASE', 'ยังไม่ถึงจังหวะเล่นของคุณ');
@@ -142,10 +160,11 @@ export class Game {
     requireCondition(players.length >= 2 && players.every(p => p.connected && !p.expired), 'NOT_ENOUGH_PLAYERS', 'ต้องมีผู้เล่นที่เชื่อมต่ออย่างน้อย 2 คน และไม่มีผู้เล่นหลุด');
     const dealer = this.players.get(this.dealerId)!;
     requireCondition(dealer && players.every(p => p.id === this.hostId || p.ready), 'NOT_READY', 'รอผู้เล่นทุกคนกดพร้อม');
-    const maxMultiplier = Math.max(1, this.rules.pairMultiplier, this.rules.suitedTwoMultiplier, this.rules.suitedThreeMultiplier);
+    const maxMultiplier = Math.max(1, this.rules.pairMultiplier, this.rules.suitedTwoMultiplier, this.rules.suitedThreeMultiplier,
+      this.rules.yellowMultiplier, this.rules.tripleMultiplier, this.rules.straightMultiplier, this.rules.straightFlushMultiplier);
     requireCondition(players.filter(p => p !== dealer).every(p => p.points >= p.bet * maxMultiplier), 'INSUFFICIENT_POINTS', 'ผู้เล่นมีแต้มไม่พอรับความเสียหายสูงสุด');
-    requireCondition(dealer.points >= players.filter(p => p !== dealer).reduce((sum, p) => sum + p.bet * maxMultiplier, 0), 'DEALER_POINTS', 'เจ้ามือมีแต้มไม่พอรองรับเด้งสูงสุด ×3 กรุณาลดเดิมพันหรือเปลี่ยนเจ้ามือ');
-    this.roundId++; this.results = []; this.ledger = undefined; this.hands = {};
+    requireCondition(dealer.points >= players.filter(p => p !== dealer).reduce((sum, p) => sum + p.bet * maxMultiplier, 0), 'DEALER_POINTS', 'เจ้ามือมีแต้มไม่พอรองรับเด้งสูงสุด ×' + maxMultiplier + ' กรุณาลดเดิมพันหรือเปลี่ยนเจ้ามือ');
+    this.roundId++; this.results = []; this.catches.clear(); this.ledger = undefined; this.hands = {};
     this.stock = shuffle(deck(), this.random);
     for (const p of players) { this.hands[p.id] = []; p.seen.clear(); p.ready = false; p.acted = false; }
     for (let pass = 0; pass < 2; pass++) for (const p of players) this.hands[p.id].push(this.stock.pop()!);
@@ -166,15 +185,20 @@ export class Game {
   }
   private advanceActions() {
     if (this.phase === 'PLAYER_ACTIONS' && [...this.players.values()].filter(p => p.id !== this.dealerId).every(p => p.acted)) {
-      this.phaseFor('DEALER_ACTION', this.rules.actionMs, () => {
-        this.players.get(this.dealerId)!.acted = true; this.reveal();
-      });
+      this.beginDealerAction();
     } else if (this.phase === 'DEALER_ACTION' && this.players.get(this.dealerId)!.acted) this.reveal();
+  }
+  private beginDealerAction() {
+    this.phaseFor('DEALER_ACTION', this.rules.actionMs, () => {
+      this.players.get(this.dealerId)!.acted = true; this.reveal();
+    });
   }
   private reveal() {
     const { ledger, results } = makeLedger(this.roundId, this.dealerId, this.hands,
-      Object.fromEntries([...this.players.values()].map(p => [p.id, p.bet])), this.rules);
+      Object.fromEntries([...this.players.values()].map(p => [p.id, p.bet])), this.rules,
+      Object.fromEntries([...this.catches].map(([id, result]) => [id, result.dealerCards!])));
     this.ledger = ledger; this.results = results;
+    for (const result of results) if (result.caught) this.catches.set(result.id, copyResult(result));
     this.phaseFor('REVEAL', this.rules.revealMs, () => {
       const balances = applyLedger(Object.fromEntries([...this.players.values()].map(p => [p.id, p.points])), this.ledger!, this.settledRounds);
       for (const p of this.players.values()) p.points = balances[p.id];

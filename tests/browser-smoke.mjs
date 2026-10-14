@@ -21,7 +21,7 @@ async function noOverflow(page) {
 try {
   await a.goto(url); await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click(); await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
   assert.match(await a.locator('.rules').textContent(), /คู่หรือสองใบดอกเดียวกัน = 2 เด้ง/);
-  assert.match(await a.locator('.rules').textContent(), /ไม่มีตอง เรียง หรือเซียน/);
+  assert.match(await a.locator('.rules').textContent(), /เรียงฟลัชและตอง = 5 เด้ง/);
   await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
@@ -93,9 +93,13 @@ try {
   await a.getByRole('button', { name: 'สร้างโต๊ะใหม่' }).click();
   await wait(async () => await a.locator('.seat').count() === 3);
   assert.equal(await a.locator('.bot-badge').count(), 2);
+  await a.getByRole('button', { name: 'จัดการโต๊ะป๊อกเด้ง', exact: true }).click();
   const botNames = await a.locator('.bot-row span').allTextContents();
+  await a.getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click();
   await a.reload(); await wait(async () => await a.locator('.bot-badge').count() === 2);
+  await a.getByRole('button', { name: 'จัดการโต๊ะป๊อกเด้ง', exact: true }).click();
   assert.deepEqual(await a.locator('.bot-row span').allTextContents(), botNames);
+  await a.getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click();
   await a.getByRole('button', { name: 'เริ่มรอบ', exact: true }).click();
   await wait(async () => !(await a.locator('.phase').textContent()).includes('รอเพื่อนพร้อม'));
   const botEnd = Date.now() + 45000;
@@ -110,10 +114,12 @@ try {
   await a.screenshot({ path: fileURLToPath(new URL('../preview-bots.png', import.meta.url)), fullPage: true });
   await a.getByRole('button', { name: 'เตรียมรอบใหม่', exact: true }).click();
   await wait(() => a.getByRole('button', { name: 'เริ่มรอบ', exact: true }).isEnabled());
+  await a.getByRole('button', { name: 'จัดการโต๊ะป๊อกเด้ง', exact: true }).click();
   await a.locator('.bot-row button').first().click();
   await wait(async () => await a.locator('.bot-badge').count() === 1);
   await a.getByRole('button', { name: 'เพิ่มบอท', exact: true }).click();
   await wait(async () => await a.locator('.bot-badge').count() === 2);
+  await a.getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click();
   await a.getByRole('button', { name: 'ออกจากห้อง', exact: true }).click();
   // Direct game URL without a session must show an entry link, never the creation form.
   await b.goto(url + '/play/ABCDEF0123');

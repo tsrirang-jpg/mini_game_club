@@ -15,9 +15,24 @@ export async function checkPokerViewport(page, label) {
       hole: Math.min(...[...document.querySelectorAll('.poker-seat .card')].map(e=>e.getBoundingClientRect().width)),
       board: document.querySelector('.community .card,.card-slot').getBoundingClientRect().width,
     } : null;
-    const desktopLayout = matchMedia('(min-width: 1000px) and (min-height: 600px), (any-hover: hover) and (any-pointer: fine) and (min-width: 800px) and (min-height: 400px)').matches;
+    const mobileLandscape = matchMedia('(orientation: landscape) and (max-width: 1100px) and (max-height: 600px) and (hover: none) and (pointer: coarse)').matches;
+    const desktopLayout = !mobileLandscape && matchMedia('(min-width: 1000px) and (min-height: 600px), (any-hover: hover) and (any-pointer: fine) and (min-width: 800px) and (min-height: 400px)').matches;
     const center = document.querySelector('.poker-center').getBoundingClientRect();
     const own = document.querySelector('.poker-self')?.getBoundingClientRect();
+    const opponents = [...document.querySelectorAll('.poker-opponents > .poker-seat')].map(e => e.getBoundingClientRect());
+    const smallPortrait = matchMedia('(orientation: portrait) and (max-width: 375px) and (max-height: 720px) and (hover: none) and (pointer: coarse)').matches;
+    const portraitLayout = smallPortrait ? {
+      columns: getComputedStyle(document.querySelector('.poker-opponents')).gridTemplateColumns.split(' ').length,
+      opponentsAboveBoard: opponents.every(r => r.bottom <= center.top + 1),
+      ownBesideBoard: !own || own.left >= center.right - 1,
+      boardBottomGap: table.bottom - center.bottom,
+    } : null;
+    const landscapeLayout = mobileLandscape ? {
+      opponentRow: opponents.every(r => Math.abs(r.top - opponents[0].top) <= 1),
+      opponentsAboveBoard: opponents.every(r => r.bottom <= center.top + 1),
+      ownBesideBoard: !own || own.left >= center.right - 1,
+      boardCardWidth: document.querySelector('.community .card,.card-slot').getBoundingClientRect().width,
+    } : null;
     const centerOffset = desktopLayout ? { x: Math.abs((center.left+center.right-table.left-table.right)/2), y: Math.abs((center.top+center.bottom-table.top-table.bottom)/2) } : null;
     const ownBottom = desktopLayout && own ? { x: Math.abs((own.left+own.right-table.left-table.right)/2), gap: table.bottom-own.bottom } : null;
     const items = [...document.querySelectorAll('.poker-seat,.poker-center,.pot-breakdown')].map(e => {
@@ -40,7 +55,7 @@ export async function checkPokerViewport(page, label) {
       if (!r.width || !r.height || r.left<c.left || r.right>c.right || r.top<c.top || r.bottom>c.bottom || !label.contains(hit)) obscuredRanks.push(card.getAttribute('aria-label'));
     }
     const shell = document.querySelector('.poker-shell');
-    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, potAboveBoard, desktopCards, centerOffset, ownBottom, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
+    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, potAboveBoard, desktopCards, centerOffset, ownBottom, landscapeLayout, portraitLayout, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight,
       shellOverflow: shell.scrollHeight > shell.clientHeight + 1, shellWidth: shell.clientWidth, scrollY, shellScroll: shell.scrollTop };
   });
@@ -52,6 +67,18 @@ export async function checkPokerViewport(page, label) {
   assert.equal(report.potAboveBoard, true, label + ': total POT must be immediately above the board');
   if(report.centerOffset) assert.ok(report.centerOffset.x<=1&&report.centerOffset.y<=1,label+': board/POT must be centered in the table');
   if(report.ownBottom) assert.ok(report.ownBottom.x<=1&&report.ownBottom.gap<=24,label+': own hand must be at bottom center');
+  if(report.landscapeLayout) {
+    assert.equal(report.landscapeLayout.opponentRow, true, label + ': landscape opponents share the top row');
+    assert.equal(report.landscapeLayout.opponentsAboveBoard, true, label + ': landscape board sits below opponents');
+    assert.equal(report.landscapeLayout.ownBesideBoard, true, label + ': landscape own hand sits beside the board');
+    if(report.width >= 740 && report.height >= 390) assert.ok(report.landscapeLayout.boardCardWidth >= 40, label + ': landscape board cards remain readable');
+  }
+  if(report.portraitLayout) {
+    assert.equal(report.portraitLayout.columns, 3, label + ': small portrait opponents use three columns');
+    assert.equal(report.portraitLayout.opponentsAboveBoard, true, label + ': small portrait board sits below opponents');
+    assert.equal(report.portraitLayout.ownBesideBoard, true, label + ': small portrait own hand sits beside the board');
+    assert.ok(report.portraitLayout.boardBottomGap <= 24, label + ': small portrait board stays at the bottom of the table');
+  }
   if(report.desktopCards) {
     assert.ok(report.desktopCards.hole >= 60, label + ': desktop hole cards must be enlarged');
     assert.ok(report.desktopCards.board >= 76, label + ': desktop board cards must be enlarged');

@@ -8,7 +8,7 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 const url = process.env.GAME_URL || 'http://127.0.0.1:5188';
-const sizes = [[844,390],[667,375],[568,320],[740,360],[932,430],[320,568],[360,640],[390,844],[768,1024],[1366,768],[1024,600]];
+const sizes = [[844,390],[667,375],[568,320],[740,360],[932,430],[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[1366,768],[1024,600]];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function wait(fn, ms = 15000) {
   const until = Date.now() + ms;
@@ -73,7 +73,7 @@ try {
   assert.equal(await page.locator('.poker-shell').count(), 0);
   assert.equal(await page.locator('.top').isVisible(), true);
   assert.deepEqual(errors, []);
-  console.log('PASS: six players, lobby/raise/results, 11 portrait/landscape/tablet/desktop sizes, no scroll or clipped controls, dialogs and exit');
+  console.log('PASS: six players, lobby/raise/results, 13 portrait/landscape/tablet/desktop sizes including SE phones, no scroll or clipped controls, dialogs and exit');
 } catch (error) {
   await page.screenshot({ path: fileURLToPath(new URL('../preview-debug.png', import.meta.url)) });
   throw error;

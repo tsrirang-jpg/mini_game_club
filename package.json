@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:browser": "node tests/browser-smoke.mjs",
+    "test:pok-layout": "node tests/pok-layout-browser.mjs",
+    "test:pok-catch": "node tests/pok-catch-browser.mjs",
     "test:poker": "node tests/poker-browser.mjs",
     "test:poker-layout": "node tests/poker-layout-browser.mjs",
     "test:poker-pots": "node tests/poker-pots-browser.mjs",

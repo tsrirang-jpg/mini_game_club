@@ -109,14 +109,14 @@ describe('state machine', () => {
     game.players.get('p')!.points = 1000; game.players.get('d')!.points = 1;
     expect(() => act('d', 'startRound')).toThrow('เจ้ามือ');
   });
-  it('reserves the original three-times maximum payout', () => {
+  it('reserves the five-times maximum payout for triples', () => {
     act('p', 'setBet', 50); act('p', 'setReady', true);
-    game.players.get('p')!.points = 149;
+    game.players.get('p')!.points = 249;
     expect(() => act('d', 'startRound')).toThrow('ผู้เล่นมีแต้มไม่พอ');
-    game.players.get('p')!.points = 150; game.players.get('d')!.points = 149;
+    game.players.get('p')!.points = 250; game.players.get('d')!.points = 249;
     expect(() => act('d', 'startRound')).toThrow('เจ้ามือมีแต้มไม่พอ');
     expect(game.phase).toBe('LOBBY');
-    game.players.get('d')!.points = 150;
+    game.players.get('d')!.points = 250;
     act('d', 'startRound'); expect(game.phase).toBe('DEALING');
   });
   it('retains connected seats and transfers host when host leaves', () => {

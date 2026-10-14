@@ -11,6 +11,7 @@ import { Game } from '../apps/server/src/game';
 import type { GameHooks } from '../apps/server/src/game';
 import { DEFAULT_RULES } from '../packages/shared/src/index';
 import type { Snapshot, Card } from '../packages/shared/src/index';
+import { dealRandom } from './pok-test-deck';
 
 class TestRoom extends PokRoom {
   protected makeGame(code: string, hooks: GameHooks) {
@@ -20,6 +21,20 @@ class TestRoom extends PokRoom {
 class TestPokerRoom extends PokerRoom {
   protected makeGame(code: string, hooks: GameHooks) {
     return new PokerGame(code, hooks, () => 0, { deal: 50, turn: 2000, reveal: 20, bot: 40 });
+  }
+}
+class TestCatchRoom extends PokRoom {
+  protected makeGame(code: string, hooks: GameHooks) {
+    return new Game(code, hooks, { ...DEFAULT_RULES, dealMs: 50, revealMs: 50, settlementMs: 50, actionMs: 5000, reconnectSeconds: 2 },
+      dealRandom([{ rank:2,suit:'clubs' },{ rank:1,suit:'clubs' },{ rank:2,suit:'hearts' },{ rank:3,suit:'clubs' },{ rank:3,suit:'hearts' },{ rank:4,suit:'spades' },{ rank:12,suit:'diamonds' },{ rank:9,suit:'diamonds' }]));
+  }
+}
+class TestPokRevealRoom extends PokRoom {
+  protected makeGame(code: string, hooks: GameHooks) {
+    return new Game(code, hooks, { ...DEFAULT_RULES, dealMs:300,revealMs:50,settlementMs:50,actionMs:5000,reconnectSeconds:2 },
+      dealRandom([{rank:6,suit:'clubs'},{rank:9,suit:'clubs'},{rank:2,suit:'spades'},{rank:8,suit:'diamonds'},{rank:1,suit:'hearts'},
+        {rank:1,suit:'diamonds'},{rank:5,suit:'hearts'},{rank:7,suit:'spades'},{rank:12,suit:'diamonds'},{rank:5,suit:'spades'},
+        {rank:4,suit:'hearts'},{rank:1,suit:'spades'}]));
   }
 }
 let server: Server; let endpoint: string;
@@ -49,6 +64,8 @@ beforeAll(async () => {
   server = new Server({ gracefullyShutdown: false, transport: new WebSocketTransport({ server: http, maxPayload: 4096 }) });
   server.define('test', TestRoom);
   server.define('poker', TestPokerRoom);
+  server.define('test-catch', TestCatchRoom);
+  server.define('test-pok-reveal', TestPokRevealRoom);
   await server.listen(0, '127.0.0.1');
   const address = http.address();
   if (!address || typeof address === 'string') throw new Error('No server address');
@@ -59,6 +76,83 @@ afterAll(async () => {
   await server.gracefullyShutdown(false);
 });
 describe('real WebSocket clients', () => {
+  it('opens Pok8/9 immediately to everyone and recompares catches when dealer draws to eight', async () => {
+    const a = observe(await new Client(endpoint).create('test-pok-reveal', {name:'Dealer'}));
+    const others: Observer[] = [];
+    for (const name of ['Caught','Pok9','Pok8','Six']) others.push(observe(await new Client(endpoint).joinById(a.room.roomId,{name})));
+    const [caught,pok9,pok8,six] = others;
+    await until(() => [a,...others].every(o => latest(o)?.players.length === 5));
+    for (const o of others) send(o,'setReady',true);
+    await until(() => latest(a).players.filter(p => p.ready).length === 4);
+    send(a,'startRound');
+    await until(() => [a,...others].every(o => latest(o).phase === 'DEALING'));
+    for (const o of [a,...others]) {
+      expect(latest(o).results).toEqual([]);
+      expect(latest(o).revealedHands.map(r => r.id)).toEqual([pok9.room.sessionId,pok8.room.sessionId]);
+      expect(latest(o).revealedHands.every(r => r.pok && r.cards.length === 2)).toBe(true);
+      expect(latest(o).players.every(p => !('cards' in p))).toBe(true);
+    }
+    await until(() => latest(caught).phase === 'PLAYER_ACTIONS');
+    send(pok8,'draw'); await until(() => pok8.errors.some(e => e.code === 'ALREADY_ACTED'));
+    send(caught,'draw'); send(six,'stand'); await until(() => latest(a).phase === 'DEALER_ACTION');
+    send(a,'catch',caught.room.sessionId); await until(() => latest(six).catches.length === 1);
+    expect(latest(six).catches[0]).toMatchObject({delta:10,outcome:'WIN'});
+    const token = a.room.reconnectionToken;
+    a.room.connection.close(4010);
+    await until(() => latest(six).players.find(p => p.id === a.room.sessionId)?.connected === false);
+    const restored = observe(await new Client(endpoint).reconnect(token));
+    await until(() => latest(restored)?.catches.length === 1);
+    expect(latest(restored).revealedHands).toEqual(latest(six).revealedHands);
+    send(restored,'draw');
+    await until(() => [restored,...others].every(o => latest(o).phase === 'ROUND_END'));
+    for (const o of [restored,...others]) {
+      expect(latest(o).catches[0]).toMatchObject({delta:0,outcome:'TIE',catchRecompared:true,dealerCards:[{rank:6,suit:'clubs'},{rank:1,suit:'diamonds'},{rank:1,suit:'spades'}]});
+      expect(latest(o).results.find(r => r.id === pok9.room.sessionId)).toMatchObject({delta:20,outcome:'WIN'});
+      expect(latest(o).results.find(r => r.id === pok8.room.sessionId)).toMatchObject({delta:0,outcome:'TIE'});
+      expect(latest(o).results.find(r => r.id === six.room.sessionId)).toMatchObject({delta:-10,outcome:'LOSE'});
+      expect(latest(o).results.find(r => r.id === restored.room.sessionId)).toMatchObject({delta:-10,outcome:'DEALER'});
+      expect(latest(o).players.reduce((sum,p) => sum + p.points,0)).toBe(5000);
+    }
+    send(restored,'prepareRound'); await until(() => latest(six).phase === 'LOBBY');
+    expect(latest(six).revealedHands).toEqual([]); expect(latest(six).catches).toEqual([]);
+    for (const o of [...others,restored]) await o.room.leave();
+  });
+  it('broadcasts a locked catch, reconnects the dealer and pays caught and remaining players once', async () => {
+    const a = observe(await new Client(endpoint).create('test-catch', { name: 'Dealer' }));
+    const b = observe(await new Client(endpoint).joinById(a.room.roomId, { name: 'Draws' }));
+    const c = observe(await new Client(endpoint).joinById(a.room.roomId, { name: 'Stands' }));
+    await until(() => latest(a)?.players.length === 3 && latest(b)?.players.length === 3 && latest(c)?.players.length === 3);
+    send(b,'setReady',true); send(c,'setReady',true);
+    await until(() => latest(a).players.filter(p => p.ready).length === 2);
+    send(a,'startRound'); await until(() => latest(b).phase === 'PLAYER_ACTIONS');
+    send(b,'draw'); send(c,'stand'); await until(() => latest(a).phase === 'DEALER_ACTION');
+    send(c,'catch',b.room.sessionId); await until(() => c.errors.some(e => e.code === 'WRONG_PHASE'));
+    send(a,'catch',c.room.sessionId); await until(() => a.errors.some(e => e.code === 'INVALID_CATCH'));
+    const deadline = latest(a).deadline;
+    await sleep(150);
+    send(a,'catch',b.room.sessionId,undefined,'catch-once');
+    await until(() => latest(a).catches.length === 1 && latest(b).catches.length === 1 && latest(c).catches.length === 1);
+    const caught = latest(a).catches[0];
+    const resetDeadline = latest(a).deadline;
+    expect(resetDeadline).toBeGreaterThan(deadline);
+    expect(resetDeadline - Date.now()).toBeGreaterThan(4500);
+    expect(caught).toMatchObject({ id: b.room.sessionId, delta: -20, caught: true });
+    expect(caught.dealerCards).toHaveLength(2); expect(caught.cards).toHaveLength(3);
+    expect(latest(c).results).toEqual([]); expect(latest(c).catches.some(r => r.id === c.room.sessionId)).toBe(false);
+    expect(latest(c).players.every(p => !('cards' in p))).toBe(true);
+    send(a,'catch',b.room.sessionId,undefined,'catch-once');
+    const token = a.room.reconnectionToken;
+    a.room.connection.close(4010);
+    await until(() => latest(b).players.find(p => p.id === a.room.sessionId)?.connected === false);
+    const restored = observe(await new Client(endpoint).reconnect(token));
+    await until(() => latest(restored)?.catches.length === 1 && restored.hands.some(h => h.cards.length === 2));
+    expect(latest(restored).catches[0]).toEqual(caught); expect(latest(restored).deadline).toBe(resetDeadline);
+    send(restored,'draw'); await until(() => latest(b).phase === 'ROUND_END');
+    expect(latest(b).results.find(r => r.id === b.room.sessionId)).toMatchObject({ delta: -20, caught: true, dealerCards: caught.dealerCards });
+    expect(latest(b).results.find(r => r.id === c.room.sessionId)).toMatchObject({ delta: 10 });
+    expect(latest(b).players.reduce((sum,p) => sum + p.points,0)).toBe(3000);
+    await restored.room.leave(); await b.room.leave(); await c.room.leave();
+  });
   it('broadcasts voluntarily shown winner cards to the other player only after a win', async () => {
     let aState: PokerSnapshot | undefined, bState: PokerSnapshot | undefined;
     let bHand: Card[] = [];
