@@ -6,9 +6,18 @@ const url = process.env.GAME_URL || 'http://127.0.0.1:2569';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const desktop = await browser.newContext({ viewport: { width: 1366, height: 768 } });
 const mobile = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
+// Optional diagnostic mode: validate a built client against an existing server
+// before deployment. Normal and production verification use the served assets.
+if (process.env.POKER_TEST_BUNDLE) {
+  for (const context of [desktop, mobile]) await context.route('**/assets/*.js', route => route.fulfill({
+    path: process.env.POKER_TEST_BUNDLE, contentType: 'application/javascript',
+  }));
+  console.log('Diagnostic mode: local client bundle override');
+}
 await desktop.addInitScript(() => {
   window.testSockets = [];
   window.WebSocket = new Proxy(window.WebSocket, { construct(Target, args) {
+    if (window.testBlockSockets) throw new Error('Simulated temporary network outage');
     const socket = new Target(...args); window.testSockets.push(socket); return socket;
   } });
 });
@@ -37,9 +46,13 @@ try {
   const cards = await a.locator('.poker-self .card').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label')));
   const points = await a.locator('.poker-self .points').textContent();
   const identity = await a.evaluate(() => new URL(window.testSockets.find(s => s.readyState === 1).url).searchParams.get('sessionId'));
-  await a.evaluate(() => window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010)));
+  await a.evaluate(() => {
+    window.testBlockSockets = true;
+    window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010));
+  });
   await wait(async () => (await b.locator('.phase').textContent()).includes('Host: New Host'));
   await wait(async () => (await b.locator('.poker-opponents .player-status').allTextContents()).some(t => t.includes('Reconnect')));
+  await a.evaluate(() => { window.testBlockSockets = false; });
   await wait(async () => await a.locator('.connection').getAttribute('aria-label') === 'เชื่อมต่อแล้ว');
   assert.deepEqual(await a.locator('.poker-self .card').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-label'))), cards);
   assert.equal(await a.locator('.poker-self .points').textContent(), points);
@@ -89,5 +102,6 @@ try {
   console.log('PASS: real browser automatic reconnect + refresh preserve identity/cards/chips; host transfer; intentional exit; close confirmation and cleanup; queued reconnect cancellation');
 } catch (error) {
   console.error('Browser state:', new URL(a.url()).pathname, (await a.locator('body').textContent()).slice(0, 1500));
+  console.error('Other browser state:', new URL(b.url()).pathname, (await b.locator('body').textContent()).slice(0, 1000));
   throw error;
 } finally { await browser.close(); }

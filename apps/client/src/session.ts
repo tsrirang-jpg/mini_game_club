@@ -68,6 +68,9 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       closedMessage = message.message;
       room.reconnection.enabled = false;
       sessionStorage.removeItem(this.key);
+      // Proxies may delay forwarding the server's close frame. The authoritative
+      // closure message is enough to return to entry and close our socket normally.
+      this.leave(); this.update({ error: closedMessage });
     });
     room.onError(() => {
       if (generation === this.generation) this.update({ error: 'การเชื่อมต่อมีข้อผิดพลาด' });
