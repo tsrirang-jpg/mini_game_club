@@ -1,5 +1,7 @@
 # วงไพ่ — Browser Multiplayer Card Games
 
+เล่นออนไลน์: [วงไพ่](https://wong-pai.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
+
 ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต
 
 ## Spyfall: ภารกิจจับสายลับ
@@ -143,13 +145,15 @@ Deploy ด้วย Node web service เดียว: server เสิร์ฟ 
 
 Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` และ `/spyfall/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
 
-`render.yaml` กำหนด Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` หากสร้างบริการผ่าน MCP ใช้ค่าเดียวกับไฟล์นี้; การสร้างผ่าน MCP ไม่ได้เชื่อม Blueprint อัตโนมัติ
+บริการจริงชื่อ `wong-pai` ใน Render My Workspace ใช้ Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` เปิด auto-deploy จาก branch `main` ของ `tsrirang-jpg/mini_game_club`
+
+สร้างบริการผ่าน MCP จึงไม่ได้เชื่อม Blueprint อัตโนมัติ `render.yaml` เก็บค่าตั้งสำหรับสร้างซ้ำและตั้ง HTTP health check `/health` ส่วนบริการที่สร้างด้วย MCP ใช้ health check ค่าเริ่มต้นของ Render และมี `/health` ให้ตรวจ HTTP ได้
 
 ทดสอบ production บนเครื่อง: build ก่อน แล้วตั้ง `$env:NODE_ENV='production'; $env:PORT='2568'` และรัน `npm.cmd start` เปิด `http://127.0.0.1:2568/games` หรือทดสอบด้วย `node tests/production-smoke.mjs` ใช้ `GAME_URL` เปลี่ยนปลายทาง browser tests และ `PRODUCTION_GAME_URL` เปลี่ยนปลายทาง WebSocket smoke
 
 Render Free จะพักบริการเมื่อไม่มีการใช้งาน 15 นาที และการเปิดครั้งถัดไปอาจรอประมาณหนึ่งนาที อ่าน [ข้อจำกัดแผน Free](https://render.com/docs/free) หากแยก frontend/backend ให้ตั้ง `VITE_GAME_URL` ก่อน build และตั้ง reverse proxy ให้รองรับ HTTP matchmaking กับ WebSocket upgrade
 
-MVP ใช้ single instance และ memory เมื่อ restart ห้องและแต้มจะหาย ไม่มีฐานข้อมูล บัญชีถาวร หรือการกู้เกมหลัง process crash เมื่อขยายให้เพิ่ม persistence และ shared matchmaking โดยแต่ละ room มี server เจ้าของเพียงตัวเดียว
+MVP ใช้ single instance และ memory เมื่อ restart หรือ deploy ใหม่ ห้องและแต้มจะหาย ไม่มีฐานข้อมูล บัญชีถาวร หรือการกู้เกมหลัง process crash เมื่อขยายให้เพิ่ม persistence และ shared matchmaking โดยแต่ละ room มี server เจ้าของเพียงตัวเดียว
 
 ## ขอบเขตที่ยังไม่มี
 

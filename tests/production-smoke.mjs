@@ -1,6 +1,11 @@
 import { Client } from '@colyseus/sdk';
 import assert from 'node:assert/strict';
 const endpoint = process.env.PRODUCTION_GAME_URL || 'ws://127.0.0.1:2568';
+const watchdog = setTimeout(() => {
+  console.error('FAIL: production smoke exceeded 60 seconds');
+  process.exit(1);
+}, 60_000);
+watchdog.unref();
 const httpUrl = endpoint.replace(/^ws/, 'http').replace(/\/$/, '');
 const health = await fetch(`${httpUrl}/health`);
 assert.equal(health.status, 200);
@@ -23,8 +28,9 @@ for (const path of ['/assets/missing.js', '/.env', '/package.json', '/unknown-ap
 }
 console.log('PASS: production health, deep links, cached assets, and missing-file responses');
 for (const game of ['pok', 'poker', 'spyfall']) {
+  let snapshot;
   const a = await new Client(endpoint).create(game, { name: 'Production Host' });
-  a.onMessage('snapshot', () => {}); a.onMessage('hand', () => {});
+  a.onMessage('snapshot', message => { snapshot = message; }); a.onMessage('hand', () => {});
   a.onMessage('secret', () => {});
   const b = await new Client(endpoint).joinById(a.roomId, { name: 'Production Friend', game });
   b.onMessage('snapshot', () => {}); b.onMessage('hand', () => {});
@@ -33,5 +39,20 @@ for (const game of ['pok', 'poker', 'spyfall']) {
     assert.notEqual(a.sessionId, b.sessionId);
     assert.match(a.roomId, /^[A-F0-9]{10}$/);
     console.log(`PASS: compiled ${game} server creates a room and accepts two clients`);
-  } finally { await b.leave(); await a.leave(); }
+  } finally {
+    for (const room of [b, a]) {
+      room.reconnection.enabled = false;
+      const left = room.leave();
+      room.connection.close(1000);
+      assert.equal(await left, 1000, `Intentional ${game} exit must close normally`);
+      if (room === b) {
+        const until = Date.now() + 5000;
+        while (snapshot?.players.length !== 1 && Date.now() < until) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        assert.equal(snapshot?.players.length, 1, `Consented ${game} exit removes the seat immediately`);
+      }
+    }
+  }
 }
+clearTimeout(watchdog);

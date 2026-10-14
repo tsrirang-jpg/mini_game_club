@@ -12,6 +12,8 @@
 | Production /health, SPA deep links, hashed asset caching, unknown files return 404 | PASS |
 | All three browser suites against the same-origin production server | PASS |
 | render.yaml against the official Render JSON Schema | PASS |
+| Public HTTPS/WSS health, SPA routing, all-three-game create/join and normal consented exit | PASS |
+| All three browser suites on https://wong-pai.onrender.com | PASS |
 | npm audit | 0 vulnerabilities reported at verification time |
 | Two independent browser sessions | PASS |
 | Create/join with room code | PASS |
@@ -80,11 +82,17 @@ and `$env:PORT='2568'` and run `npm.cmd start`; in another terminal run
 `node tests/production-smoke.mjs`. Set `$env:GAME_URL='http://127.0.0.1:2568'`
 to run the browser suites against that production server.
 
-Render configuration is prepared for My Workspace, Free plan, Singapore,
-Node 24, and one web service serving both the client and game server.
-Git branch main is initialized locally. The destination repository URL and
-Git provider authentication are still needed before a push and public deploy.
+Published to https://github.com/tsrirang-jpg/mini_game_club (branch main).
+Render service wong-pai is live in My Workspace, Free plan, Singapore,
+Node 24, with one web service serving both the client and game server.
+Public URL: https://wong-pai.onrender.com/games.
+Render service ID: srv-db7i3oqvcj2c73do6460. Auto-deploy from main is enabled.
+Real browser tests on the public URL passed for all three games, including
+mobile layout, private cards/roles, refresh/reconnect, Poker betting, and
+Spyfall chat, voting, and both guess outcomes. The WSS diagnostic additionally
+checks normal intentional closing and immediate seat removal. Intentional exits
+disable automatic reconnection and send consent before closing the socket.
 
-The MVP has not been deployed to a public host or load-tested. It stores room
-and points in process memory. Restarting the server removes both. Tests do not
+The MVP has not been load-tested. It stores room
+and points in process memory. Restarting or redeploying the server removes both. Tests do not
 claim production capacity or cross-browser coverage beyond this Edge run.

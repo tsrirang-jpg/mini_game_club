@@ -119,7 +119,14 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     ++this.generation;
     if (this.retryTimer) clearTimeout(this.retryTimer);
     sessionStorage.removeItem(this.key);
-    void this.room?.leave(); this.room = undefined; this.snapshotRound = -1;
+    if (this.room) {
+      // Send the consented-leave message before closing the socket. An intentional
+      // exit must not start automatic reconnection if a proxy drops the close frame.
+      this.room.reconnection.enabled = false;
+      void this.room.leave();
+      this.room.connection.close(1000);
+    }
+    this.room = undefined; this.snapshotRound = -1;
     this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null });
     navigate(this.entryPath);
   }
