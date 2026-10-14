@@ -18,13 +18,14 @@ try{
   await a.screenshot({path:fileURLToPath(new URL('../preview-poker-create.png',import.meta.url)),fullPage:true});
   await a.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();await a.locator('.room-bar strong').waitFor();
   const code=await a.locator('.room-bar strong').textContent();
+  await a.getByRole('button',{name:'กติกา Poker',exact:true}).click();
   await a.locator('.poker-rules summary').click();
   assert.equal(await a.locator('.rank-example').count(),10);
   assert.equal(await a.locator('.rank-cards .card').count(),50);
   assert.match(await a.locator('.rank-example').first().textContent(),/Royal flush.*รอยัลฟลัช/);
   assert.match(await a.locator('.rank-example').last().textContent(),/High card/);
   await a.screenshot({path:fileURLToPath(new URL('../preview-poker-rules.png',import.meta.url)),fullPage:true});
-  await a.locator('.poker-rules summary').click();
+  await a.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   await b.goto(url);await b.getByRole('button',{name:/เลือก Poker/}).click();await b.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();
   await b.getByLabel('ชื่อของคุณ').fill('Poker Friend');await b.getByLabel('รหัสห้อง').fill(code);await b.getByRole('button',{name:'เข้าร่วมโต๊ะ Poker →',exact:true}).click();
   await b.locator('.room-bar strong').waitFor();await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();
@@ -63,7 +64,7 @@ try{
   await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();await wait(()=>a.getByRole('button',{name:'เริ่มรอบ Poker',exact:true}).isEnabled());
   await a.getByRole('button',{name:'เริ่มรอบ Poker',exact:true}).click();await wait(async()=>!(await a.locator('.phase').textContent()).includes('รอผู้เล่นพร้อม'));await playRound();
   assert.equal((await a.locator('.points').allTextContents()).reduce((n,t)=>n+Number(t.replace(/[^\d]/g,'')),0),3000);
-  await a.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).click();await a.locator('.bot-row button').first().click();await wait(async()=>await a.locator('.bot-badge').count()===0);
+  await a.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).click();await a.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();await a.locator('.bot-row button').first().click();await wait(async()=>await a.locator('.bot-badge').count()===0);await a.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   await b.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await a.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
   assert.deepEqual(errors,[]);console.log('PASS: hand ranking examples, legal chip presets and raise/call, 30-second timer, Poker rooms, refresh, four streets, bots, chip conservation, desktop/mobile');
 }catch(error){console.error('Browser errors:',errors);console.error((await a.locator('body').textContent()).slice(0,3500));throw error;}finally{await browser.close();}

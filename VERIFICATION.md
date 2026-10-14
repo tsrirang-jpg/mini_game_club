@@ -5,6 +5,9 @@
 | Check | Result |
 | --- | --- |
 | TypeScript strict typecheck | PASS |
+| Poker viewport layout: 6 players, 11 portrait/landscape/tablet/desktop sizes in lobby/raise/results | PASS |
+| Poker controls fully inside viewport; no page/hidden overflow or seat/board overlap after chip selection | PASS |
+| Poker rules/management/results dialogs, Escape/close and exit restores site header | PASS |
 | Vitest all-games/state-machine/WebSocket suites | PASS — 55 tests, 7 files |
 | Vite production client build | PASS |
 | Compiled Node.js server build | PASS |
@@ -70,6 +73,7 @@ With `npm.cmd run dev` running in another terminal:
 ```powershell
 npm.cmd run test:browser
 npm.cmd run test:poker
+npm.cmd run test:poker-layout
 npm.cmd run test:spyfall
 ```
 

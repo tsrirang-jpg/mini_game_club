@@ -53,6 +53,10 @@ Poker มีเวลาตัดสินใจ 30 วินาทีต่อ�
 
 UI มี animation แจก hole cards, flip เปิดไพ่กลาง, สถานะผู้เล่นที่ถึงตา, timer และสรุป pot รองรับ reduced-motion โดยปิด animation ตามการตั้งค่า browser
 
+หน้าเล่น Poker ใช้พื้นที่จอจริงด้วย `100dvh` รองรับแนวตั้งและแนวนอน โต๊ะ ผู้เล่น 6 คน ไพ่กลาง ไพ่ตัวเอง ตัวจับเวลา และแผง Fold/Check/Call/Raise/All-in อยู่ในจอเดียว ปุ่มชิปกับยืนยัน Raise อยู่ที่แผงด้านล่าง ไม่ต้อง scroll หน้าเพื่อเดิมพัน จอแนวนอนที่เตี้ยจัดคู่แข่งเป็นแถวเดียว ส่วนจอสูงจัดที่นั่งรอบไพ่กลาง
+
+ปุ่มกติกาและจัดการโต๊ะเปิด dialog บนหน้าเล่น กดปิดหรือ Escape กลับมาเล่นได้ทันที Host เพิ่มบอทจากแผงล่างและนำบอทออก/รีเซ็ตแต้มใน dialog จัดการโต๊ะ ผลแต่ละคนแสดงที่ที่นั่งและเปิดดูสรุป Pot เต็มได้เมื่อจบรอบ เนื้อหากติกายาวเลื่อนภายใน dialog ได้
+
 การเริ่มรอบถัดไปยังเป็นแบบ manual: host กดเตรียมรอบใหม่ ผู้เล่นกดพร้อม และเริ่มรอบ ผู้เล่นชิปหมดพักมือจน host รีเซ็ตแต้มใน lobby ไม่มี tournament, blind escalation, rebuy ระหว่างมือ หรือเงินจริง
 
 อ้างอิงกติกา: [PokerStars Texas Hold’em](https://www.pokerstars.com/poker/games/texas-holdem/) และ [Poker terms and rules](https://www.pokerstars.com/help/articles/poker-rules-master/229168/)
@@ -60,6 +64,8 @@ UI มี animation แจก hole cards, flip เปิดไพ่กลาง
 เพิ่ม code ที่ `packages/shared/src/poker.ts` (hand evaluator/pots), `apps/server/src/poker-game.ts`, `poker-room.ts`, และ `apps/client/src/PokerCreatePage.tsx`, `PokerPlayPage.tsx` ใช้ GameSession generic ร่วมกับป๊อกเด้ง แยก reconnect token ของแต่ละเกม
 
 ทดสอบ browser Poker ขณะ `npm run dev` เปิดอยู่: `node tests/poker-browser.mjs`
+
+ตรวจ responsive โต๊ะเต็ม 6 คนด้วย `npm run test:poker-layout`: 11 ขนาดจอ 320×568, 360×640, 390×844, 568×320, 667×375, 740×360, 844×390, 932×430, 768×1024, 1024×600 และ 1366×768 ตรวจช่วง lobby, เลือกชิป Raise และจบรอบ ว่าไม่มี page scroll, ไม่มีส่วนควบคุมถูกตัด และไม่มีที่นั่งหรือไพ่กลางซ้อนกัน ใช้ `GAME_URL` เปลี่ยน URL ไปตรวจ production ได้
 
 ## ป๊อกเด้ง: เล่นกับบอทและหน้าแยก
 

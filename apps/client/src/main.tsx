@@ -11,6 +11,7 @@ import { SpyfallCreatePage } from './SpyfallCreatePage';
 import { SpyfallPlayPage } from './SpyfallPlayPage';
 import './style.css';
 import './poker.css';
+import './poker-layout.css';
 import './spyfall.css';
 function App() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
@@ -29,7 +30,7 @@ function App() {
   const isSpy = route.startsWith('/spyfall');
   const current = isSpy ? spyState : isPoker ? pokerState : state;
   const currentSession = isSpy ? spySession : isPoker ? pokerSession : session;
-  return <div className="app">
+  return <div className={`app${pokerMatch && pokerState.snapshot?.code === pokerMatch[1] ? ' poker-shell' : ''}`}>
     <header className="top"><a className="brand" href="/games" onClick={e => { e.preventDefault(); navigate('/games'); }}>♠ <span>วงไพ่<small>CARD GAME CLUB</small></span></a><span className="tag">{isSpy?'ถาม · จับพิรุธ · โหวต':'เพื่อนและบอท · แต้มจำลอง'}</span></header>
     {current.error && <div className="error" role="alert">{current.error}<button aria-label="ปิดข้อความ" onClick={() => currentSession.clearError()}>×</button></div>}
     {current.status === 'reconnecting' && <div className="notice" role="status">กำลังเชื่อมต่อกลับโต๊ะ… <button onClick={() => currentSession.leave()}>กลับหน้าแรก</button></div>}
