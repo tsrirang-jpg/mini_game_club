@@ -142,9 +142,9 @@ export class Game {
     requireCondition(players.length >= 2 && players.every(p => p.connected && !p.expired), 'NOT_ENOUGH_PLAYERS', 'ต้องมีผู้เล่นที่เชื่อมต่ออย่างน้อย 2 คน และไม่มีผู้เล่นหลุด');
     const dealer = this.players.get(this.dealerId)!;
     requireCondition(dealer && players.every(p => p.id === this.hostId || p.ready), 'NOT_READY', 'รอผู้เล่นทุกคนกดพร้อม');
-    const maxMultiplier = Math.max(1, this.rules.pairMultiplier, this.rules.suitedTwoMultiplier, this.rules.suitedThreeMultiplier);
+    const maxMultiplier = Math.max(1, this.rules.pairMultiplier, this.rules.suitedTwoMultiplier, this.rules.tripsMultiplier, this.rules.facesMultiplier, this.rules.straightMultiplier);
     requireCondition(players.filter(p => p !== dealer).every(p => p.points >= p.bet * maxMultiplier), 'INSUFFICIENT_POINTS', 'ผู้เล่นมีแต้มไม่พอรับความเสียหายสูงสุด');
-    requireCondition(dealer.points >= players.filter(p => p !== dealer).reduce((sum, p) => sum + p.bet * maxMultiplier, 0), 'DEALER_POINTS', 'เจ้ามือมีแต้มไม่พอ');
+    requireCondition(dealer.points >= players.filter(p => p !== dealer).reduce((sum, p) => sum + p.bet * maxMultiplier, 0), 'DEALER_POINTS', 'เจ้ามือมีแต้มไม่พอรองรับเด้งสูงสุด ×5 กรุณาลดเดิมพันหรือเปลี่ยนเจ้ามือ');
     this.roundId++; this.results = []; this.ledger = undefined; this.hands = {};
     this.stock = shuffle(deck(), this.random);
     for (const p of players) { this.hands[p.id] = []; p.seen.clear(); p.ready = false; p.acted = false; }

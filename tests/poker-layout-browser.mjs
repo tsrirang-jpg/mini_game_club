@@ -21,12 +21,24 @@ async function fits(label, actions = false) {
 try {
   await page.goto(url + '/poker/rooms/create');
   await page.getByLabel('ชื่อของคุณ').fill('ผู้เล่นชื่อยาวทดสอบ');
-  await page.getByLabel('จำนวนบอท').selectOption('5');
+  await page.getByLabel('จำนวนบอท').selectOption('1');
   await page.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
-  await page.locator('.poker-seat').nth(5).waitFor();
+  await page.locator('.poker-seat').nth(1).waitFor();
+  for (let count = 2; count <= 6; count++) {
+    for (const [width, height] of [[568,320],[844,390],[1366,768]]) {
+      await page.setViewportSize({ width, height }); await pause(80);
+      await fits('ring with ' + count + ' players at ' + width + 'x' + height);
+    }
+    if (count < 6) {
+      await page.getByRole('button', { name: 'เพิ่มบอท', exact: true }).click();
+      await wait(async () => await page.locator('.poker-seat').count() === count + 1);
+    }
+  }
   for (const [width, height] of sizes) { await page.setViewportSize({ width, height }); await pause(80); await fits('lobby ' + width + 'x' + height); }
   await page.setViewportSize({ width: 844, height: 390 });
   await page.getByRole('button', { name: 'เริ่มรอบ Poker', exact: true }).click();
+  await page.locator('.deal-label').waitFor();
+  await fits('dealing animation');
   await wait(() => page.getByRole('button', { name: 'ยืนยัน Raise', exact: true }).isVisible());
   await pause(700);
   for (const [width, height] of sizes) {

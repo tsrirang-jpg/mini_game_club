@@ -10,9 +10,11 @@ import { PokerPlayPage } from './PokerPlayPage';
 import { SpyfallCreatePage } from './SpyfallCreatePage';
 import { SpyfallPlayPage } from './SpyfallPlayPage';
 import './style.css';
+import './pok-rules.css';
 import './poker.css';
 import './poker-layout.css';
 import './poker-pots.css';
+import './poker-ring.css';
 import './spyfall.css';
 function App() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);

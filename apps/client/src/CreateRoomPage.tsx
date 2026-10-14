@@ -9,6 +9,7 @@ export function CreateRoomPage({ state, join }: { state: SessionState; join: boo
   const [botCount, setBotCount] = useState(0);
   const connect = () => { localStorage.setItem('pok.name', name.trim()); void session.connect(name, join ? code : undefined, botCount); };
   return (<main className="welcome">
+      <button className="ghost pok-home" onClick={() => session.leave('/games')}>← กลับหน้าแรก</button>
       <div className="intro"><span className="eyebrow">ชวนเพื่อนมาเข้าวง</span><h1>ไพ่หนึ่งสำรับ<br/>ความสนุกทั้งวง<span>ป๊อกเด้งออนไลน์</span></h1><p>สร้างโต๊ะ ส่งรหัสให้เพื่อน แล้วเริ่มเล่น<br/>เปิดผ่าน browser ได้เลย เล่นกับเพื่อนหรือบอท รวม 2–6 คน</p><div className="hero-cards"><Card card={{ rank: 9, suit: 'spades' }}/><Card card={{ rank: 13, suit: 'hearts' }} index={1}/></div></div>
       <section className="entry"><h2>เริ่มเข้าวง</h2><div className="tabs"><button className={!join ? 'selected' : ''} onClick={() => navigate('/rooms/create')}>สร้างห้อง</button><button className={join ? 'selected' : ''} onClick={() => navigate('/rooms/join')}>เข้าห้องเพื่อน</button></div>
         {state.snapshot && <div className="notice"><span>คุณยังอยู่ในห้อง {state.snapshot.code}</span><button onClick={() => navigate('/play/' + state.snapshot!.code)}>กลับไปเล่น</button><button onClick={() => session.leave()}>ออกจากห้อง</button></div>}

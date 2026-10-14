@@ -20,6 +20,11 @@ async function noOverflow(page) {
 }
 try {
   await a.goto(url); await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click(); await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
+  assert.equal(await a.locator('.pok-rank').count(), 7);
+  await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
+  assert.equal(new URL(a.url()).pathname, '/games');
+  await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
+  await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
   await a.screenshot({ path: fileURLToPath(new URL('../preview-home.png', import.meta.url)), fullPage: true });
   await a.getByRole('button', { name: 'สร้างโต๊ะใหม่' }).click();
   await a.locator('.room-bar strong').waitFor();
@@ -52,6 +57,7 @@ try {
         await wait(async () => await b.locator('.seat.own .card:not(.back)').count() === 2);
         const original = await b.locator('.seat.own .card').allTextContents();
         assert.equal(await b.locator('.seat:not(.own) .card.back').count(), 2);
+        assert.equal(await b.locator('.pok-own-value').isVisible(), true);
         await a.screenshot({ path: fileURLToPath(new URL('../preview-table.png', import.meta.url)), fullPage: true });
         await b.screenshot({ path: fileURLToPath(new URL('../preview-mobile.png', import.meta.url)), fullPage: true });
         await b.reload();
@@ -78,7 +84,9 @@ try {
   assert.equal(refreshed, true, 'No actionable round available to test reload');
   assert.deepEqual(errors, [], 'Unexpected browser exception');
   await b.getByRole('button', { name: 'ออกจากห้อง', exact: true }).click();
-  await a.getByRole('button', { name: 'ออกจากห้อง', exact: true }).click();
+  await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
+  assert.equal(new URL(a.url()).pathname, '/games');
+  await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
   assert.equal(new URL(a.url()).pathname, '/rooms/create');
   await a.getByLabel('จำนวนบอท').selectOption('2');
   await a.getByRole('button', { name: 'สร้างโต๊ะใหม่' }).click();

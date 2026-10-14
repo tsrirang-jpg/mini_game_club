@@ -3,6 +3,7 @@ import { session } from './session';
 import type { SessionState } from './session';
 import { navigate } from './router';
 import { Card, Rules, phaseLabel } from './components';
+import { evaluate } from '../../../packages/shared/src/index';
 export function PlayPage({ state, code }: { state: SessionState; code: string }) {
   const [now, setNow] = useState(Date.now()); const [copied, setCopied] = useState(false);
   useEffect(() => { const tick = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(tick); }, []);
@@ -15,7 +16,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
   const canAct = active && me && !me.acted && now < s.deadline && ((s.phase === 'PLAYER_ACTIONS' && !dealer) || (s.phase === 'DEALER_ACTION' && dealer));
   const seconds = s.deadline ? Math.max(0, Math.ceil((s.deadline - now) / 1000)) : 0;
   return (<main className="game">
-      <div className="room-bar"><div><span className="eyebrow">โต๊ะป๊อกเด้ง</span><strong>{s.code}</strong><button className="small" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); } }}>{copied ? 'คัดลอกแล้ว' : 'คัดลอกรหัส'}</button></div><button className="ghost" onClick={() => session.leave()}>ออกจากห้อง</button></div>
+      <div className="room-bar"><div><span className="eyebrow">โต๊ะป๊อกเด้ง</span><strong>{s.code}</strong><button className="small" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); } }}>{copied ? 'คัดลอกแล้ว' : 'คัดลอกรหัส'}</button></div><div className="pok-navigation"><button className="ghost" onClick={() => session.leave('/games')}>← กลับหน้าแรก</button><button className="ghost" onClick={() => session.leave()}>ออกจากห้อง</button></div></div>
       <div className="game-layout"><section className="table-area">
         <div className="phase"><span>{phaseLabel[s.phase]}</span><span>รอบ {s.roundId || '–'}{s.deadline > 0 && ` · ${seconds} วินาที`}</span></div>
         <div className="table"><div className="table-mark">♠<span>วงไพ่</span><small>POK DENG</small></div>
@@ -23,12 +24,14 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
             const result = s.results.find(r => r.id === p.id);
             const own = p.id === state.playerId;
             const cards = result?.cards ?? (own && state.handRound === s.roundId ? state.hand : []);
+            const ownValue = own && !result && cards.length >= 2 ? evaluate(cards, s.rules) : null;
             return <article key={p.id} className={`seat ${own ? 'own' : ''} ${!p.connected ? 'disconnected' : ''}`}>
               <div className="player-name">{p.name} {p.isBot && <span className="bot-badge">บอท</span>} {own && <small>คุณ</small>}{p.id === s.dealerId && <span className="dealer">เจ้ามือ</span>}</div>
               <div className="hand">{Array.from({ length: p.cardCount }, (_, i) => <Card key={`${s.roundId}-${i}`} card={cards[i]} index={i}/>)}</div>
               <div className="points">{p.points.toLocaleString()} <small>แต้ม</small></div>
+              {ownValue && <div className="pok-own-value">{ownValue.handName} · {ownValue.score} แต้ม · ×{ownValue.multiplier}</div>}
               <div className="player-status">{!p.connected ? 'กำลังเชื่อมต่อใหม่' : idle ? p.ready || p.id === s.hostId ? '● พร้อม' : 'รอพร้อม' : p.acted ? 'ตัดสินใจแล้ว' : 'รอตัดสินใจ'}{p.id !== s.dealerId && ` · วาง ${p.bet}`}</div>
-              {result && <div className={`result ${result.delta > 0 ? 'win' : result.delta < 0 ? 'lose' : ''}`}>{result.pok ? 'ป๊อก ' : ''}{result.score} แต้ม · {result.multiplier} เด้ง<br/>{result.outcome === 'TIE' ? 'เสมอ' : result.outcome === 'DEALER' ? 'รวมเจ้ามือ' : result.outcome === 'WIN' ? 'ชนะ' : 'แพ้'} {result.delta > 0 ? '+' : ''}{result.delta}{!s.settled && ' (รอสรุป)'}</div>}
+              {result && <div className={`result ${result.delta > 0 ? 'win' : result.delta < 0 ? 'lose' : ''}`}>{result.handName} · {result.score} แต้ม · {result.multiplier} เด้ง<br/>{result.outcome === 'TIE' ? 'เสมอ' : result.outcome === 'DEALER' ? 'รวมเจ้ามือ' : result.outcome === 'WIN' ? 'ชนะ' : 'แพ้'} {result.delta > 0 ? '+' : ''}{result.delta}{!s.settled && ' (รอสรุป)'}</div>}
             </article>;
           })}</div>
         </div>

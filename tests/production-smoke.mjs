@@ -44,7 +44,9 @@ for (const game of ['pok', 'poker', 'spyfall']) {
       room.reconnection.enabled = false;
       const left = room.leave();
       room.connection.close(1000);
-      assert.equal(await left, 1000, `Intentional ${game} exit must close normally`);
+      // Colyseus can acknowledge consent with 4000 before our normal socket close.
+      // Both are intentional exits; an abnormal 1006 or reconnect remains a failure.
+      assert.ok([1000, 4000].includes(await left), `Intentional ${game} exit must close normally`);
       if (room === b) {
         const until = Date.now() + 5000;
         while (snapshot?.players.length !== 1 && Date.now() < until) {

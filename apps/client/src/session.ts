@@ -115,7 +115,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     this.room.send('action', { type, value, roundId: this.state.snapshot.roundId,
       actionId: Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('') });
   }
-  leave() {
+  leave(destination = this.entryPath) {
     ++this.generation;
     if (this.retryTimer) clearTimeout(this.retryTimer);
     sessionStorage.removeItem(this.key);
@@ -128,7 +128,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     }
     this.room = undefined; this.snapshotRound = -1;
     this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null });
-    navigate(this.entryPath);
+    navigate(destination);
   }
 }
 export const session = new GameSession();
