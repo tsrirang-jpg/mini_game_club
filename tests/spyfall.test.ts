@@ -115,9 +115,9 @@ describe('Spyfall custom rules',()=>{
   });
 });
 describe('Spyfall location catalogue',()=>{
-  it('adds exactly 100 locations with distinct names, accepted canonical names and roles for seven citizens',()=>{
-    expect(SPY_LOCATIONS).toHaveLength(112);
-    expect(new Set(SPY_LOCATIONS.map(l=>normalizeLocation(l.name))).size).toBe(112);
+  it('keeps the original twelve locations with accepted canonical names and roles for seven citizens',()=>{
+    expect(SPY_LOCATIONS).toHaveLength(12);
+    expect(new Set(SPY_LOCATIONS.map(l=>normalizeLocation(l.name))).size).toBe(12);
     const owners=new Map<string,string>();
     for(const location of SPY_LOCATIONS){
       expect(location.aliases.some(a=>normalizeLocation(a)===normalizeLocation(location.name))).toBe(true);
@@ -128,9 +128,9 @@ describe('Spyfall location catalogue',()=>{
       }
     }
   });
-  it.each([['หอไอเฟล',' EIFFEL-TOWER '],['ฮอบบิทตัน','Hobbiton Movie Set']])('deals %s privately to seven citizens and accepts its English name', (name,answer)=>{
+  it.each([['โรงพยาบาล',' HOSPITAL '],['ห้องสมุด','Library']])('deals %s privately to seven citizens and accepts its English name', (name,answer)=>{
     game.dispose();let randomCall=0;
-    game=new SpyfallGame('WORLD',{changed(){},secret(id,data){secrets[id]=data;}},()=>randomCall++===0?0:SPY_LOCATIONS.findIndex(l=>l.name===name));
+    game=new SpyfallGame('CLASSIC',{changed(){},secret(id,data){secrets[id]=data;}},()=>randomCall++===0?0:SPY_LOCATIONS.findIndex(l=>l.name===name));
     for(const id of ['a','b','c','d','e','f','g','h'])game.add(id,id);
     for(const id of ['b','c','d','e','f','g','h'])act(id,'setReady',true);
     act('a','startRound');
