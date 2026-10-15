@@ -89,10 +89,11 @@ export class SpyfallGame {
       this.votes.set(id, a.value as string); p!.hasVoted = true; this.sendSecret(id);
       if (this.participants.every(pid => this.votes.has(pid))) this.resolveVote();
     } else if (a.type === 'guess') {
-      demand(this.phase === 'GUESS' && id === this.spyId && Date.now() < this.deadline, 'เฉพาะสายลับที่ถูกจับเท่านั้นที่ตอบได้');
+      demand((this.phase === 'QUESTION' || this.phase === 'GUESS') && id === this.spyId && Date.now() < this.deadline,
+        'เฉพาะสายลับตอบได้ในช่วงสอบสวนหรือหลังโหวตจับได้');
       demand(typeof a.value === 'string' && a.value.trim().length > 0 && a.value.trim().length <= 80, 'พิมพ์สถานที่ 1–80 ตัวอักษร');
       const guess = (a.value as string).trim(); const correct = SPY_LOCATIONS[this.locationIndex].aliases.some(alias => normalizeLocation(alias) === normalizeLocation(guess));
-      this.finish(correct ? 'spy' : 'citizens', correct ? 'correct_guess' : 'wrong_guess', this.spyId, guess);
+      this.finish(correct ? 'spy' : 'citizens', correct ? 'correct_guess' : 'wrong_guess', this.phase === 'GUESS' ? this.spyId : null, guess);
     } else throw new GameError('UNKNOWN_ACTION', 'ไม่รู้จักคำสั่ง');
     p!.seen.add(a.actionId); this.changed();
   }

@@ -21,6 +21,8 @@ try{
   await a.getByRole('button',{name:'สร้างห้อง Spyfall →',exact:true}).click();await a.locator('.room-bar strong').waitFor();const code=await a.locator('.room-bar strong').textContent();
   for(const[p,name]of[[b,'Agent B'],[c,'Agent C']]){await p.goto(url);await p.getByRole('button',{name:/เลือก Spyfall/}).click();await p.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByLabel('รหัสห้อง').fill(code);await p.getByRole('button',{name:'เข้าร่วมภารกิจ →',exact:true}).click();await p.locator('.room-bar strong').waitFor();}
   await wait(async()=>await a.locator('.spy-player').count()===3);await start();let identity=await identities();
+  assert.equal(await identity.spy.locator('.secret-location').textContent(),'Spy');
+  for(const p of pages)assert.equal(await p.getByRole('button',{name:'ตอบสถานที่',exact:true}).count(),p===identity.spy?1:0);
   assert.match(new URL(b.url()).pathname,/^\/spyfall\/play\//);
   assert.match(await a.locator('.mission-clock strong').textContent(),/^(10:00|09:\d\d)$/);
   for(const p of pages){assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
@@ -29,6 +31,8 @@ try{
   const oldRole=await b.locator('.secret-card').textContent();await b.reload();await wait(()=>b.getByRole('button',{name:'เปิดบทบาทลับ',exact:true}).isVisible());await b.getByRole('button',{name:'เปิดบทบาทลับ',exact:true}).click();assert.equal(await b.locator('.secret-card').textContent(),oldRole);
   await shot(a,'preview-spyfall-question');await shot(b,'preview-spyfall-mobile');
   await catchSpy(identity.spyName);assert.equal(await a.getByLabel('ข้อความแชต',{exact:true}).isDisabled(),true);assert.equal(await c.getByLabel('ข้อความแชต',{exact:true}).isDisabled(),true);
+  await identity.spy.getByRole('button',{name:'ตอบสถานที่',exact:true}).click();
+  assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').evaluate(el=>el===document.activeElement),true);
   await shot(a,'preview-spyfall-vote-result');
   await identity.spy.getByLabel('เฉลยสถานที่').fill('สถานที่ที่ไม่ถูกต้อง');await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
   await wait(async()=>(await a.locator('.mission-result h2').textContent()).includes('คนทั่วไปชนะ'));assert.match(await a.locator('.mission-result').textContent(),new RegExp(identity.location));await shot(a,'preview-spyfall-result');
@@ -40,6 +44,26 @@ try{
   await shot(a,'preview-spyfall-question');await shot(b,'preview-spyfall-mobile');
   await catchSpy(identity.spyName);
   await identity.spy.getByLabel('เฉลยสถานที่').fill(identity.location);await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();await wait(async()=>(await a.locator('.mission-result h2').textContent()).includes('สายลับชนะ'));
+  await a.getByRole('button',{name:'เตรียมภารกิจใหม่',exact:true}).click();await start();identity=await identities();
+  await identity.spy.getByRole('button',{name:'ตอบสถานที่',exact:true}).click();
+  assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').evaluate(el=>el===document.activeElement),true);
+  for(const [width,height]of[[375,667],[568,320],[1366,768]]){
+    await identity.spy.setViewportSize({width,height});await identity.spy.getByLabel('เฉลยสถานที่').scrollIntoViewIfNeeded();
+    assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').isVisible(),true);
+    assert.equal(await identity.spy.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }
+  for(const p of pages.filter(p=>p!==identity.spy))assert.equal(await p.getByLabel('เฉลยสถานที่').count(),0);
+  assert.equal(await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).isDisabled(),true);
+  await identity.spy.getByLabel('เฉลยสถานที่').fill(identity.location);await shot(identity.spy,'preview-spyfall-early-answer');
+  await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
+  await wait(async()=>(await a.locator('.mission-result h2').textContent()).includes('สายลับชนะ'));
+  assert.equal(await a.locator('.vote-results').textContent().then(t=>t.includes('ไม่ลงคะแนน')),true);
+  await a.getByRole('button',{name:'เตรียมภารกิจใหม่',exact:true}).click();await start();identity=await identities();
+  assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').count(),0);
+  await identity.spy.getByRole('button',{name:'ตอบสถานที่',exact:true}).click();
+  assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').inputValue(),'');
+  await identity.spy.getByLabel('เฉลยสถานที่').fill('สถานที่ที่ไม่ถูกต้อง');await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
+  await wait(async()=>(await a.locator('.mission-result h2').textContent()).includes('คนทั่วไปชนะ'));
   assert.deepEqual(errors,[]);for(const p of [...pages].reverse())await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
-  console.log('PASS: 3 players, private role, 5/10-minute settings, chat/XSS rendering, refresh, unanimous readiness, voting, paused guess chat, wrong/correct spy guess outcomes, desktop/mobile');
+  console.log('PASS: 3 players, private Spy label and answer controls, 5/10-minute settings, chat, refresh, voting, correct/wrong guesses before voting and after capture, desktop/mobile');
 }catch(error){console.error('Spyfall browser errors:',errors);console.error((await a.locator('body').textContent()).slice(0,4500));throw error;}finally{await browser.close();}

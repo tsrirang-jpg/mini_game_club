@@ -1,6 +1,6 @@
 import { beforeEach,afterEach,describe,it,expect,vi } from 'vitest';
 import { SpyfallGame } from '../apps/server/src/spyfall-game';
-import { normalizeLocation } from '../apps/server/src/spyfall-locations';
+import { SPY_LOCATIONS, normalizeLocation } from '../apps/server/src/spyfall-locations';
 import type { SpySecret } from '../packages/shared/src/spyfall';
 let game:SpyfallGame;let secrets:Record<string,SpySecret>;let sequence=0;
 function act(id:string,type:string,value?:unknown,roundId=game.roundId,actionId=`spy-${++sequence}`){game.action(id,{type,value,roundId,actionId});}
@@ -46,6 +46,28 @@ describe('Spyfall custom rules',()=>{
     start();caught();act('a','guess','โรงเรียน');expect(game.snapshot().result?.winner).toBe('citizens');
     expect(game.snapshot().result?.reason).toBe('wrong_guess');expect(game.players.get('b')?.score).toBe(1);expect(game.players.get('c')?.score).toBe(1);
   });
+  it('lets only the spy win with a correct answer during questioning, without a public accusation',()=>{
+    start();expect(()=>act('b','guess','โรงพยาบาล')).toThrow('เฉพาะสายลับ');
+    expect(game.snapshot().caughtSpyId).toBeNull();expect(game.snapshot().result).toBeNull();
+    act('a','guess',' HOSPITAL ');
+    expect(game.snapshot().result).toMatchObject({winner:'spy',reason:'correct_guess',accusedId:null,location:'โรงพยาบาล'});
+    expect(game.snapshot().result?.votes).toEqual({a:null,b:null,c:null});
+    expect(game.players.get('a')?.score).toBe(1);
+    vi.advanceTimersByTime(600000);expect(game.phase).toBe('RESULTS');expect(game.players.get('a')?.score).toBe(1);
+  });
+  it('awards citizens once when the spy answers incorrectly during questioning',()=>{
+    start();expect(()=>act('a','guess','')).toThrow();expect(()=>act('a','guess','โรงพยาบาล',0)).toThrow();
+    expect(game.phase).toBe('QUESTION');
+    act('a','guess','โรงเรียน',1,'early-answer');act('a','guess','โรงพยาบาล',1,'early-answer');
+    expect(()=>act('a','guess','โรงพยาบาล')).toThrow();
+    expect(game.snapshot().result).toMatchObject({winner:'citizens',reason:'wrong_guess',accusedId:null});
+    expect([...game.players.values()].map(p=>p.score)).toEqual([0,1,1]);
+    vi.advanceTimersByTime(600000);expect([...game.players.values()].map(p=>p.score)).toEqual([0,1,1]);
+  });
+  it('rejects a question-stage answer that arrives after the question deadline',()=>{
+    start();vi.setSystemTime(game.deadline+1);
+    expect(()=>act('a','guess','โรงพยาบาล')).toThrow();expect(game.snapshot().result).toBeNull();
+  });
   it('citizens win if the caught spy answer timer expires',()=>{
     start();caught();vi.advanceTimersByTime(59999);expect(game.phase).toBe('GUESS');vi.advanceTimersByTime(1);
     expect(game.snapshot().result?.reason).toBe('guess_timeout');expect(game.snapshot().result?.winner).toBe('citizens');
@@ -56,9 +78,11 @@ describe('Spyfall custom rules',()=>{
     act('a','prepareRound');start();ready();act('a','vote','b');act('b','vote','c');act('c','vote','a');
     expect(game.snapshot().result?.reason).toBe('no_majority');
   });
-  it('locks guesses to the caught spy and rejects invalid/stale/duplicate commands',()=>{
-    start();expect(()=>act('a','guess','โรงพยาบาล')).toThrow();expect(()=>act('a','vote','b')).toThrow();
-    caught();expect(()=>act('b','guess','โรงพยาบาล')).toThrow();expect(()=>act('a','guess','')).toThrow();
+  it('rejects guesses in lobby and voting and protects caught-spy answers from invalid/stale/duplicate commands',()=>{
+    expect(()=>act('a','guess','โรงพยาบาล')).toThrow();start();expect(()=>act('a','vote','b')).toThrow();
+    ready();expect(()=>act('a','guess','โรงพยาบาล')).toThrow();
+    act('a','vote','b');act('b','vote','a');act('c','vote','a');
+    expect(()=>act('b','guess','โรงพยาบาล')).toThrow();expect(()=>act('a','guess','')).toThrow();
     expect(()=>act('a','guess','โรงพยาบาล',0)).toThrow();act('a','guess','โรงเรียน',1,'same');
     act('a','guess','โรงพยาบาล',1,'same');expect(game.snapshot().result?.winner).toBe('citizens');expect(game.players.get('b')?.score).toBe(1);
   });
@@ -88,5 +112,33 @@ describe('Spyfall custom rules',()=>{
     expect(normalizeLocation(' ร.พ. ')).toBe(normalizeLocation('รพ'));
     expect(normalizeLocation('Hospital')).toBe(normalizeLocation('hospital'));
     start();caught();act('a','guess','โรงพยาบาลหรือโรงเรียน');expect(game.snapshot().result?.winner).toBe('citizens');
+  });
+});
+describe('Spyfall location catalogue',()=>{
+  it('adds exactly 100 locations with distinct names, accepted canonical names and roles for seven citizens',()=>{
+    expect(SPY_LOCATIONS).toHaveLength(112);
+    expect(new Set(SPY_LOCATIONS.map(l=>normalizeLocation(l.name))).size).toBe(112);
+    const owners=new Map<string,string>();
+    for(const location of SPY_LOCATIONS){
+      expect(location.aliases.some(a=>normalizeLocation(a)===normalizeLocation(location.name))).toBe(true);
+      expect(location.roles.length).toBeGreaterThanOrEqual(7);expect(new Set(location.roles).size).toBe(location.roles.length);
+      for(const alias of location.aliases){
+        expect(alias.trim().length).toBeGreaterThan(0);expect(alias.length).toBeLessThanOrEqual(80);
+        const normalized=normalizeLocation(alias);expect(owners.get(normalized)??location.name).toBe(location.name);owners.set(normalized,location.name);
+      }
+    }
+  });
+  it.each([['หอไอเฟล',' EIFFEL-TOWER '],['ฮอบบิทตัน','Hobbiton Movie Set']])('deals %s privately to seven citizens and accepts its English name', (name,answer)=>{
+    game.dispose();let randomCall=0;
+    game=new SpyfallGame('WORLD',{changed(){},secret(id,data){secrets[id]=data;}},()=>randomCall++===0?0:SPY_LOCATIONS.findIndex(l=>l.name===name));
+    for(const id of ['a','b','c','d','e','f','g','h'])game.add(id,id);
+    for(const id of ['b','c','d','e','f','g','h'])act(id,'setReady',true);
+    act('a','startRound');
+    expect(secrets.a.role).toEqual({kind:'spy',ownVote:null});
+    const citizens=Object.values(secrets).filter(s=>s.role?.kind==='citizen');
+    expect(citizens).toHaveLength(7);expect(citizens.every(s=>s.role?.location===name)).toBe(true);
+    expect(new Set(citizens.map(s=>s.role?.occupation)).size).toBe(7);
+    expect(JSON.stringify(game.snapshot())).not.toContain(name);
+    act('a','guess',answer);expect(game.snapshot().result).toMatchObject({winner:'spy',reason:'correct_guess',location:name});
   });
 });
