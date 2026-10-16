@@ -41,6 +41,8 @@ async function catchSpy(spyName){
   }
   await wait(async()=>(await a.locator('.mission-banner h1').textContent()).includes('สายลับตอบ'));
   for(const p of pages){
+    await wait(async()=>(await p.locator('.mission-banner h1').textContent()).includes('สายลับตอบ'));
+    await p.getByRole('dialog',{name:'ใครคือ Spy?'}).waitFor({state:'detached'});
     assert.equal(await p.getByRole('dialog',{name:'ใครคือ Spy?'}).count(),0);
     if(pages.indexOf(p)===['Agent A','Agent B','Agent C'].indexOf(spyName)){
       await p.getByRole('dialog',{name:'Spy ตอบสถานที่',exact:true}).waitFor();
@@ -111,7 +113,7 @@ try{
     await pages[i].getByRole('button',{name:'ยืนยันโหวต',exact:true}).click();
   }
   await wait(async()=>await a.locator('.mission-result h2').textContent()==='สายลับชนะ');
-  for(const p of pages){assert.equal(await p.getByRole('dialog').count(),0);assert.match(await p.locator('.mission-result').textContent(),/จับผิดคน/);}
+  for(const p of pages){await p.locator('.mission-result').waitFor();await p.getByRole('dialog').waitFor({state:'detached'});assert.equal(await p.getByRole('dialog').count(),0);assert.match(await p.locator('.mission-result').textContent(),/จับผิดคน/);}
   await a.getByRole('button',{name:'เตรียมภารกิจใหม่',exact:true}).click();await start();identity=await identities();
   await catchSpy(identity.spyName);
   const secondsBeforeReload=Number(await identity.spy.locator('.spy-guess-footer .spy-voting-clock strong').textContent());
@@ -121,7 +123,7 @@ try{
   assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').inputValue(),'');
   await identity.spy.getByRole('button',{name:'ยอมแพ้',exact:true}).click();
   await wait(async()=>await a.locator('.mission-result h2').textContent()==='คนทั่วไปชนะ');
-  for(const p of pages){assert.equal(await p.getByRole('dialog').count(),0);assert.match(await p.locator('.mission-result').textContent(),/สายลับยอมแพ้/);}
+  for(const p of pages){await p.locator('.mission-result').waitFor();await p.getByRole('dialog').waitFor({state:'detached'});assert.equal(await p.getByRole('dialog').count(),0);assert.match(await p.locator('.mission-result').textContent(),/สายลับยอมแพ้/);}
   assert.deepEqual(errors,[]);for(const p of [...pages].reverse())await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
   console.log('PASS: 3 players, private roles, chat, 60-second voting, locked confirmations and refresh, automatic spy-only answer popup, correct/wrong answers, surrender with no answer, winners and modal cleanup, desktop/mobile');
 }catch(error){console.error('Spyfall browser errors:',errors);console.error((await a.locator('body').textContent()).slice(0,4500));throw error;}finally{await browser.close();}
