@@ -1,0 +1,52 @@
+.spy-select { min-width: 0; margin-bottom: 20px; }
+.spy-select > label { margin-bottom: 8px; }
+.spy-shell .spy-select .spy-select-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; min-height: 52px; padding: 12px 15px; text-align: left;
+  color: #173e5d; background: linear-gradient(135deg, #eaf6ff, #d7eaf8); border: 1px solid #a7cde6;
+  box-shadow: inset 0 1px 0 #ffffff8c, 0 2px 5px #153d5726;
+}
+.spy-shell .spy-select .spy-select-trigger:hover:not(:disabled) { color: #173e5d; background: #edf8ff; border-color: #d5ebfa; transform: none; }
+.spy-shell .spy-select .spy-select-trigger:focus-visible { outline: 3px solid #e9f6ff; outline-offset: 3px; }
+.spy-shell .spy-select .spy-select-trigger[aria-expanded="true"] { box-shadow: 0 0 0 3px #a3d6f755; border-color: #e1f3ff; }
+.spy-shell .spy-select .spy-select-trigger:disabled { background: #a6c0d3; color: #3e617c; border-color: #9fbdd2; opacity: 1; }
+.spy-select-trigger svg { flex-shrink: 0; transition: transform .15s; }
+.spy-select-trigger svg.expanded { transform: rotate(180deg); }
+.spy-select-value { display: flex; flex-direction: column; min-width: 0; }
+.spy-select-value strong { font-size: 16px; line-height: 1.5; font-weight: 500; white-space: nowrap; }
+.spy-setting-selects { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-bottom: 18px; }
+.spy-setting-selects .spy-select { margin: 0; }
+.spy-shell .spy-select.compact .spy-select-trigger { min-height: 66px; padding: 10px 12px; gap: 6px; color: #f4f9ff; background: #315d7d; border-color: #79a4c34d; }
+.spy-shell .spy-select.compact .spy-select-trigger:hover:not(:disabled) { background: #396d90; color: #fff; }
+.spy-shell .spy-select.compact .spy-select-trigger[aria-expanded="true"] { border-color: #c3e6fc; }
+.spy-shell .spy-select.compact .spy-select-trigger:disabled { background: #6688a0; color: #d9e6ef; border-color: #9bb6c9; }
+.spy-select-caption { display: block; font-size: 10px; font-weight: 500; line-height: 1.5; margin-bottom: 3px; white-space: nowrap; }
+.spy-select.compact .spy-select-value strong { font-size: 15px; font-weight: 700; }
+.spy-select.compact svg { width: 13px; }
+.mission-actions .spy-setting-selects { grid-template-columns: 1fr; }
+.mission-actions .spy-select.compact .spy-select-value { flex-direction: row; align-items: center; gap: 10px; }
+.mission-actions .spy-select.compact .spy-select-caption { margin: 0; font-size: 11px; }
+.spy-shell .mission-actions .spy-select.compact .spy-select-trigger { min-height: 48px; }
+.spy-settings-readonly { padding: 10px 12px; margin: 12px 0 0; border: 1px solid #a2c5de70; border-radius: 10px; background: #315d7d; color: #f0f7fc; font-size: 11px; line-height: 1.9; }
+.spy-select-menu {
+  position: fixed; z-index: 1500; margin: 0; padding: 6px; min-width: 0;
+  list-style: none; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  scrollbar-color: #7ca8c7 #eaf4fc; background: linear-gradient(135deg, #f4faff, #e7f3fc);
+  color: #173e5d; color-scheme: light; font-family: inherit;
+  border: 1px solid #a8cee8; border-radius: 13px;
+  box-shadow: 0 12px 32px #163b5952, inset 0 1px 0 #fff;
+}
+.spy-select-menu [role="option"] { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 46px; padding: 10px 12px; border-radius: 8px; font-size: 15px; line-height: 1.6; cursor: pointer; }
+.spy-select-menu [role="option"] + [role="option"] { border-top: 1px solid #b9d8ed55; }
+.spy-select-menu [role="option"].is-selected { color: #17476a; background: #c8e7fb; font-weight: 700; }
+.spy-select-menu [role="option"].is-active { background: #d5ecfc; box-shadow: inset 0 0 0 1px #92bfdc; }
+.spy-select-menu [role="option"].is-selected.is-active { background: #c8e7fb; }
+.spy-select-menu [aria-disabled="true"] { color: #8c9eac; cursor: not-allowed; }
+.spy-select-menu svg { flex-shrink: 0; }
+@media(max-width:400px) {
+  .spy-setting-selects { gap: 6px; }
+  .spy-shell .spy-select.compact .spy-select-trigger { padding: 9px 7px; gap: 3px; }
+  .spy-select-caption { font-size: 9px; }
+  .spy-select.compact .spy-select-value strong { font-size: 13px; }
+  .spy-select.compact svg { width: 11px; }
+}

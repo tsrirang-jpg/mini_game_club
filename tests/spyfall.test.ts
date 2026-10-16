@@ -18,7 +18,7 @@ describe('Spyfall custom rules',()=>{
     expect(snapshot.players.every(p=>!('role'in p)&&!('location'in p))).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('โรงพยาบาล');
   });
-  it('supports only 5 or 10 minutes, and automatically starts a 60-second vote',()=>{
+  it('supports 5, 7 or 10 minutes, and automatically starts a 60-second vote',()=>{
     expect(()=>act('a','setQuestionMinutes',3)).toThrow();expect(()=>act('b','setQuestionMinutes',10)).toThrow('เฉพาะ');
     act('a','setQuestionMinutes',10);start();expect(game.deadline-Date.now()).toBe(600000);
     vi.advanceTimersByTime(600000);expect(game.phase).toBe('VOTING');expect(game.deadline-Date.now()).toBe(60000);
@@ -173,10 +173,54 @@ describe('Spyfall custom rules',()=>{
     start();caught();act('a','guess','โรงพยาบาลหรือโรงเรียน');expect(game.snapshot().result?.winner).toBe('citizens');
   });
 });
+describe('Spyfall room settings',()=>{
+  it('defaults to five minutes, one-minute voting/answers and a three-player capacity',()=>{
+    expect(game.snapshot()).toMatchObject({questionMinutes:5,votingMinutes:1,guessMinutes:1,playerCount:3,votingDurationMs:60000,guessDurationMs:60000});
+    expect(()=>game.add('D','d')).toThrow('ห้องเต็ม');
+  });
+  it.each([3,4,5,6,7,8])('enforces a maximum of %s players and gives every participant a private role',count=>{
+    act('a','setPlayerCount',count);
+    for(let i=3;i<count;i++)game.add(`Player ${i}`,`p${i}`);
+    expect(()=>game.add('Extra','extra')).toThrow('ห้องเต็ม');
+    for(const id of game.players.keys())if(id!=='a')act(id,'setReady',true);
+    act('a','startRound');expect(game.snapshot().players).toHaveLength(count);
+    expect(Object.values(secrets).filter(secret=>secret.role?.kind==='spy')).toHaveLength(1);
+    expect(Object.values(secrets).filter(secret=>secret.role?.kind==='citizen')).toHaveLength(count-1);
+  });
+  it.each([1,2,3])('runs %s-minute voting and answer deadlines without changing them on reconnect',minutes=>{
+    act('a','setQuestionMinutes',7);act('a','setVotingMinutes',minutes);act('a','setGuessMinutes',minutes);start();
+    expect(game.deadline-Date.now()).toBe(420000);ready();expect(game.deadline-Date.now()).toBe(minutes*60000);
+    expect(game.snapshot().votingDurationMs).toBe(minutes*60000);act('a','vote','b');act('b','vote','a');act('c','vote','a');
+    expect(game.phase).toBe('GUESS');expect(game.deadline-Date.now()).toBe(minutes*60000);expect(game.snapshot().guessDurationMs).toBe(minutes*60000);
+    const deadline=game.deadline;vi.advanceTimersByTime(1000);game.disconnect('a');game.reconnect('a');expect(game.deadline).toBe(deadline);
+    vi.advanceTimersByTime(minutes*60000-1001);expect(game.phase).toBe('GUESS');vi.advanceTimersByTime(1);expect(game.snapshot().result?.reason).toBe('guess_timeout');
+  });
+  it('uses the selected voting timeout even when nobody confirms',()=>{
+    act('a','setVotingMinutes',3);start();ready();vi.advanceTimersByTime(179999);expect(game.phase).toBe('VOTING');
+    vi.advanceTimersByTime(1);expect(game.snapshot().result?.reason).toBe('no_majority');
+  });
+  it('treats capacity as a maximum, starts with three people, and keeps settings for the next round',()=>{
+    act('a','setPlayerCount',8);act('a','setVotingMinutes',2);act('a','setGuessMinutes',3);start();
+    expect(game.phase).toBe('QUESTION');expect(game.snapshot().players).toHaveLength(3);
+    act('a','guess','โรงพยาบาล');act('a','prepareRound');
+    expect(game.snapshot()).toMatchObject({playerCount:8,votingMinutes:2,guessMinutes:3});
+    act('a','setPlayerCount',4);game.add('D','d');expect(()=>game.add('E','e')).toThrow('ห้องเต็ม');
+    expect(()=>act('a','setPlayerCount',3)).toThrow('ไม่น้อยกว่า');expect(game.snapshot().playerCount).toBe(4);
+  });
+  it('restricts settings to the host, validates values, clears readiness and rejects in-round edits',()=>{
+    for(const [type,value] of [['setVotingMinutes',2],['setGuessMinutes',3],['setPlayerCount',8]] as const){
+      expect(()=>act('b',type,value)).toThrow('เฉพาะ');act('b','setReady',true);act('a',type,value);expect(game.players.get('b')?.ready).toBe(false);
+    }
+    for(const type of ['setVotingMinutes','setGuessMinutes'])for(const value of [0,4,1.5,'2',null,Infinity])expect(()=>act('a',type,value)).toThrow();
+    for(const value of [2,9,3.5,'8'])expect(()=>act('a','setPlayerCount',value)).toThrow();
+    start();for(const type of ['setQuestionMinutes','setVotingMinutes','setGuessMinutes','setPlayerCount'])expect(()=>act('a',type,3)).toThrow('ก่อนเริ่มรอบ');
+  });
+});
 describe('Spyfall location catalogue',()=>{
-  it('keeps the original twelve locations with accepted canonical names and roles for seven citizens',()=>{
-    expect(SPY_LOCATIONS).toHaveLength(12);
-    expect(new Set(SPY_LOCATIONS.map(l=>normalizeLocation(l.name))).size).toBe(12);
+  it('keeps the original twelve plus the requested twenty-three locations, aliases and seven citizen roles',()=>{
+    expect(SPY_LOCATIONS).toHaveLength(35);
+    expect(new Set(SPY_LOCATIONS.map(l=>normalizeLocation(l.name))).size).toBe(35);
+    expect(SPY_LOCATIONS.slice(12).map(l=>l.name)).toEqual(['บางแสน','สวนสยาม','ดรีมเวิล','สวนสนุก','วัด','สถานีขนส่งหมอชิต','เขาใหญ่','น้ำตก','ภูทับเบิก','เกาะกูด','ดอยสุเทพ','ภูกระดึง','ผาแต้ม','หอไอเฟล','เทพีเสรีภาพ','กำแพงเมืองจีน','คาสิโน','สะพานแม่น้ำแคว','เขื่อน','เรือนจำ','บ้านผีสิง','ห้างสรรพสินค้า','แอสการ์ด']);
     const owners=new Map<string,string>();
     for(const location of SPY_LOCATIONS){
       expect(location.aliases.some(a=>normalizeLocation(a)===normalizeLocation(location.name))).toBe(true);
@@ -187,9 +231,10 @@ describe('Spyfall location catalogue',()=>{
       }
     }
   });
-  it.each([['โรงพยาบาล',' HOSPITAL '],['ห้องสมุด','Library']])('deals %s privately to seven citizens and accepts its English name', (name,answer)=>{
+  it.each(SPY_LOCATIONS.map(location=>[location.name,location.aliases.at(-1)!]))('deals %s privately to seven citizens and accepts an alias', (name,answer)=>{
     game.dispose();let randomCall=0;
     game=new SpyfallGame('CLASSIC',{changed(){},secret(id,data){secrets[id]=data;}},()=>randomCall++===0?0:SPY_LOCATIONS.findIndex(l=>l.name===name));
+    game.playerCount=8;
     for(const id of ['a','b','c','d','e','f','g','h'])game.add(id,id);
     for(const id of ['b','c','d','e','f','g','h'])act(id,'setReady',true);
     act('a','startRound');
@@ -199,5 +244,9 @@ describe('Spyfall location catalogue',()=>{
     expect(new Set(citizens.map(s=>s.role?.occupation)).size).toBe(7);
     expect(JSON.stringify(game.snapshot())).not.toContain(name);
     act('a','guess',answer);expect(game.snapshot().result).toMatchObject({winner:'spy',reason:'correct_guess',location:name});
+  });
+  it('accepts the alternate Dream World spelling',()=>{
+    game.dispose();let randomCall=0;game=new SpyfallGame('DREAM',{changed(){},secret(){}},()=>randomCall++===0?0:14);
+    for(const id of ['a','b','c'])game.add(id,id);start();act('a','guess','ดรีมเวิลด์');expect(game.snapshot().result?.winner).toBe('spy');
   });
 });

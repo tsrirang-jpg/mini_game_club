@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { SPY_QUESTION_MINUTES, SPY_VOTING_MS, SPY_GUESS_MS } from '../../../packages/shared/src/spyfall.js';
+import { SPY_QUESTION_MINUTES, SPY_TURN_MINUTES, SPY_PLAYER_COUNTS, SPY_VOTING_MS, SPY_GUESS_MS } from '../../../packages/shared/src/spyfall.js';
 import type { SpyPlayer, SpyRole, SpySecret, SpySnapshot, SpyPhase, SpyResult, ChatMessage } from '../../../packages/shared/src/spyfall.js';
 import { SPY_LOCATIONS, normalizeLocation } from './spyfall-locations.js';
 import { GameError } from './game.js';
@@ -8,7 +8,7 @@ interface Player extends SpyPlayer { expired: boolean; seen: Set<string>; chatTi
 export interface SpyHooks { changed(): void; secret(id: string, data: SpySecret): void }
 export class SpyfallGame {
   players = new Map<string, Player>(); phase: SpyPhase = 'LOBBY'; roundId = 0; deadline = 0; hostId = '';
-  questionMinutes = 5; private phaseDurationMs = 0;
+  questionMinutes = 5; votingMinutes = 1; guessMinutes = 1; playerCount = 3; private phaseDurationMs = 0;
   private participants: string[] = []; private spyId = ''; private locationIndex = -1;
   private roles = new Map<string, SpyRole>(); private votes = new Map<string, string>();
   private chat: ChatMessage[] = []; private result: SpyResult | null = null;
@@ -17,7 +17,7 @@ export class SpyfallGame {
     public timings = { minute: 60_000, voting: SPY_VOTING_MS, guess: SPY_GUESS_MS }) {}
   private idle() { return this.phase === 'LOBBY' || this.phase === 'RESULTS'; }
   add(name: unknown, id: string = randomUUID()) {
-    demand(this.idle(), 'รอรอบนี้จบก่อน'); demand(this.players.size < 8, 'ห้องเต็มแล้ว (สูงสุด 8 คน)');
+    demand(this.idle(), 'รอรอบนี้จบก่อน'); demand(this.players.size < this.playerCount, `ห้องเต็มแล้ว (สูงสุด ${this.playerCount} คน)`);
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({ length: 8 }, (_, i) => i).find(i => ![...this.players.values()].some(p => p.seat === i))!;
@@ -44,7 +44,8 @@ export class SpyfallGame {
   snapshot(): SpySnapshot {
     return { game: 'spyfall', code: this.code, phase: this.phase, roundId: this.roundId, deadline: this.deadline,
       hostId: this.hostId, questionMinutes: this.questionMinutes, phaseDurationMs: this.phaseDurationMs,
-      votingDurationMs: this.timings.voting, guessDurationMs: this.timings.guess,
+      votingMinutes: this.votingMinutes, guessMinutes: this.guessMinutes, playerCount: this.playerCount,
+      votingDurationMs: this.votingMinutes * this.timings.voting, guessDurationMs: this.guessMinutes * this.timings.guess,
       players: [...this.players.values()].map(({ expired, seen, chatTimes, ...p }) => ({ ...p })),
       chat: this.chat.map(m => ({ ...m })), caughtSpyId: this.phase === 'GUESS' ? this.spyId : null,
       result: this.result ? { ...this.result, votes: { ...this.result.votes }, tally: { ...this.result.tally } } : null };
@@ -64,14 +65,24 @@ export class SpyfallGame {
       demand(p!.chatTimes.length < 3, 'ส่งแชตเร็วเกินไป รอสักครู่'); p!.chatTimes.push(now);
       this.chat.push({ id: randomUUID(), playerId: id, name: p!.name, text: (a.value as string).trim(), timestamp: now, roundId: this.roundId });
       if (this.chat.length > 100) this.chat.shift();
-    } else if (['setReady','setQuestionMinutes','startRound','prepareRound'].includes(a.type)) {
+    } else if (['setReady','setQuestionMinutes','setVotingMinutes','setGuessMinutes','setPlayerCount','startRound','prepareRound'].includes(a.type)) {
       demand(this.idle(), 'ตั้งค่าได้ก่อนเริ่มรอบเท่านั้น');
       if (a.type === 'setReady') { demand(typeof a.value === 'boolean', 'สถานะพร้อมไม่ถูกต้อง'); p!.ready = a.value as boolean; }
       else {
         demand(id === this.hostId, 'เฉพาะผู้สร้างห้องเท่านั้น');
         if (a.type === 'setQuestionMinutes') {
-          demand(typeof a.value === 'number' && SPY_QUESTION_MINUTES.includes(a.value as 5 | 10), 'เลือกเวลาถาม 5 หรือ 10 นาที');
+          demand(typeof a.value === 'number' && SPY_QUESTION_MINUTES.some(value => value === a.value), 'เลือกเวลาถาม 5, 7 หรือ 10 นาที');
           this.questionMinutes = a.value as number; for (const player of this.players.values()) player.ready = false;
+        } else if (a.type === 'setVotingMinutes' || a.type === 'setGuessMinutes') {
+          demand(typeof a.value === 'number' && SPY_TURN_MINUTES.some(value => value === a.value), 'เลือกเวลา 1, 2 หรือ 3 นาที');
+          if (a.type === 'setVotingMinutes') this.votingMinutes = a.value as number;
+          else this.guessMinutes = a.value as number;
+          for (const player of this.players.values()) player.ready = false;
+        } else if (a.type === 'setPlayerCount') {
+          demand(typeof a.value === 'number' && SPY_PLAYER_COUNTS.some(value => value === a.value), 'เลือกจำนวนผู้เล่นสูงสุด 3–8 คน');
+          demand((a.value as number) >= this.players.size, 'จำนวนสูงสุดต้องไม่น้อยกว่าผู้เล่นที่อยู่ในห้อง');
+          this.playerCount = a.value as number;
+          for (const player of this.players.values()) player.ready = false;
         } else if (a.type === 'startRound') this.start();
         else {
           demand(this.phase === 'RESULTS', 'รอรอบจบก่อน'); this.clearTimer(); this.phase = 'LOBBY'; this.deadline = 0; this.phaseDurationMs = 0;
@@ -104,7 +115,7 @@ export class SpyfallGame {
   }
   private start() {
     const players = [...this.players.values()].sort((a,b) => a.seat - b.seat);
-    demand(players.length >= 3 && players.every(p => p.connected && !p.expired), 'ต้องมีผู้เล่นที่เชื่อมต่อ 3–8 คน');
+    demand(players.length >= 3 && players.length <= this.playerCount && players.every(p => p.connected && !p.expired), 'ต้องมีผู้เล่นที่เชื่อมต่อ 3–8 คน');
     demand(players.every(p => p.id === this.hostId || p.ready), 'รอทุกคนกดพร้อม');
     this.roundId++; this.settled = false; this.result = null; this.roles.clear(); this.votes.clear(); this.chat = [];
     this.participants = players.map(p => p.id); this.spyId = this.participants[this.random(players.length)];
@@ -117,13 +128,13 @@ export class SpyfallGame {
     }
     this.phaseFor('QUESTION', this.questionMinutes * this.timings.minute, () => this.beginVoting());
   }
-  private beginVoting() { this.phaseFor('VOTING', this.timings.voting, () => this.resolveVote()); }
+  private beginVoting() { this.phaseFor('VOTING', this.votingMinutes * this.timings.voting, () => this.resolveVote()); }
   private tally() { const tally: Record<string, number> = {}; for (const target of this.votes.values()) tally[target] = (tally[target] ?? 0) + 1; return tally; }
   private resolveVote() {
     const tally = this.tally(); const accusedId = Object.keys(tally).find(id => tally[id] > this.participants.length / 2) ?? null;
     if (!accusedId) this.finish('spy', 'no_majority', null);
     else if (accusedId !== this.spyId) this.finish('spy', 'wrong_accusation', accusedId);
-    else this.phaseFor('GUESS', this.timings.guess, () => this.finish('citizens', 'guess_timeout', this.spyId));
+    else this.phaseFor('GUESS', this.guessMinutes * this.timings.guess, () => this.finish('citizens', 'guess_timeout', this.spyId));
   }
   private finish(winner: 'spy' | 'citizens', reason: SpyResult['reason'], accusedId: string | null, guess = '') {
     if (this.settled) return; this.settled = true; this.clearTimer(); this.phase = 'RESULTS'; this.deadline = 0; this.phaseDurationMs = 0;

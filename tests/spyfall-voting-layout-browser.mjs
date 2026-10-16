@@ -20,7 +20,7 @@ async function fixture(phase = 'VOTING', count = 8, remaining = 60000) {
     }));
     const snapshot = { game: 'spyfall', code: 'ABCDEF0123', phase, roundId,
       deadline: phase === 'RESULTS' ? 0 : Date.now() + remaining,
-      hostId: 'p0', questionMinutes: 5, phaseDurationMs: 60000, votingDurationMs: 60000,
+      hostId: 'p0', questionMinutes: 5, votingMinutes: 1, guessMinutes: 1, playerCount: 8, phaseDurationMs: 60000, votingDurationMs: 60000,
       guessDurationMs: 60000, players, chat: [], caughtSpyId: phase === 'GUESS' ? 'p0' : null, result: null };
     window.confirmedVotes = [];
     window.spyAnswers = [];

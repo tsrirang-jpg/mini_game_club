@@ -16,6 +16,33 @@ function observe(room:Room):Observer{room.reconnection.enabled=false;rooms.push(
 function send(o:Observer,type:string,value?:unknown){o.room.send('action',{type,value,roundId:o.state!.roundId,actionId:`net-spy-${++serial}`});}
 beforeAll(async()=>{const http=createServer();server=new Server({gracefullyShutdown:false,transport:new WebSocketTransport({server:http,maxPayload:4096})});server.define('spyfall',TestSpyRoom);await server.listen(0,'127.0.0.1');const address=http.address();if(!address||typeof address==='string')throw new Error('No address');endpoint=`ws://127.0.0.1:${address.port}`;});
 afterAll(async()=>{await Promise.all(rooms.map(r=>Promise.race([r.leave().catch(()=>{}),sleep(200)])));await server.gracefullyShutdown(false);});
+it.each([{questionMinutes:6},{questionMinutes:'7'},{votingMinutes:0},{votingMinutes:4},{guessMinutes:4},{guessMinutes:'2'},{playerCount:2},{playerCount:9}])('rejects invalid creation settings %j',async settings=>{
+  await expect(new Client(endpoint).create('spyfall',{name:'Invalid',...settings})).rejects.toThrow();
+});
+it('enforces room capacity, applies host changes and broadcasts the selected question/vote/answer durations',async()=>{
+  const a=observe(await new Client(endpoint).create('spyfall',{name:'Settings A',questionMinutes:7,votingMinutes:2,guessMinutes:3,playerCount:4}));
+  const group=[a];
+  for(const name of ['B','C','D'])group.push(observe(await new Client(endpoint).joinById(a.room.roomId,{name})));
+  await until(()=>group.every(o=>o.state?.players.length===4));
+  expect(a.state).toMatchObject({questionMinutes:7,votingMinutes:2,guessMinutes:3,playerCount:4,votingDurationMs:4000,guessDurationMs:6000});
+  await expect(new Client(endpoint).joinById(a.room.roomId,{name:'Too many'})).rejects.toThrow();
+  send(group[1],'setVotingMinutes',1);await until(()=>group[1].errors.some(e=>e.includes('เฉพาะ')));
+  send(a,'setPlayerCount',3);await until(()=>a.errors.some(e=>e.includes('ไม่น้อยกว่า')));
+  send(a,'setPlayerCount',5);await until(()=>group.every(o=>o.state?.playerCount===5));
+  group.push(observe(await new Client(endpoint).joinById(a.room.roomId,{name:'E'})));
+  await until(()=>group.every(o=>o.state?.players.length===5));
+  for(const o of group.slice(1))send(o,'setReady',true);
+  await until(()=>a.state!.players.filter(p=>p.ready).length===4);send(a,'startRound');
+  await until(()=>group.every(o=>o.state?.phase==='QUESTION'));
+  expect(a.state!.phaseDurationMs).toBe(14000);
+  for(const o of group)send(o,'readyVote',true);
+  await until(()=>group.every(o=>o.state?.phase==='VOTING'));expect(a.state!.phaseDurationMs).toBe(4000);
+  for(const o of group)send(o,'vote',o===a?group[1].room.sessionId:a.room.sessionId);
+  await until(()=>group.every(o=>o.state?.phase==='GUESS'));expect(a.state!.phaseDurationMs).toBe(6000);
+  send(a,'guess','โรงพยาบาล');await until(()=>group.every(o=>o.state?.phase==='RESULTS'));
+  for(const o of group)expect(o.state?.result?.winner).toBe('spy');
+  for(const o of group.reverse())await o.room.leave();
+});
 it.each(['wrong_answer','surrender'])('3 WebSocket clients get private roles, chat, reconnect and vote/%s without exposing hidden state',async(outcome)=>{
   const a=observe(await new Client(endpoint).create('spyfall',{name:'A',questionMinutes:5}));
   let b=observe(await new Client(endpoint).joinById(a.room.roomId,{name:'B',game:'spyfall'}));

@@ -24,6 +24,7 @@ import './poker-mobile-landscape.css';
 import './poker-mobile-small-portrait.css';
 import './spyfall.css';
 import './spyfall-theme.css';
+import './spyfall-select.css';
 function App() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
   const pokerState = useSyncExternalStore(pokerSession.subscribe, pokerSession.getSnapshot);
