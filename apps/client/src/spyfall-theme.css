@@ -1,0 +1,123 @@
+/* Blue gameplay surfaces contrast with the existing ice-blue voting and answer dialogs. */
+:root:has(.spy-shell) { background: #355e7a; }
+body:has(.spy-shell) {
+  background:
+    repeating-linear-gradient(135deg, #e2f2ff03 0 90px, transparent 90px 260px),
+    radial-gradient(ellipse at 35% 20%, #416f91, #355e7a 75%);
+}
+.spy-shell {
+  --spy-panel: #416b88;
+  --spy-edge: #98b8d0;
+  --spy-text: #f4f9ff;
+  --spy-muted: #f0f7fc;
+  --spy-card: #dfedf8;
+  --spy-ink: #173e5d;
+  --spy-caption: #46647c;
+  --spy-primary: #164e75;
+  color: var(--spy-text);
+}
+.spy-shell .top, .spy-shell > footer { border-color: #9bbcd35c; }
+.spy-shell .brand, .spy-shell .brand span { color: var(--spy-text); }
+.spy-shell .brand small, .spy-shell > footer { color: var(--spy-muted); }
+.spy-shell .tag { color: var(--spy-muted); border-color: #a4c4dc80; background: #6b94b333; }
+.spy-shell .eyebrow, .spy-shell .spy-panel .eyebrow, .spy-shell .room-bar .eyebrow { color: var(--spy-muted); }
+.spy-shell :is(.spy-panel, .spy-welcome .entry) {
+  background: linear-gradient(135deg, #4a7694, var(--spy-panel));
+  border-color: var(--spy-edge);
+  box-shadow: inset 0 1px 0 #e6f4ff24, 0 5px 14px #143d5726;
+}
+.spy-shell .mission-banner {
+  background: repeating-linear-gradient(135deg, #e4f3ff08 0 65px, transparent 65px 180px), linear-gradient(115deg, #426f90, #3a6685);
+  border-color: var(--spy-edge);
+  box-shadow: inset 0 1px 0 #e6f4ff30, 0 5px 14px #143d5726;
+}
+.spy-shell .mission-banner .eyebrow, .spy-shell .mission-clock small { color: var(--spy-muted); }
+.spy-shell .mission-clock strong, .spy-shell .mission-steps .current { color: var(--spy-text); }
+.spy-shell .mission-steps { color: #e4f1fb; }
+.spy-shell .mission-progress { background: #2e5673; }
+.spy-shell .mission-progress i { background: #a7d5f2; }
+.spy-shell :is(.room-bar, .mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button,
+.spy-shell .spy-answer-shortcut {
+  background: #467594;
+  color: var(--spy-text);
+  border-color: var(--spy-edge);
+  box-shadow: inset 0 1px 0 #e6f4ff24;
+}
+.spy-shell :is(.room-bar, .mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button:hover:not(:disabled),
+.spy-shell .spy-answer-shortcut:hover:not(:disabled) { background: #5685a4; color: var(--spy-text); }
+.spy-shell :is(.mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button.primary,
+.spy-shell .spy-answer-shortcut {
+  background: linear-gradient(#25638e, var(--spy-primary));
+  color: var(--spy-text);
+  border-color: #afcfe5;
+  box-shadow: inset 0 1px 0 #d5edff40, 0 2px 5px #113d5933;
+}
+.spy-shell :is(.mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button.primary:hover:not(:disabled),
+.spy-shell .spy-answer-shortcut:hover:not(:disabled) { background: #1a5279; color: var(--spy-text); }
+.spy-shell :is(.room-bar, .mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button:disabled,
+.spy-shell .spy-answer-shortcut:disabled { opacity: 1; background: #6688a0; color: #d9e6ef; border-color: #9bb6c9; box-shadow: none; }
+.spy-shell :is(.room-bar, .mission-actions, .spy-chat-compose, .spy-welcome, .page-message) button:focus-visible,
+.spy-shell .spy-answer-shortcut:focus-visible { outline-color: #e9f6ff; }
+.spy-shell .spy-welcome .tabs .selected { background: var(--spy-card) !important; border-color: #b9d7ec !important; color: var(--spy-ink) !important; }
+.spy-shell :is(.spy-welcome, .mission-actions) label { color: var(--spy-text); }
+.spy-shell .spy-welcome :is(input, select), .spy-shell .spy-guess-form input, .spy-shell .spy-chat-compose textarea {
+  background: var(--spy-card);
+  color: var(--spy-ink);
+  border-color: #a5c8e0;
+  outline-color: #163d5a;
+  color-scheme: light;
+}
+.spy-shell .spy-welcome input::placeholder, .spy-shell .spy-guess-form input::placeholder,
+.spy-shell .spy-chat-compose textarea::placeholder { color: var(--spy-caption); }
+.spy-shell .secret-card, .spy-shell .secret-card.revealed {
+  background: linear-gradient(145deg, #edf7ff, #cde5f6);
+  color: var(--spy-ink);
+  border-color: #a9cee7;
+  box-shadow: inset 0 0 0 3px #f4faff5c, 0 3px 8px #153f5a26;
+}
+.spy-shell .secret-card:hover:not(:disabled) { background: #e4f3fd; }
+.spy-shell .secret-card.revealed.spy { background: linear-gradient(145deg, #e6f2fd, #bfdcf1); border-color: #d7edfd; }
+.spy-shell .secret-card:focus-visible { outline-color: var(--spy-ink); }
+.spy-shell .secret-card .secret-icon, .spy-shell .secret-card strong { color: var(--spy-ink); }
+.spy-shell .secret-card small, .spy-shell .secret-foot { color: var(--spy-caption); }
+.spy-shell .secret-location { color: #805108; }
+.spy-shell .secret-card.spy strong, .spy-shell .secret-card.spy .secret-location { color: #873643; }
+.spy-shell .secret-empty, .spy-shell .secret-empty span { color: var(--spy-muted); }
+.spy-shell .mission-actions p, .spy-shell .fine, .spy-shell .connection { color: var(--spy-muted); }
+.spy-shell .readiness-count, .spy-shell .readiness-count strong { color: var(--spy-text); }
+.spy-shell .spy-answer-action { border-color: #a0bfd47a; }
+.spy-shell .chat-guidance { background: #c9e3f5; color: var(--spy-ink); }
+.spy-shell .chat-live { color: #d1f6df; }
+.spy-shell .spy-chat-log { scrollbar-color: #b2d0e5 #385f7b; }
+.spy-shell .chat-message { background: var(--spy-card); border-color: #abcee5; color: var(--spy-ink); }
+.spy-shell .chat-message.mine { background: #edf7ff; border-color: #b9daef; box-shadow: inset 3px 0 0 #326990; }
+.spy-shell .chat-author, .spy-shell .chat-message p { color: var(--spy-ink); }
+.spy-shell .chat-author time { color: var(--spy-caption); }
+.spy-shell .chat-empty, .spy-shell .chat-empty span { color: var(--spy-muted); }
+.spy-shell .spy-chat-compose { border-color: #a2c0d475; }
+.spy-shell .spy-chat-compose small { color: var(--spy-muted); }
+.spy-shell .spy-player { background: var(--spy-card); border: 1px solid #b3d2e8; box-shadow: 0 2px 5px #153f5a1c; }
+.spy-shell .agent-info strong, .spy-shell .agent-score { color: var(--spy-ink); }
+.spy-shell .agent-info > small, .spy-shell .agent-score small { color: var(--spy-caption); }
+.spy-shell .agent-info strong small { color: #234e70; background: #bddcf2; border-radius: 4px; padding: 1px 4px; }
+.spy-shell .guess-wait > span, .spy-shell .guess-wait > strong { color: var(--spy-text); }
+.spy-shell .mission-result { background: linear-gradient(115deg, #274f70, #456f90); border-color: #a4c8e2; }
+.spy-shell .mission-result.citizens { background: linear-gradient(115deg, #2e5f77, #3b7393); border-color: #add9d1; }
+.spy-shell .mission-result h2, .spy-shell .result-facts strong { color: var(--spy-text); }
+.spy-shell .mission-result p, .spy-shell .result-facts span { color: var(--spy-muted); }
+.spy-shell .result-icon { color: #d4ecfc; }
+.spy-shell .citizens .result-icon { color: #bbf3d5; }
+.spy-shell .vote-results { border-color: #a0bfd47a; }
+.spy-shell .vote-results h3, .spy-shell .vote-results strong { color: var(--spy-text); }
+.spy-shell .vote-results p { color: var(--spy-muted); }
+.spy-shell .spy-rules { border-color: #a0bfd47a; color: var(--spy-muted); }
+.spy-shell .spy-rules summary { color: var(--spy-text); }
+.spy-shell .spy-welcome .intro h1 span, .spy-shell .spy-welcome .intro p { color: var(--spy-muted); }
+.spy-shell .spy-emblem { background: radial-gradient(circle, #e5f4ff, #a8cee9); border-color: #beddf1; color: var(--spy-ink); box-shadow: 0 0 35px #b1d7f22b; }
+.spy-shell .spy-setting-summary { color: var(--spy-muted); }
+.spy-shell .spy-setting-summary span { background: #315d7d; }
+.spy-shell .spy-setting-summary strong { color: var(--spy-text); }
+.spy-shell > .notice, .spy-shell .spy-welcome .notice { background: #315d7d; color: var(--spy-text); border-color: #9bbcd3; }
+.spy-shell > .error { background: #ffe9e2; color: #78332d; border-color: #e5a59c; }
+.spy-shell > .error button { color: #78332d; }
+.spy-shell .spy-voting-dialog::backdrop { background: #17374fa8; }
