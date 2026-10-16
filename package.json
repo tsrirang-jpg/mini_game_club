@@ -26,7 +26,8 @@
     "test:oldmaid": "node tests/oldmaid-browser.mjs",
     "test:club-ui": "node tests/club-ui-browser.mjs",
     "test:dropdown-bots": "node tests/dropdown-bots-browser.mjs",
-    "test:oldmaid-feedback": "node tests/oldmaid-feedback-browser.mjs"
+    "test:oldmaid-feedback": "node tests/oldmaid-feedback-browser.mjs",
+    "test:desktop-ui": "node tests/desktop-ui-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

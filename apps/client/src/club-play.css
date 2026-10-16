@@ -253,7 +253,7 @@
   .club-shell .poker-game .community { gap:5px; }
   .club-shell .poker-game .pot-display { margin-bottom:4px; }
   .club-shell .poker-game .pot-display strong { font-size:22px; }
-  .club-shell .poker-game .street-track { margin:4px 0 0; font-size:8px; }
+  .club-shell .poker-game .street-track { margin:2px 0 0; font-size:8px; }
   .club-shell .spy-game { gap:4px; }
   .club-shell .spy-game .mission-banner { padding:4px 10px; min-height:47px; gap:8px; }
   .club-shell .spy-game .mission-banner > .spy-artwork { width:40px; height:37px; }

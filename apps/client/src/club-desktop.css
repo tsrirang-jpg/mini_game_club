@@ -1,0 +1,295 @@
+/* Desktop compositions from the approved previews. Phone layouts stay in their
+   existing portrait/landscape stylesheets, including short desktop windows. */
+.desktop-only { display:none; }
+@media(min-width:1000px) and (min-height:651px) {
+  .desktop-only { display:block; }
+  .app.club-shell.club-playing { max-width:1680px; padding:12px 16px; gap:8px; }
+  .club-playing .room-bar { min-height:48px; gap:12px; }
+  .club-playing .room-bar strong { font-size:18px; letter-spacing:.8px; }
+  .club-playing .room-bar button { min-height:38px; padding:7px 12px; font-size:12px; }
+  .club-wordmark,.pok-wordmark,.poker-wordmark { font-size:32px; }
+  .club-wordmark b,.pok-wordmark span,.poker-wordmark span { font-size:22px; }
+  .club-room-id,.club-room-tools,.pok-room-id,.pok-navigation,.poker-room-id,.poker-tools { gap:10px; }
+  .club-playing .room-bar .connection { font-size:11px; }
+  .club-playing .room-bar button.ghost:last-child { border-color:#a94e61; color:#ffb3bd; }
+
+  /* Pok: opponents across the felt, own hand left, contextual actions right. */
+  .club-shell .pok-game { display:grid; grid-template-columns:minmax(0,1fr) 28%; grid-template-rows:auto auto minmax(0,1fr); gap:8px 0; }
+  .club-shell .pok-game .room-bar { grid-column:1/-1; grid-row:1; }
+  .club-shell .pok-game .game-layout,.club-shell .pok-game .table-area,.club-shell .pok-game .pok-table-seats { display:contents; }
+  .club-shell .pok-game .phase { grid-column:1/-1; grid-row:2; min-height:24px; padding:0 10px; }
+  .club-shell .pok-game .table { grid-column:1/-1; grid-row:3; display:grid; grid-template-columns:minmax(0,1fr) 28%; grid-template-rows:auto minmax(0,1fr) auto; padding:16px; gap:16px; border-radius:30px; container-type:normal; }
+  .club-shell .pok-game .table[data-opponents] .pok-opponents { grid-column:1/-1; grid-row:1; grid-template-columns:repeat(5,minmax(0,1fr)); grid-template-rows:1fr; height:clamp(154px,25dvh,228px); --pok-card:clamp(36px,4vw,70px); gap:10px; container-type:normal; }
+  .club-shell .pok-game .table[data-opponents="1"] .pok-opponents { grid-template-columns:1fr; }
+  .club-shell .pok-game .table[data-opponents="2"] .pok-opponents { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .club-shell .pok-game .table[data-opponents="3"] .pok-opponents { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .club-shell .pok-game .table[data-opponents="4"] .pok-opponents { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .club-shell .pok-game .pok-opponents .seat { gap:5px; padding:10px 8px; border-radius:15px; }
+  .club-shell .pok-game .pok-opponents .player-name { justify-content:flex-start; font-size:14px; }
+  .club-shell .pok-game .pok-opponents .pok-avatar { width:26px; height:26px; font-size:13px; }
+  .club-shell .pok-game .pok-opponents .points { font-size:18px; }
+  .club-shell .pok-game .pok-opponents .hand { order:1; }
+  .club-shell .pok-game .pok-opponents .player-status,.club-shell .pok-game .pok-opponents .result { order:2; font-size:11px; line-height:1.35; }
+  .club-shell .pok-game .pok-turn-stage { grid-column:1; grid-row:2; padding:8px; }
+  .club-shell .pok-game .pok-turn-stage h1 { font-size:clamp(24px,2.5vw,38px); }
+  .club-shell .pok-game .pok-turn-stage p { font-size:13px; }
+  .club-shell .pok-game .club-stage-clock { padding:3px 20px; border:1px solid #e6c47e; border-radius:30px; font-size:30px; color:#efd493; }
+  .club-shell .pok-game .pok-self { grid-column:1; grid-row:3; align-self:end; width:min(100%,700px); }
+  .club-shell .pok-game .pok-self .seat.own { --pok-card:clamp(65px,12dvh,100px); padding:16px 20px; border-radius:20px; gap:8px 18px; }
+  .club-shell .pok-game .pok-self .player-name { flex-wrap:wrap; font-size:20px; }
+  .club-shell .pok-game .pok-self .pok-avatar { width:40px; height:40px; font-size:23px; }
+  .club-shell .pok-game .pok-self .pok-own-badge { font-size:11px; padding:4px 8px; }
+  .club-shell .pok-game .pok-self .points { font-size:28px; }
+  .club-shell .pok-game .pok-self .pok-own-value { font-size:15px; color:#efd493; }
+  .club-shell .pok-game .pok-self .player-status,.club-shell .pok-game .pok-self .result { font-size:12px; }
+  .club-shell .pok-game .pok-action-dock { grid-column:2; grid-row:3; z-index:2; align-self:end; margin:0 16px 16px 0; padding:20px; background:linear-gradient(135deg,#103a2af5,#071f18fa); border-radius:20px; }
+  .club-shell .pok-action-dock h2 { font-size:21px; margin:0 0 18px; }
+  .club-shell .pok-game .pok-catch-controls { display:flex; flex-direction:column; align-items:stretch; gap:12px; margin:0 0 18px; }
+  .club-shell .pok-catch-controls > .spy-select { width:100%; max-width:none; flex:auto; }
+  .club-shell .pok-catch-controls .spy-select.compact .spy-select-trigger { min-height:60px; padding:8px 12px; }
+  .club-shell .pok-catch-controls .spy-select-caption { font-size:11px; margin-bottom:4px; }
+  .club-shell .pok-catch-controls .spy-select-value strong { font-size:16px; }
+  .club-shell .pok-catch-controls > button { min-height:54px; padding:12px; font-size:17px; font-weight:700; color:#182c20; background:linear-gradient(#f4dc9d,#d9b368); border-color:#e6c47e; }
+  .club-shell .pok-action-dock .action-bar { gap:10px; min-height:0; }
+  .club-shell .pok-action-dock .action-bar > button { min-width:0; flex:1; min-height:52px; padding:10px; font-size:17px; }
+  .club-shell .pok-action-dock .action-bar .primary { order:-1; }
+  .club-shell .pok-catch-note { margin:14px 0 0; font-size:11px; color:var(--club-muted); text-align:center; }
+  .club-shell .pok-round-controls { display:flex; flex-direction:column; align-items:stretch; gap:14px; }
+  .club-shell .pok-bet-controls { justify-content:space-between; }
+  .club-shell .pok-dealer-control .spy-select { width:100%; }
+  .club-shell .pok-round-controls > button { min-height:50px; font-size:16px; }
+
+  /* Poker: a full board, five opponent seats, separate hand and betting dock. */
+  .club-shell .poker-game .poker-table { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr) auto; padding:14px 16px; gap:9px; border-radius:36px; background:radial-gradient(ellipse at 50% 50%,#205673,var(--club-bg)); }
+  .club-shell .poker-game.card-size-high .poker-table { --seat-card:clamp(42px,7.9dvh,70px); --board-card:clamp(58px,10.1dvh,108px); }
+  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:clamp(34px,5.5dvh,50px); --board-card:clamp(48px,8dvh,85px); }
+  .club-shell .poker-game .poker-table .poker-opponents { grid-row:1; gap:10px; }
+  .club-shell .poker-game .poker-table .poker-bank { grid-row:2; }
+  .club-shell .poker-game .poker-opponents .poker-seat { grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto auto auto; align-self:stretch; padding:6px 8px; gap:3px; border-radius:14px; }
+  .club-shell .poker-game .poker-opponents .player-name { grid-column:1/-1; grid-row:1; display:flex; gap:5px; align-items:center; font-size:14px; }
+  .club-shell .poker-player-label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .club-shell .poker-game .seat-number { display:none; }
+  .club-shell .poker-game .poker-opponents .poker-avatar { width:26px; height:26px; font-size:14px; }
+  .club-shell .poker-game .poker-opponents .points { grid-column:1/-1; grid-row:2; font-size:18px; }
+  .club-shell .poker-game .poker-opponents .hand { grid-column:1; grid-row:3/5; justify-content:flex-start; }
+  .club-shell .poker-game .poker-opponents .poker-badges { grid-column:2; grid-row:3; align-self:start; justify-content:flex-end; }
+  .club-shell .poker-game .poker-opponents .player-status,.club-shell .poker-game .poker-opponents .result { grid-column:2; grid-row:4; align-self:end; font-size:10px; max-width:90px; white-space:normal; }
+  .club-shell .poker-game .poker-center { grid-column:1; grid-row:3; align-self:center; padding:0; }
+  .club-shell .poker-game .community { gap:clamp(8px,1vw,16px); }
+  .club-shell .poker-game .pot-display { margin-bottom:8px; font-size:21px; }
+  .club-shell .poker-game .pot-display strong { font-size:clamp(32px,4.5dvh,50px); }
+  .club-shell .poker-game .street-track { margin-top:8px; font-size:11px; gap:35px; }
+  .club-shell .poker-center-turn { display:flex; gap:12px; align-items:center; justify-content:center; margin-top:8px; font-size:13px; color:var(--club-muted); }
+  .club-shell .poker-center-turn strong { padding:2px 9px; border:1px solid var(--club-accent); border-radius:20px; color:var(--club-accent); font-variant-numeric:tabular-nums; }
+  .club-shell .poker-game .phase .turn-banner { display:none; }
+  .club-shell .poker-game .poker-table .poker-self { grid-column:1; grid-row:4; width:min(100%,620px); align-self:end; }
+  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:clamp(54px,9dvh,88px); }
+  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:clamp(44px,7dvh,70px); }
+  .club-shell .poker-game .poker-self .poker-seat { padding:10px 20px; gap:5px 14px; border-radius:18px; }
+  .club-shell .poker-game .poker-self .player-name { display:flex; flex-wrap:wrap; gap:8px; font-size:19px; }
+  .club-shell .poker-game .poker-self .player-name small { display:none; }
+  .club-shell .poker-game .poker-self .poker-avatar { width:38px; height:38px; font-size:22px; }
+  .club-shell .poker-own-label { color:#24313b; background:#e6c47e; border-radius:6px; padding:3px 8px; font-size:11px; }
+  .club-shell .poker-game .poker-self .points { font-size:25px; }
+  .club-shell .poker-game .poker-self .poker-badges:empty { display:none; }
+  .club-shell .poker-game .poker-self .player-status,.club-shell .poker-game .poker-self .result { font-size:11px; }
+  .club-shell .poker-game .poker-action-dock { padding:12px; border-radius:15px; }
+  .club-shell .poker-game.hand-active .poker-action-dock { min-height:0; }
+  .club-shell .poker-game .poker-actions { grid-template-columns:minmax(230px,.9fr) minmax(0,1.8fr); gap:16px; }
+  .club-shell .poker-game .quick-actions button { min-height:62px; font-size:14px; border-color:var(--club-edge); }
+  .club-shell .poker-game .fold-button { background:var(--club-bg); }
+  .club-shell .poker-game .raise-panel { grid-template-columns:minmax(0,1fr) minmax(240px,.95fr); gap:3px 14px; }
+  .club-shell .poker-game .raise-hint { grid-column:1; grid-row:1; font-size:11px; }
+  .club-shell .poker-game .raise-chips { grid-column:1; grid-row:2/4; gap:7px; padding:3px; }
+  .club-shell .poker-game .chip-choice { width:clamp(34px,3.5vw,50px); height:clamp(34px,3.5vw,50px); min-height:0; font-size:13px; }
+  .club-shell .poker-game .chip-all-in { padding:6px; min-height:36px; font-size:10px; }
+  .club-shell .poker-game .raise-controls { grid-column:2; grid-row:1/3; gap:5px 8px; }
+  .club-shell .poker-game .raise-controls label { font-size:11px; }
+  .club-shell .poker-game .raise-controls input { min-height:42px; height:42px; font-size:18px; }
+  .club-shell .poker-game .raise-controls button { min-height:44px; font-size:13px; }
+  .club-shell .poker-game .raise-controls small { display:none; }
+  .club-shell .poker-game .raise-summary { grid-column:2; grid-row:3; font-size:10px; }
+
+  /* Spyfall: private role / questioning / roster with readiness beneath it. */
+  .club-shell .spy-game.phase-QUESTION .mission-banner { min-height:90px; padding:12px 20px; }
+  .club-shell .spy-game.phase-QUESTION .mission-banner h1 { font-size:24px; }
+  .club-shell .spy-game.phase-QUESTION .mission-clock strong { font-size:44px; }
+  .club-shell .spy-game.phase-QUESTION .spy-answer-shortcut { display:none; }
+  .club-shell .spy-game.phase-QUESTION .spy-dashboard { grid-template-columns:minmax(220px,.85fr) minmax(0,1.55fr) minmax(240px,1fr); grid-template-rows:minmax(0,1fr) auto; grid-template-areas:'role chat roster' 'role chat actions'; gap:12px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel { display:flex; flex-direction:column; overflow:auto; }
+  .club-shell .spy-game.phase-QUESTION .role-panel > .eyebrow,.club-shell .spy-game.phase-QUESTION .spy-panel .eyebrow { display:none; }
+  .club-shell .spy-game.phase-QUESTION .spy-panel { padding:14px; }
+  .club-shell .spy-game.phase-QUESTION .spy-panel h2 { font-size:19px; margin:0 0 12px; }
+  .club-shell .spy-game.phase-QUESTION .secret-card { flex:1; min-height:180px; max-height:380px; gap:12px; }
+  .club-shell .spy-game.phase-QUESTION .secret-card .secret-icon { font-size:58px; }
+  .club-shell .spy-game.phase-QUESTION .secret-icon .spy-artwork { display:block; width:100px; height:88px; }
+  .club-shell .spy-game.phase-QUESTION .secret-card.revealed.spy strong,.club-shell .spy-game.phase-QUESTION .secret-card.revealed.spy .secret-location { color:#173e5d; }
+  .club-shell .spy-game.phase-QUESTION .secret-location { font-size:48px; font-weight:750; }
+  .club-shell .spy-game.phase-QUESTION .secret-card strong { font-size:18px; }
+  .club-shell .spy-game.phase-QUESTION .secret-card .secret-foot { display:block; padding-top:10px; border-top:1px solid #75a7cb; width:100%; }
+  .club-shell .spy-game.phase-QUESTION .role-panel > .fine { font-size:12px; line-height:1.6; margin:12px 0; }
+  .club-shell .desktop-spy-answer { flex:none; margin-top:auto; }
+  .club-shell .desktop-spy-answer > button { min-height:50px; font-size:17px; }
+  .club-shell .desktop-spy-answer > p { text-align:center; margin:8px 0 0; font-size:11px; }
+  .club-shell .desktop-spy-answer .spy-guess-form { padding:10px 0 0; margin:0; }
+  .club-shell .desktop-spy-answer .spy-guess-form p { font-size:11px; margin:6px 0; }
+  .club-shell .desktop-spy-answer .spy-guess-form label { font-size:12px; }
+  .club-shell .desktop-spy-answer .spy-guess-form input { height:42px; min-height:42px; margin:5px 0 10px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-card { min-height:120px; gap:5px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-card .secret-icon { font-size:30px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-location { font-size:30px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-icon .spy-artwork { width:36px; height:32px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-card { padding:8px; }
+  .club-shell .spy-game.phase-QUESTION .role-panel:has(.spy-guess-form) .secret-foot { display:none; }
+  .club-shell .spy-game.phase-QUESTION .spy-chat-panel { background:linear-gradient(150deg,var(--club-panel),var(--club-bg)); }
+  .club-shell .spy-game.phase-QUESTION .spy-chat-log { padding:14px 3px; }
+  .club-shell .spy-game.phase-QUESTION .chat-message { max-width:88%; padding:12px 16px; margin:0 auto 16px 0; background:#285e80; color:#f0f8ff; border:1px solid #487d9d; }
+  .club-shell .spy-game.phase-QUESTION .chat-message.mine { margin-left:auto; margin-right:0; background:#8ccdf4; color:#113c58; }
+  .club-shell .spy-game.phase-QUESTION .chat-message p { font-size:15px; line-height:1.65; color:inherit; }
+  .club-shell .spy-game.phase-QUESTION .chat-guidance { background:#153e5b; color:#cbe4f6; }
+  .club-shell .spy-game.phase-QUESTION .chat-author strong,.club-shell .spy-game.phase-QUESTION .chat-author time { color:#d5e9f8; font-size:11px; }
+  .club-shell .spy-game.phase-QUESTION .chat-message.mine .chat-author strong,.club-shell .spy-game.phase-QUESTION .chat-message.mine .chat-author time { color:#31546d; }
+  .club-shell .spy-game.phase-QUESTION .spy-chat-compose textarea,.club-shell .spy-game.phase-QUESTION .spy-chat-compose button { min-height:48px; height:48px; font-size:13px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-panel { display:flex; flex-direction:column; overflow:hidden; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-list { display:grid; grid-template-columns:minmax(0,1fr); grid-auto-rows:minmax(0,1fr); flex:1; gap:4px; min-height:0; overflow:visible; }
+  .club-shell .spy-game.phase-QUESTION .spy-player { flex:none; flex-direction:row; justify-content:flex-start; text-align:left; min-height:0; padding:3px 8px; gap:8px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player .agent-avatar { width:26px; height:26px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player .agent-score { display:block; flex:none; font-size:14px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player .agent-info strong { font-size:13px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player .agent-info > small { margin-top:2px; font-size:10px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-list:has(.spy-player:nth-child(7)) .agent-info strong { font-size:12px; line-height:1.2; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-list:has(.spy-player:nth-child(7)) .agent-info > small { font-size:9px; line-height:1.2; }
+  .club-shell .spy-game.phase-QUESTION .spy-player:has(.agent-info strong small) { border-color:#e6c47e; background:#294c5e; }
+  .club-shell .spy-game.phase-QUESTION .spy-player .agent-info strong small { background:#e6c47e; color:#16364c; padding:1px 5px; border-radius:5px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-panel > .fine,.club-shell .spy-game.phase-QUESTION .spy-player-panel > .connection { display:none; }
+  .club-shell .spy-game.phase-QUESTION .mission-actions { overflow:visible; }
+  .club-shell .spy-game.phase-QUESTION .mission-actions > h2,.club-shell .spy-game.phase-QUESTION .mission-actions > p:not(.fine) { display:none; }
+  .club-shell .spy-game.phase-QUESTION .readiness-count { margin:0 0 10px; justify-content:center; }
+  .club-shell .spy-game.phase-QUESTION .readiness-count strong { font-size:32px; }
+  .club-shell .spy-game.phase-QUESTION .mission-actions > button { min-height:46px; font-size:17px; }
+  .club-shell .spy-game.phase-QUESTION .mission-actions > .fine { text-align:center; margin-bottom:0; }
+  .club-shell .spy-game.phase-RESULTS .spy-player { flex-direction:row; justify-content:flex-start; text-align:left; min-height:45px; padding:6px; gap:6px; }
+  .club-shell .spy-game.phase-RESULTS .mission-banner { display:none; }
+  .club-shell .spy-game.phase-RESULTS .mission-result { padding:12px 20px; }
+  .club-shell .spy-game.phase-RESULTS .mission-result h2 { font-size:24px; margin:2px 0 4px; }
+  .club-shell .spy-game.phase-RESULTS .mission-result p { font-size:12px; }
+  .club-shell .spy-game.phase-RESULTS .result-facts { margin-top:8px; }
+  .club-shell .spy-game.phase-RESULTS .result-facts strong { font-size:14px; margin-top:2px; }
+  .club-shell .spy-game.phase-RESULTS .spy-result-votes { min-height:32px; margin-top:8px; padding:5px 9px; }
+  .club-shell .spy-game.phase-LOBBY .spy-dashboard { grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr); grid-template-rows:minmax(0,1fr); grid-template-areas:'actions roster'; }
+  .club-shell .spy-game.phase-LOBBY .role-panel,.club-shell .spy-game.phase-LOBBY .spy-chat-panel { display:none; }
+  .club-shell .spy-game.phase-LOBBY .mission-actions { padding:20px; }
+  .club-shell .spy-game.phase-LOBBY .spy-setting-selects { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .club-shell .spy-game.phase-LOBBY .spy-player { flex-direction:row; text-align:left; justify-content:flex-start; min-height:60px; }
+
+  /* Old Maid: draw and own hand on the left, private result and history on right. */
+  .club-shell .oldmaid-game .oldmaid-table,.club-shell .oldmaid-game.has-draw-feedback .oldmaid-table { grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto; padding:14px; gap:12px; }
+  .club-shell .oldmaid-opponents { grid-column:1/-1; grid-row:1; gap:8px; }
+  .club-shell .oldmaid-seat { grid-template-columns:30px minmax(0,1fr); gap:3px 7px; padding:10px 8px; min-height:70px; }
+  .club-shell .oldmaid-seat .club-avatar { width:30px; height:30px; font-size:18px; }
+  .club-shell .oldmaid-seat > strong { font-size:13px; }
+  .club-shell .oldmaid-seat small { grid-column:2; font-size:10px; }
+  .club-shell .oldmaid-draw-area { grid-column:1; grid-row:2; gap:16px; padding:14px; border:1px solid var(--club-edge); border-radius:18px; background:#1e132944; container-type:size; }
+  .club-shell .oldmaid-game:not(.has-draw-feedback) .oldmaid-draw-area { grid-column:1/-1; }
+  .club-shell .oldmaid-turn h1 { font-size:clamp(24px,2.6vw,38px); }
+  .club-shell .oldmaid-turn p { font-size:14px; margin-top:6px; }
+  .club-shell .oldmaid-turn { padding-right:85px; }
+  .club-shell .oldmaid-clock { font-size:19px; padding:5px 10px; }
+  .club-shell .oldmaid-draw-cards { max-width:100%; gap:8px; }
+  .club-shell .oldmaid-draw-card .card { width:clamp(24px,min(5vw,calc((100cqh - 110px)/4)),90px); height:calc(clamp(24px,min(5vw,calc((100cqh - 110px)/4)),90px)*1.4); }
+  .club-shell .oldmaid-confirm { min-height:48px; width:75%; max-width:440px; font-size:16px; }
+  .club-shell .oldmaid-feedback { grid-column:2; grid-row:2; align-self:stretch; width:100%; display:flex; flex-direction:column; justify-content:center; padding:16px; border-radius:18px; }
+  .club-shell .oldmaid-feedback header { margin-bottom:12px; }
+  .club-shell .oldmaid-feedback header strong { font-size:clamp(18px,1.8vw,25px); }
+  .club-shell .oldmaid-feedback header > span { font-size:11px; }
+  .club-shell .oldmaid-feedback-body { grid-template-columns:1fr; gap:14px; }
+  .club-shell .oldmaid-feedback .card { width:clamp(46px,7dvh,80px); height:clamp(65px,9.8dvh,112px); padding:6px; }
+  .club-shell .oldmaid-feedback .card > span:not(.bottom) { font-size:25px; }
+  .club-shell .oldmaid-feedback .card small { font-size:19px; }
+  .club-shell .oldmaid-drawn { gap:16px; }
+  .club-shell .oldmaid-drawn h2 { font-size:clamp(20px,2.1vw,30px); }
+  .club-shell .oldmaid-feedback p { font-size:12px; }
+  .club-shell .oldmaid-paired { border-left:0; border-top:1px solid var(--club-edge); padding:12px 0 0; }
+  .club-shell .oldmaid-paired > strong { font-size:17px; }
+  .club-shell .oldmaid-paired > div { margin-top:8px; gap:12px; }
+  .club-shell .oldmaid-paired b { font-size:clamp(16px,1.8vw,24px); }
+  .club-shell .oldmaid-pair-cards .card { width:clamp(38px,5.8dvh,62px); height:clamp(54px,8.1dvh,87px); }
+  .club-shell .oldmaid-pair-cards .card > span:not(.bottom) { font-size:20px; }
+  .club-shell .oldmaid-pair-cards .card small { font-size:16px; }
+  .club-shell .oldmaid-no-pair { margin-top:10px; font-size:13px; }
+  .club-shell .oldmaid-self { grid-column:1; grid-row:3; justify-self:stretch; align-self:stretch; width:100%; padding:12px; gap:12px; position:relative; border-radius:18px; }
+  .club-shell .oldmaid-self-name { width:70px; }
+  .club-shell .oldmaid-self-name > strong { font-size:15px; }
+  .club-shell .oldmaid-self-name .club-avatar { width:42px; height:42px; font-size:24px; }
+  .club-shell .oldmaid-hand > span { font-size:12px; padding-right:45px; }
+  .club-shell .oldmaid-hand .hand { gap:5px; }
+  .club-shell .oldmaid-hand .card { width:clamp(38px,7.3dvh,74px); height:clamp(54px,10.2dvh,104px); }
+  .club-shell .oldmaid-hand .card > span:not(.bottom) { font-size:clamp(20px,3dvh,30px); }
+  .club-shell .oldmaid-hand .card small { font-size:clamp(16px,2.3dvh,23px); }
+  .club-shell .oldmaid-hand .card > b,.club-shell .oldmaid-hand .court-art { display:none; }
+  .club-shell .oldmaid-sort { position:absolute; top:6px; right:8px; font-size:10px; min-height:29px; padding:4px 7px; }
+  .club-shell .oldmaid-discard { grid-column:2; grid-row:3; padding:12px; border:1px solid var(--club-edge); border-radius:15px; background:var(--club-bg); flex-direction:column; align-items:stretch; justify-content:center; gap:10px; font-size:16px; }
+  .club-shell .oldmaid-discard small { order:-1; max-width:100%; font-size:13px; }
+  .club-shell .oldmaid-history-button { align-self:flex-end; min-height:36px; font-size:12px; }
+  .club-shell .oldmaid-discard > span strong { color:#efd493; font-size:24px; }
+  .club-shell .oldmaid-game.phase-LOBBY .oldmaid-discard { font-size:13px; }
+  .club-shell .oldmaid-game.phase-RESULTS .oldmaid-final-cards .card { width:60px; height:84px; }
+  .club-shell .oldmaid-final-cards .card { display:flex; align-items:center; justify-content:center; animation:none; }
+  .club-shell .oldmaid-final-cards .card > span:not(.bottom) { display:block; position:relative; font-size:30px; line-height:1; text-align:center; }
+  .club-shell .oldmaid-final-cards .card small { display:block; font-size:22px; line-height:1; margin-top:3px; }
+  .club-shell .oldmaid-final-cards .card > b,.club-shell .oldmaid-final-cards .card .bottom,.club-shell .oldmaid-final-cards .card .court-art { display:none; }
+}
+@media(min-width:1200px) and (min-height:651px) {
+  .club-shell .oldmaid-seat { grid-template-columns:30px minmax(0,1fr) auto; }
+  .club-shell .oldmaid-seat .mini-card-stack { display:flex; align-items:center; grid-column:3; grid-row:1/3; height:32px; padding-left:8px; }
+  .club-shell .oldmaid-seat .mini-card-stack i { display:block; width:17px; height:27px; margin-left:-8px; border:1px solid #a67cba; border-radius:3px; background:repeating-linear-gradient(45deg,#543468 0 3px,#68457b 3px 5px); }
+}
+@media(min-width:1000px) and (min-height:760px) and (max-height:850px) {
+  .club-shell .poker-game .poker-opponents .poker-seat { padding:4px 7px; gap:2px; }
+  .club-shell .poker-game .poker-opponents .poker-avatar { width:20px; height:20px; font-size:12px; }
+  .club-shell .poker-game .poker-opponents .points { font-size:16px; }
+  .club-shell .poker-game .poker-self .poker-seat { padding:7px 16px; gap:3px 12px; }
+  .club-shell .poker-game .poker-self .poker-avatar { width:30px; height:30px; font-size:20px; }
+}
+@media(min-width:1000px) and (min-height:651px) {
+  .club-shell .poker-game.has-side-pots .poker-center-turn { display:none; }
+  .club-shell .poker-game.has-side-pots .phase .turn-banner { display:block; }
+  .club-shell .poker-game.has-side-pots .poker-self .poker-seat { padding:6px 14px; gap:2px 10px; }
+  .club-shell .poker-game.has-side-pots .poker-self .poker-avatar { width:24px; height:24px; font-size:16px; }
+}
+@media(min-width:1000px) and (min-height:651px) and (max-height:759px) {
+  .club-playing .room-bar { min-height:40px; }
+  .club-shell .poker-game .phase { min-height:20px; }
+  .club-shell .poker-game.card-size-high .poker-table { --seat-card:clamp(44px,7.2dvh,54px); --board-card:clamp(54px,8.9dvh,65px); }
+  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:38px; --board-card:48px; }
+  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:54px; padding:8px 14px; }
+  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:44px; }
+  .club-shell .poker-game .poker-center-turn { margin-top:5px; font-size:11px; }
+  .club-shell .poker-game .pot-display strong { font-size:28px; }
+  .club-shell .poker-game .street-track { margin-top:5px; font-size:9px; }
+  .club-shell .poker-game .poker-self .poker-avatar { width:28px; height:28px; font-size:16px; }
+  .club-shell .poker-game .poker-self .player-name { font-size:15px; }
+  .club-shell .poker-game .poker-self .points { font-size:20px; }
+  .club-shell .poker-game .poker-action-dock { padding:8px 10px; }
+  .club-shell .poker-game .quick-actions button { min-height:48px; }
+  .club-shell .spy-game.phase-QUESTION .spy-player-list:has(.spy-player:nth-child(7)) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .club-shell .spy-game.phase-QUESTION .spy-player-list:has(.spy-player:nth-child(7)) .agent-avatar,
+  .club-shell .spy-game.phase-QUESTION .spy-player-list:has(.spy-player:nth-child(7)) .agent-score { display:none; }
+}
+/* Compact desktop windows retain the same structure with smaller controls. */
+@media(min-width:1000px) and (min-height:651px) and (max-width:1199px) {
+  .club-shell .poker-game .poker-opponents .player-name { font-size:12px; }
+  .club-shell .poker-game .poker-opponents .poker-avatar { width:20px; height:20px; font-size:11px; }
+  .club-shell .poker-game .poker-actions { grid-template-columns:minmax(210px,.8fr) minmax(0,2fr); gap:10px; }
+  .club-shell .poker-game .raise-panel { grid-template-columns:minmax(0,1fr) minmax(215px,.9fr); gap:3px 8px; }
+  .club-shell .poker-game .chip-choice { width:30px; height:30px; }
+  .club-shell .poker-game .raise-chips { gap:5px; }
+  .club-shell .poker-game .quick-actions button { font-size:12px; }
+  .club-shell .pok-game .pok-self .player-name { font-size:16px; }
+  .club-shell .pok-game .pok-action-dock { padding:14px; }
+  .club-shell .pok-game .pok-action-dock h2 { font-size:18px; margin-bottom:12px; }
+  .club-shell .pok-game .pok-catch-controls > button,.club-shell .pok-game .action-bar > button { font-size:14px; }
+  .club-shell .oldmaid-seat .club-avatar { display:none; }
+  .club-shell .oldmaid-seat { grid-template-columns:minmax(0,1fr); }
+  .club-shell .oldmaid-seat small { grid-column:1; }
+}

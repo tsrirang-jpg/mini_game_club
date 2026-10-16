@@ -2,7 +2,8 @@ import {selectOption} from './select-option.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({channel:'msedge',headless:true});
-const contexts=await Promise.all([{width:390,height:844},{width:375,height:667},{width:844,height:390}].map(viewport=>browser.newContext({viewport,hasTouch:true,isMobile:true,reducedMotion:'reduce'})));
+const viewports=process.env.DESKTOP_UI? [{width:1366,height:768},{width:1280,height:700},{width:1000,height:651}]:[{width:390,height:844},{width:375,height:667},{width:844,height:390}];
+const contexts=await Promise.all(viewports.map(viewport=>browser.newContext({viewport,hasTouch:!process.env.DESKTOP_UI,isMobile:!process.env.DESKTOP_UI,reducedMotion:'reduce'})));
 const pages=await Promise.all(contexts.map(c=>c.newPage()));const[a,b,c]=pages,errors=[];for(const p of pages)p.on('pageerror',e=>errors.push(e.message));
 const url=process.env.GAME_URL||'http://127.0.0.1:5188';const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn){const end=Date.now()+15000;while(!await fn()){if(Date.now()>end)throw new Error('Old Maid browser timeout');await sleep(50);}}

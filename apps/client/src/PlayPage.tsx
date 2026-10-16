@@ -60,6 +60,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
         </div>
       </section></div>
       <section className="pok-action-dock" aria-label="การเล่นป๊อกเด้ง">
+        <h2 className="desktop-only">การเล่นของคุณ</h2>
         {canCatch && <div className="pok-catch-controls"><ClubSelect<string> compact label="จับผู้เล่น 3 ใบ" value={selectedCatch??''} onChange={setCatchTarget} options={catchable.map(p=>({value:p.id,label:p.name}))}/><button disabled={!selectedCatch} onClick={() => session.send('catch', selectedCatch)}>จับด้วยไพ่ 2 ใบ</button></div>}
         {idle && me ? <div className="pok-round-controls">
           {!dealer && <div className="pok-bet-controls"><span>วางแต้ม</span><div className="bets">{s.rules.bets.map(bet => <button key={bet} className={me.bet === bet ? 'selected' : ''} disabled={!active} onClick={() => session.send('setBet', bet)}>{bet}</button>)}</div></div>}
@@ -67,6 +68,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
           {!host && <button className="primary" disabled={!active} onClick={() => session.send('setReady', !me.ready)}>{me.ready ? 'ยกเลิกพร้อม' : 'พร้อมเล่น'}</button>}
           {host && (s.phase === 'LOBBY' ? <button className="primary" disabled={!active || s.players.length < 2 || s.players.some(p => !p.connected || (p.id !== s.hostId && !p.ready))} onClick={() => session.send('startRound')}>เริ่มรอบ</button> : <button className="primary" disabled={!active} onClick={() => session.send('prepareRound')}>เตรียมรอบใหม่</button>)}
         </div> : <div className="action-bar">{canAct ? <><button className="ghost" onClick={() => session.send('stand')}>อยู่</button><button className="primary" onClick={() => session.send('draw')}>จั่วอีกใบ</button></> : <p>{me?.acted ? 'คุณตัดสินใจแล้ว รอสรุปผลรอบ' : 'รอจังหวะเล่นของคุณ'}</p>}</div>}
+        {canCatch&&<p className="desktop-only pok-catch-note">จับแล้วเริ่มนับเวลาใหม่ 30 วินาที</p>}
       </section>
       {panel && <PokPanel title={panel === 'rules' ? 'กติกาป๊อกเด้ง' : panel === 'catches' ? 'ผลการจับ' : 'จัดการโต๊ะป๊อกเด้ง'} close={() => setPanel(null)}>
         {panel === 'rules' ? <Rules/> : panel === 'catches' ? <><p className="fine">จับด้วยไพ่เจ้ามือ 2 ใบ หากเจ้ามือจั่วแล้วได้ 8/9 แต้มปกติ จะเทียบผลจับใหม่ด้วยไพ่เจ้ามือ 3 ใบ ชำระแต้มพร้อมกันเมื่อจบรอบ</p>{catches.map(r => <section className="pok-catch-detail" key={r.id}><h3>{s.players.find(p => p.id === r.id)?.name ?? 'ผู้เล่น'}</h3><div className="pok-catch-hands"><div><small>เจ้ามือ · {r.dealerValue && handLabel(r.dealerValue)}{r.catchRecompared && ' · เทียบหลังจั่ว'}</small><div className="hand">{r.dealerCards?.map((card, i) => <Card key={i} card={card}/>)}</div></div><div><small>ผู้เล่น · {handLabel(r)}</small><div className="hand">{r.cards.map((card, i) => <Card key={i} card={card}/>)}</div></div></div><p>{r.outcome === 'TIE' ? 'เสมอ' : r.outcome === 'WIN' ? 'ผู้เล่นชนะ' : 'เจ้ามือชนะ'} · ผู้เล่น {r.delta > 0 ? '+' : ''}{r.delta} แต้ม</p></section>)}</> : <div className="pok-table-settings"><h2>โต๊ะของเรา <small>{s.players.length}/6 คน</small></h2>

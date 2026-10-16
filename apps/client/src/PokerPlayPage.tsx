@@ -1,4 +1,5 @@
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
+import { useDesktopLayout } from './useDesktopLayout';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { pokerSession } from './session';
@@ -14,12 +15,12 @@ type Panel = 'rules' | 'table' | 'results' | 'pots' | 'close';
 const potLabel = (pots: { refund: boolean }[], i: number) => pots[i].refund ? 'คืนชิป' :
   pots.slice(0, i).filter(p => !p.refund).length === 0 ? 'Main Pot' : 'Side Pot ' + pots.slice(0, i).filter(p => !p.refund).length;
 
-function PokerSeat({ player: p, s, state, now }: { player: PokerPlayer; s: PokerSnapshot; state: SessionState<PokerSnapshot>; now: number }) {
+function PokerSeat({ player: p, s, state, now, desktop }: { player: PokerPlayer; s: PokerSnapshot; state: SessionState<PokerSnapshot>; now: number; desktop:boolean }) {
   const own = p.id === state.playerId;
   const result = s.results.find(r => r.id === p.id);
   const cards = result?.cards.length ? result.cards : own && state.handRound === s.roundId ? state.hand : [];
   return <article aria-label={'ผู้เล่น ' + p.name} className={'poker-seat ' + (own ? 'own ' : '') + (s.turnId === p.id ? 'on-turn ' : '') + (p.folded ? 'folded' : '')}>
-    <div className="player-name" title={p.name}><span className="poker-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span><span className="seat-number">#{p.seat + 1}</span> {p.name} {own && <small>คุณ</small>} {p.isBot && <span className="bot-badge">บอท</span>}</div>
+    <div className="player-name" title={p.name}><span className="poker-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span><span className="seat-number">#{p.seat + 1}</span> {desktop?<span className="poker-player-label">{p.name}</span>:p.name} {own && <><small>คุณ</small>{desktop&&<span className="poker-own-label">ไพ่ของคุณ</span>}</>} {p.isBot && <span className="bot-badge">บอท</span>}</div>
     <div className="poker-badges">{s.buttonId === p.id && <span className="button-chip">D</span>}{s.smallBlindId === p.id && <span>SB</span>}{s.bigBlindId === p.id && <span>BB</span>}{p.allIn && <span className="all-in-tag">ALL-IN</span>}</div>
     <div className="hand">{p.inHand && [0, 1].map(i => <Card key={s.roundId + '-' + i} card={cards[i]} index={p.seat * 2 + i}/>)}</div>
     <div className="points">{p.points.toLocaleString()} <small>ชิป</small></div>
@@ -39,6 +40,7 @@ function PokerPanel({ panel, close, children }: { panel: Panel; close: () => voi
 }
 
 export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapshot>; code: string }) {
+  const desktop = useDesktopLayout();
   const [now, setNow] = useState(Date.now());
   const [raiseTo, setRaiseTo] = useState(40);
   const [copied, setCopied] = useState(false);
@@ -92,7 +94,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
         <div className="poker-bank">{pots.length > 1 && <section className="pot-breakdown" aria-label="กองเดิมพันแยก"><div className="pot-grid">{pots.map((p, i) => <button key={i} className={'pot-entry ' + (p.refund ? 'pot-refund' : i ? 'pot-side' : 'pot-main')} aria-label={potLabel(pots, i) + ' ' + p.amount + ' ชิป'} title={(p.winners.length ? 'รับ: ' + p.winners.map(id => playerName(id) + ' ' + p.awards[id]).join(', ') : 'มีสิทธิ์: ' + p.eligible.map(playerName).join(', '))} onClick={() => setPanel('pots')}>
             <span className="pot-title">{potLabel(pots, i)}</span><span className="pot-title-short" aria-hidden="true">{p.refund ? 'คืน' : potLabel(pots, i) === 'Main Pot' ? 'Main' : 'S' + pots.slice(0, i).filter(pot => !pot.refund).length}</span><strong>{p.amount.toLocaleString()}</strong><small className="pot-players">{p.winners.length ? p.winners.map(id => seatName(id) + ' +' + p.awards[id].toLocaleString()).join(' · ') : 'สิทธิ์ ' + p.eligible.map(seatName).join(' ')}</small>
           </button>)}</div></section>}</div>
-        <div className="poker-opponents">{bySeat.filter(p => p.id !== state.playerId).map(p => <PokerSeat key={p.id} player={p} s={s} state={state} now={now}/>)}
+        <div className="poker-opponents">{bySeat.filter(p => p.id !== state.playerId).map(p => <PokerSeat key={p.id} player={p} s={s} state={state} now={now} desktop={desktop}/>)}
 
         </div>
         <section className="poker-center">
@@ -100,8 +102,9 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
           <div className="community" aria-label="ไพ่กลาง">{Array.from({ length: 5 }, (_, i) => s.board[i] ? <div className="board-card" key={s.roundId + '-' + i}><Card card={s.board[i]} index={i}/></div> : <div key={s.roundId + '-' + i} className="card-slot"/>)}</div>
           {s.phase === 'DEALING' && <div className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</div>}
           <div className="street-track">{['PREFLOP', 'FLOP', 'TURN', 'RIVER'].map(phase => <span className={s.phase === phase ? 'current' : ''} key={phase}>{phase === 'PREFLOP' ? 'Pre-flop' : phase.charAt(0) + phase.slice(1).toLowerCase()}</span>)}</div>
+          {desktop&&s.turnId&&<div className="poker-center-turn"><span>{canAct?'ตาของคุณ':'ตาของ '+playerName(s.turnId)}</span><strong role="timer">00:{String(seconds).padStart(2,'0')}</strong></div>}
         </section>
-        {me && <div className="poker-self"><PokerSeat player={me} s={s} state={state} now={now}/></div>}
+        {me && <div className="poker-self"><PokerSeat player={me} s={s} state={state} now={now} desktop={desktop}/></div>}
       </div>
     </section></div>
     <div className="poker-action-dock" aria-label="การเล่นและเดิมพัน">

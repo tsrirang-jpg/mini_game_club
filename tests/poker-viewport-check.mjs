@@ -84,7 +84,7 @@ export async function checkPokerViewport(page, label) {
   }
   assert.equal(report.tableDockOverlap, false, label + ': table/actions overlap');
   assert.equal(report.shellOverflow, false, label + ': hidden overflow is not fitting');
-  assert.ok(report.shellWidth <= 1280, label + ': desktop width cap');
+  assert.ok(report.shellWidth <= (report.width>=1000&&report.height>=651?1680:1280), label + ': responsive desktop width cap');
   assert.ok(report.scrollWidth <= report.width && report.scrollHeight <= report.height, label + ': page scroll');
   assert.equal(report.scrollY + report.shellScroll, 0, label + ': scrolled to reach controls');
 }

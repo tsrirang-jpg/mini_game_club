@@ -1,10 +1,13 @@
-# Verification — 16 October 2026
+# Verification — 17 October 2026
 
-ตรวจบน macOS ด้วย Microsoft Edge headless หลังเพิ่มผลการจั่ว คู่ที่ทิ้ง และประวัติ Old Maid โดยคงบอทและ dropdown แบบ Spyfall
+ตรวจบน macOS ด้วย Microsoft Edge headless หลังปรับ UI จอคอมทั้งสี่เกมตามภาพตัวอย่าง โดยคงกติกา บอท ข้อมูลส่วนตัว และ UI มือถือ
 
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Four desktop designs: 8 sizes from 1000×651 to 2560×1440, active/lobby/results, readable ranks/suits, no panel overlap or page scroll | PASS |
+| Poker six pots, High/Normal preferences, 12-card showdown, desktop width cap 1680 and existing compact windows | PASS |
+| Spyfall all 8 players visible, separate role/chat/vote areas, answer draft survives desktop/mobile resize with a single form | PASS |
 | Vitest rules, state machines and real WebSocket integration | PASS — 225 tests, 13 files |
 | Old Maid private drawn cards, exact discarded pairs including initial deal, replay protection, deep copies and next-round reset | PASS |
 | Real WebSocket private-history isolation and restoration after reconnect | PASS |

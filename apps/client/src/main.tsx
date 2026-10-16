@@ -30,6 +30,7 @@ import './spyfall-select.css';
 import './club-theme.css';
 import './club-play.css';
 import './oldmaid.css';
+import './club-desktop.css';
 function App() {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot);
   const pokerState = useSyncExternalStore(pokerSession.subscribe, pokerSession.getSnapshot);

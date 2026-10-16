@@ -74,6 +74,9 @@ async function fits(label) {
     const ownSeparate = document.querySelectorAll('.pok-self .seat.own').length === 1 && document.querySelectorAll('.pok-opponents .seat.own').length === 0;
     const opponentsAboveOwn = [...document.querySelectorAll('.pok-opponents .seat')].every(e => box(e).bottom <= own.top + 1);
     const ownCenter = Math.abs((own.left + own.right - table.left - table.right) / 2);
+    const desktop=matchMedia('(min-width:1000px) and (min-height:651px)').matches;
+    const dock=box(document.querySelector('.pok-action-dock')),stage=box(document.querySelector('.pok-turn-stage'));
+    const desktopActionsSeparate=!desktop||(dock.left>=own.right-1&&dock.top>Math.max(...[...document.querySelectorAll('.pok-opponents .seat')].map(e=>box(e).bottom))&&own.right<=stage.right+1);
     const ownBottomGap = table.bottom - own.bottom;
     const ownValue = document.querySelector('.pok-self .pok-own-value');
     let ownMetaOverlap = false;
@@ -82,20 +85,21 @@ async function fits(label) {
       const a=range.getBoundingClientRect(),b=box(ownValue);
       ownMetaOverlap = Math.min(a.right,b.right)-Math.max(a.left,b.left)>1 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
     }
-    return { clipped, outside, cardErrors, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, landscape:matchMedia('(orientation:landscape) and (max-height:650px)').matches, ownBesideStage:own.left>=box(document.querySelector('.pok-turn-stage')).right-1, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > box(document.querySelector('.pok-action-dock')).top, scrollY };
+    return { clipped, outside, cardErrors, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, desktop,desktopActionsSeparate,landscape:matchMedia('(orientation:landscape) and (max-height:650px)').matches, ownBesideStage:own.left>=stage.right-1, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > dock.top, scrollY };
   });
   assert.deepEqual(report.clipped, [], label + ': clipped controls ' + JSON.stringify(report));
   assert.deepEqual(report.outside, [], label + ': outside table ' + JSON.stringify(report));
   assert.deepEqual(report.contentOverflow, [], label + ': content must fit, not be hidden ' + JSON.stringify(report));
   assert.deepEqual(report.cardErrors, [], label + ': ranks and suits must remain separate and visible');
   assert.ok(report.scrollWidth <= report.width && report.scrollHeight <= report.height, label + ': page must not scroll');
-  assert.equal(report.tableDockOverlap, false, label + ': table overlaps actions');
+  if(report.desktop)assert.equal(report.desktopActionsSeparate,true,label+': desktop actions occupy a separate right-hand column');
+  else assert.equal(report.tableDockOverlap, false, label + ': table overlaps actions');
   assert.equal(report.scrollY, 0, label + ': no scrolling to reach controls');
   assert.equal(report.width, page.viewportSize().width, label + ': mobile layout must not shrink to fit overflow');
   assert.equal(report.ownSeparate, true, label + ': own hand has a separate seat');
   assert.equal(report.opponentsAboveOwn, true, label + ': opponents stay above own hand');
   if(report.landscape)assert.equal(report.ownBesideStage,true,label+': landscape own hand stays beside turn area');
-  else assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': portrait own hand stays at bottom center');
+  else if(!report.desktop)assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': portrait own hand stays at bottom center');
   assert.equal(await page.locator('.pok-self .pok-own-badge').isVisible(), true, label + ': own hand is clearly labelled');
   assert.equal(report.ownMetaOverlap, false, label + ': own balance and hand value remain separate');
 }
