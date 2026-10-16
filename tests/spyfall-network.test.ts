@@ -32,6 +32,8 @@ it('3 WebSocket clients get private roles, chat, reconnect and vote/guess withou
   send(a,'readyVote',true);send(b,'readyVote',true);await sleep(20);expect(a.state!.phase).toBe('QUESTION');send(c,'readyVote',true);await until(()=>a.state!.phase==='VOTING'&&b.state!.phase==='VOTING'&&c.state!.phase==='VOTING');
   send(a,'vote',b.room.sessionId);send(b,'vote',a.room.sessionId);await until(()=>a.state!.players.filter(p=>p.hasVoted).length===2);
   expect(a.state!.result).toBeNull();expect('votes'in a.state!).toBe(false);expect(b.secret?.role?.ownVote).toBe(a.room.sessionId);
+  send(b,'vote',c.room.sessionId);await until(()=>b.errors.some(e=>e.includes('เปลี่ยนเสียงไม่ได้')));
+  expect(b.secret?.role?.ownVote).toBe(a.room.sessionId);expect(a.state!.phase).toBe('VOTING');
   send(c,'vote',a.room.sessionId);await until(()=>a.state!.phase==='GUESS');expect(JSON.stringify(a.state)).not.toContain('โรงพยาบาล');
   send(b,'chat','ห้ามบอกคำตอบ');await until(()=>b.errors.some(e=>e.includes('พักแชต')));
   send(c,'guess','โรงพยาบาล');await until(()=>c.errors.some(e=>e.includes('เฉพาะสายลับ')));

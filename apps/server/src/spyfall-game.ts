@@ -85,6 +85,7 @@ export class SpyfallGame {
       if (this.participants.every(pid => this.players.get(pid)!.readyVote)) this.beginVoting();
     } else if (a.type === 'vote') {
       demand(this.phase === 'VOTING' && Date.now() < this.deadline && this.participants.includes(id), 'ยังไม่อยู่ในช่วงโหวต');
+      demand(!this.votes.has(id), 'ยืนยันโหวตแล้ว เปลี่ยนเสียงไม่ได้');
       demand(typeof a.value === 'string' && a.value !== id && this.participants.includes(a.value), 'เลือกผู้เล่นคนอื่นในรอบนี้');
       this.votes.set(id, a.value as string); p!.hasVoted = true; this.sendSecret(id);
       if (this.participants.every(pid => this.votes.has(pid))) this.resolveVote();

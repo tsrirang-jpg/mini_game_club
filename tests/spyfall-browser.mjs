@@ -13,8 +13,34 @@ async function identities(){const spyIndex=(await Promise.all(pages.map(p=>p.loc
 async function catchSpy(spyName){
   await a.getByRole('button',{name:'พร้อมโหวต',exact:true}).click();await b.getByRole('button',{name:'พร้อมโหวต',exact:true}).click();assert.match(await a.locator('.mission-banner h1').textContent(),/ถามตอบ/);
   await c.getByRole('button',{name:'พร้อมโหวต',exact:true}).click();await wait(async()=>(await a.locator('.mission-banner h1').textContent()).includes('ลงคะแนน'));
-  for(let i=0;i<pages.length;i++){const own=['Agent A','Agent B','Agent C'][i];const target=own===spyName?['Agent A','Agent B','Agent C'].find(n=>n!==own):spyName;await pages[i].getByRole('button',{name:`สงสัย ${target}`,exact:true}).click();await pages[i].getByRole('button',{name:'ยืนยันโหวต',exact:true}).click();}
+  for(const p of pages){
+    await p.getByRole('dialog',{name:'ใครคือ Spy?'}).waitFor();
+    assert.equal(await p.locator('.spy-vote-option').count(),3);
+    assert.equal(await p.getByRole('button',{name:'ยืนยันโหวต',exact:true}).isDisabled(),true);
+    const seconds=Number(await p.locator('.spy-voting-clock strong').textContent());assert.ok(seconds>0&&seconds<=30);
+  }
+  await shot(a,'preview-spyfall-voting-desktop');await shot(b,'preview-spyfall-voting-mobile');
+  const voters=[b,a,c];
+  for(let i=0;i<voters.length;i++){
+    const p=voters[i];const own=['Agent A','Agent B','Agent C'][pages.indexOf(p)];const target=own===spyName?['Agent A','Agent B','Agent C'].find(n=>n!==own):spyName;
+    assert.equal(await p.getByRole('button',{name:`สงสัย ${own}`,exact:true}).isDisabled(),true);
+    await p.getByRole('button',{name:`สงสัย ${target}`,exact:true}).click();
+    await p.getByRole('button',{name:'ยืนยันโหวต',exact:true}).click();
+    if(i<pages.length-1){
+      await wait(()=>p.getByRole('button',{name:'✓ ยืนยันแล้ว',exact:true}).isVisible());
+      assert.equal(await p.getByRole('button',{name:'✓ ยืนยันแล้ว',exact:true}).isDisabled(),true);
+      assert.equal(await p.locator('.spy-vote-option:not(:disabled)').count(),0);
+      await wait(async()=>(await c.locator('.spy-vote-stamp.done').count())===i+1);
+      assert.equal(await p.locator('.mission-result').count(),0);
+    }
+    if(i===0){
+      await p.reload();await p.getByRole('dialog',{name:'ใครคือ Spy?'}).waitFor();
+      await wait(()=>p.getByRole('button',{name:'✓ ยืนยันแล้ว',exact:true}).isVisible());
+      assert.equal(await p.locator('.spy-vote-option.chosen strong').textContent(),target);
+    }
+  }
   await wait(async()=>(await a.locator('.mission-banner h1').textContent()).includes('สายลับตอบ'));
+  for(const p of pages)assert.equal(await p.getByRole('dialog').count(),0);
 }
 try{
   await a.goto(url);await a.getByRole('button',{name:/เลือก Spyfall/}).click();await a.getByLabel('ชื่อของคุณ').fill('Agent A');await a.getByLabel('เวลาถามตอบ').selectOption('10');await shot(a,'preview-spyfall-create');
@@ -64,6 +90,16 @@ try{
   assert.equal(await identity.spy.getByLabel('เฉลยสถานที่').inputValue(),'');
   await identity.spy.getByLabel('เฉลยสถานที่').fill('สถานที่ที่ไม่ถูกต้อง');await identity.spy.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
   await wait(async()=>(await a.locator('.mission-result h2').textContent()).includes('คนทั่วไปชนะ'));
+  await a.getByRole('button',{name:'เตรียมภารกิจใหม่',exact:true}).click();await start();identity=await identities();
+  const wrongTarget=['Agent A','Agent B','Agent C'].find(n=>n!==identity.spyName);
+  for(const p of pages)await p.getByRole('button',{name:'พร้อมโหวต',exact:true}).click();
+  for(let i=0;i<pages.length;i++){
+    const own=['Agent A','Agent B','Agent C'][i];const target=own===wrongTarget?identity.spyName:wrongTarget;
+    await pages[i].getByRole('button',{name:`สงสัย ${target}`,exact:true}).click();
+    await pages[i].getByRole('button',{name:'ยืนยันโหวต',exact:true}).click();
+  }
+  await wait(async()=>await a.locator('.mission-result h2').textContent()==='สายลับชนะ');
+  for(const p of pages){assert.equal(await p.getByRole('dialog').count(),0);assert.match(await p.locator('.mission-result').textContent(),/จับผิดคน/);}
   assert.deepEqual(errors,[]);for(const p of [...pages].reverse())await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
-  console.log('PASS: 3 players, private Spy label and answer controls, 5/10-minute settings, chat, refresh, voting, correct/wrong guesses before voting and after capture, desktop/mobile');
+  console.log('PASS: 3 players, private roles, chat, 30-second voting popup, locked confirmations and refresh, immediate completion when all confirm, wrong accusation, correct/wrong guesses before voting and after capture, desktop/mobile');
 }catch(error){console.error('Spyfall browser errors:',errors);console.error((await a.locator('body').textContent()).slice(0,4500));throw error;}finally{await browser.close();}

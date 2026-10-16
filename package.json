@@ -20,7 +20,8 @@
     "test:poker-show": "node tests/poker-show-browser.mjs",
     "test:poker-high": "node tests/poker-high-browser.mjs",
     "test:poker-lifecycle": "node tests/poker-lifecycle-browser.mjs",
-    "test:spyfall": "node tests/spyfall-browser.mjs"
+    "test:spyfall": "node tests/spyfall-browser.mjs",
+    "test:spyfall-voting-layout": "node tests/spyfall-voting-layout-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

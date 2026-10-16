@@ -21,5 +21,5 @@ export interface SpySnapshot {
   chat: ChatMessage[]; caughtSpyId: string | null; result: SpyResult | null;
 }
 export const SPY_QUESTION_MINUTES = [5, 10] as const;
-export const SPY_VOTING_MS = 180_000;
+export const SPY_VOTING_MS = 30_000;
 export const SPY_GUESS_MS = 60_000;
