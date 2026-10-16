@@ -117,3 +117,5 @@ body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 
   .club-shell .welcome .entry > .game-artwork .art-cards { transform:scale(.82); }
 }
 body:has(.club-shell) { min-height:100vh; min-height:100dvh; }
+.club-shell .spy-select .spy-select-value { flex:1; }
+.club-shell .spy-select .spy-select-value > strong { max-width:100%; overflow:hidden; text-overflow:ellipsis; }

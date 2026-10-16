@@ -1,3 +1,4 @@
+import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { GameArtwork } from './GameArtwork';
 import { useState } from 'react';
 import { pokerSession } from './session';
@@ -15,7 +16,7 @@ export function PokerCreatePage({ state, join }: { state: SessionState<PokerSnap
       <form onSubmit={e => { e.preventDefault(); localStorage.setItem('pok.name', name.trim()); void pokerSession.connect(name, join ? code : undefined, botCount); }}>
         <label>ชื่อของคุณ<input required maxLength={20} value={name} onChange={e => setName(e.target.value)} autoComplete="nickname"/></label>
         {join ? <label>รหัสห้อง<input required maxLength={10} value={code} onChange={e => setCode(e.target.value.toUpperCase())}/></label>
-          : <label>จำนวนบอท<select value={botCount} onChange={e => setBotCount(Number(e.target.value))}>{Array.from({ length: 6 }, (_, n) => <option key={n} value={n}>{n ? `บอท ${n} ตัว` : 'ไม่เพิ่มบอท (เล่นกับเพื่อน)'}</option>)}</select></label>}
+          : <ClubSelect<number> label="จำนวนบอท" value={botCount} disabled={state.status !== 'idle'} onChange={setBotCount} options={Array.from({length:6},(_,value)=>({value,label:value ? `บอท ${value} ตัว` : 'ไม่เพิ่มบอท (เล่นกับเพื่อน)'}))}/>}
         <div className="entry-facts"><span>ผู้เล่น<strong>2–6 คน</strong></span><span>Blinds<strong>10/20</strong></span><span>เริ่มต้น<strong>1,000 ชิป</strong></span></div><button className="primary full" disabled={state.status !== 'idle' || !name.trim()}>{state.status === 'connecting' ? 'กำลังเข้าห้อง…' : join ? 'เข้าร่วมโต๊ะ Poker →' : 'สร้างโต๊ะ Poker →'}</button>
       </form><p className="fine">ไพ่ส่วนตัว 2 ใบ + ไพ่กลาง 5 ใบ เลือกมือดีที่สุด 5 ใบ<br/>Fold · Check · Call · Raise · All-in<br/>รองรับ side pot และแบ่งชิปเมื่อเสมอ</p><PokerRules/></section></main>;
 }

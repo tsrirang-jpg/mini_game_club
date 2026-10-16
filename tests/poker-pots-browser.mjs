@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,7 @@ async function start() {
 const numbers = async () => Promise.all(['A','B','C','D','E','F'].map(async name => Number((await a.locator('article[aria-label="ผู้เล่น Player ' + name + '"] .points').textContent()).replace(/[^\d]/g, ''))));
 try {
   await a.goto(url + '/poker/rooms/create');
-  await a.getByLabel('ชื่อของคุณ').fill('Player A'); await a.getByLabel('จำนวนบอท').selectOption('0');
+  await a.getByLabel('ชื่อของคุณ').fill('Player A'); await selectOption(a,'จำนวนบอท','0');
   await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
   await a.locator('.room-bar strong').waitFor(); const code = await a.locator('.room-bar strong').textContent();
   for (let i = 1; i < pages.length; i++) {

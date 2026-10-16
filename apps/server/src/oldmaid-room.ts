@@ -8,10 +8,13 @@ import { GameError } from './game.js';
 export class OldMaidRoom extends Room {
   game!: OldMaidGame;
   private rates = new Map<string, {at: number; count: number}>();
+  private initialBots = 0; private joined = false;
   onCreate(options: {botCount?: unknown} = {}) {
-    if (options.botCount) throw new ServerError(400, 'Old Maid เล่นกับผู้เล่นจริง 3–8 คน');
+    const count = options.botCount ?? 0;
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 0 || count > 7) throw new ServerError(400, 'เลือกจำนวนบอท 0–7 ตัว');
+    this.initialBots = count; this.autoDispose = true;
     let code: string; do { code = randomBytes(5).toString('hex').toUpperCase(); } while (PokRoom.codes.has(code));
-    PokRoom.codes.add(code); this.roomId = code; this.maxClients = 8;
+    PokRoom.codes.add(code); this.roomId = code; this.maxClients = 8 - count;
     this.game = this.makeGame(code, {changed: () => this.publish(), hand: (id,data) => this.clients.find(c => c.sessionId === id)?.send('hand',data)});
     this.onMessage('sync', client => { if (this.limit(client)) this.game.reconnect(client.sessionId); });
     this.onMessage('action', (client,message) => {
@@ -23,6 +26,7 @@ export class OldMaidRoom extends Room {
   }
   protected makeGame(code: string, hooks: OldMaidHooks) { return new OldMaidGame(code,hooks); }
   private publish() {
+    this.maxClients = 8 - [...this.game.players.values()].filter(p => p.isBot).length;
     this.broadcast('snapshot',this.game.snapshot());
     if (this.game.phase === 'PLAYING' || this.game.players.size >= 8) void this.lock(); else void this.unlock();
   }
@@ -39,7 +43,11 @@ export class OldMaidRoom extends Room {
     if (this.game.phase === 'PLAYING') throw new ServerError(409,'รอรอบนี้จบก่อน');
     if (this.game.players.size >= 8) throw new ServerError(409,'ห้องเต็มแล้ว'); return true;
   }
-  onJoin(client: Client, options: {name: string}) { this.game.add(options.name,client.sessionId); client.send('snapshot',this.game.snapshot()); }
+  onJoin(client: Client, options: {name: string}) {
+    this.game.add(options.name,client.sessionId);
+    if (!this.joined) { this.joined = true; for (let n = 0; n < this.initialBots; n++) this.game.addBot(); }
+    client.send('snapshot',this.game.snapshot());
+  }
   async onDrop(client: Client) { this.game.disconnect(client.sessionId); try { await this.allowReconnection(client,60); } catch { /* expiry handled in onLeave */ } }
   onReconnect(client: Client) { this.game.reconnect(client.sessionId); }
   onLeave(client: Client) { this.rates.delete(client.sessionId); this.game.disconnect(client.sessionId); this.game.expire(client.sessionId); }

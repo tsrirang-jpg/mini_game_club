@@ -1,3 +1,4 @@
+import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { GameArtwork } from './GameArtwork';
 import { useState } from 'react';
 import { session } from './session';
@@ -16,7 +17,7 @@ export function CreateRoomPage({ state, join }: { state: SessionState; join: boo
         {state.snapshot && <div className="notice"><span>คุณยังอยู่ในห้อง {state.snapshot.code}</span><button onClick={() => navigate('/play/' + state.snapshot!.code)}>กลับไปเล่น</button><button onClick={() => session.leave()}>ออกจากห้อง</button></div>}
         <form onSubmit={e => { e.preventDefault(); connect(); }}>
           <label>ชื่อของคุณ<input maxLength={20} required value={name} onChange={e => setName(e.target.value)} placeholder="เพื่อนจะเห็นชื่อนี้" autoComplete="nickname"/></label>
-          {!join && <label>จำนวนบอท<select value={botCount} disabled={state.status !== 'idle'} onChange={e => setBotCount(Number(e.target.value))}>{Array.from({ length: 6 }, (_, n) => <option key={n} value={n}>{n === 0 ? 'ไม่เพิ่มบอท (เล่นกับเพื่อน)' : 'บอท ' + n + ' ตัว'}</option>)}</select></label>}
+          {!join && <ClubSelect<number> label="จำนวนบอท" value={botCount} disabled={state.status !== 'idle'} onChange={setBotCount} options={Array.from({length:6},(_,value)=>({value,label:value ? `บอท ${value} ตัว` : 'ไม่เพิ่มบอท (เล่นกับเพื่อน)'}))}/>}
           {join && <label>รหัสห้อง<input required maxLength={10} value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="เช่น A1B2C3D4E5" autoCapitalize="characters"/></label>}
           <div className="entry-facts"><span>ผู้เล่น<strong>2–6 คน</strong></span><span>เริ่มต้น<strong>1,000 แต้ม</strong></span></div><button className="primary full" disabled={state.status !== 'idle' || !name.trim() || (join && !code.trim())}>{state.status === 'connecting' ? 'กำลังเข้าห้อง…' : join ? 'เข้าร่วมโต๊ะ →' : 'สร้างโต๊ะใหม่ →'}</button>
         </form><p className="muted">เริ่มต้นคนละ 1,000 แต้ม ไม่มีเงินจริง</p><Rules/>

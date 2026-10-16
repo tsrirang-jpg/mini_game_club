@@ -24,7 +24,8 @@
     "test:spyfall-voting-layout": "node tests/spyfall-voting-layout-browser.mjs",
     "test:spyfall-settings": "node tests/spyfall-settings-browser.mjs",
     "test:oldmaid": "node tests/oldmaid-browser.mjs",
-    "test:club-ui": "node tests/club-ui-browser.mjs"
+    "test:club-ui": "node tests/club-ui-browser.mjs",
+    "test:dropdown-bots": "node tests/dropdown-bots-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

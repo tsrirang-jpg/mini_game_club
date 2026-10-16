@@ -17,23 +17,34 @@ export class OldMaidGame {
   private lastAction: OldMaidSnapshot['lastAction'] = null;
   private result: OldMaidResult | null = null;
   private timer?: ReturnType<typeof setTimeout>;
+  private botTimer?: ReturnType<typeof setTimeout>;
   constructor(public code: string, private hooks: OldMaidHooks,
-    private random: (max: number) => number = randomInt, public turnDurationMs = OLD_MAID_TURN_MS) {}
+    private random: (max: number) => number = randomInt, public turnDurationMs = OLD_MAID_TURN_MS, private botDelayMs = 700) {}
   private ordered() { return [...this.players.values()].sort((a,b) => a.seat - b.seat); }
   private remaining() { return this.ordered().filter(p => p.hand.length > 0); }
-  private clearTimer() { if (this.timer) clearTimeout(this.timer); this.timer = undefined; }
+  private clearTimer() { if (this.timer) clearTimeout(this.timer); if (this.botTimer) clearTimeout(this.botTimer); this.timer = undefined; this.botTimer = undefined; }
   private changed() { this.hooks.changed(); }
-  private assignHost() { if (!this.players.get(this.hostId)?.connected) this.hostId = this.ordered().find(p => p.connected && !p.expired)?.id ?? ''; }
-  add(name: unknown, id: string = randomUUID()) {
+  private assignHost() { if (!this.players.get(this.hostId)?.connected) this.hostId = this.ordered().find(p => p.connected && !p.expired && !p.isBot)?.id ?? ''; }
+  add(name: unknown, id: string = randomUUID(), isBot = false) {
     demand(this.phase !== 'PLAYING', 'รอรอบนี้จบก่อน');
     demand(this.players.size < OLD_MAID_MAX_PLAYERS, 'ห้องเต็มแล้ว (สูงสุด 8 คน)');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({ length: 8 }, (_, i) => i).find(i => !this.ordered().some(p => p.seat === i))!;
-    this.players.set(id, { id, name: (name as string).trim(), seat, connected: true, ready: false,
-      cardCount: 0, finished: false, wins: 0, hand: [], expired: false, seen: new Set() });
-    if (!this.hostId) this.hostId = id;
+    this.players.set(id, { id, name: (name as string).trim(), seat, connected: true, ready: isBot,
+      cardCount: 0, finished: false, wins: 0, isBot, hand: [], expired: false, seen: new Set() });
+    if (!this.hostId && !isBot) this.hostId = id;
     this.changed(); return id;
+  }
+  addBot() {
+    demand(this.phase === 'LOBBY', 'เพิ่มบอทได้ก่อนเริ่มรอบเท่านั้น');
+    let n = 1; while (this.ordered().some(p => p.name === `บอท Old Maid ${n}`)) n++;
+    return this.add(`บอท Old Maid ${n}`, `bot-${randomUUID()}`, true);
+  }
+  removeBot(id: unknown) {
+    demand(this.phase === 'LOBBY', 'นำบอทออกได้ก่อนเริ่มรอบเท่านั้น');
+    demand(typeof id === 'string' && this.players.get(id)?.isBot, 'เลือกบอทที่อยู่ในห้อง');
+    this.players.delete(id as string); this.changed();
   }
   private sendHand(id: string) {
     const p = this.players.get(id); if (p) this.hooks.hand(id, { roundId: this.roundId, cards: p.hand.map(c => ({...c})) });
@@ -88,14 +99,16 @@ export class OldMaidGame {
       p!.ready = a.value as boolean;
     } else {
       demand(id === this.hostId, 'เฉพาะผู้สร้างห้องเท่านั้น');
-      if (a.type === 'startRound') this.start();
+      if (a.type === 'addBot') { this.addBot(); p!.seen.add(a.actionId); return; }
+      else if (a.type === 'removeBot') { this.removeBot(a.value); p!.seen.add(a.actionId); return; }
+      else if (a.type === 'startRound') this.start();
       else if (a.type === 'prepareRound') {
         demand(this.phase === 'RESULTS', 'รอรอบนี้จบก่อน'); this.clearTimer();
         this.phase = 'LOBBY'; this.turnId = null; this.deadline = 0; this.result = null;
         this.lastPair = []; this.lastAction = null; this.discardedPairs = 0;
         for (const player of this.players.values()) {
           if (player.expired) { this.players.delete(player.id); continue; }
-          player.hand = []; player.ready = false; player.finished = false; player.seen.clear(); this.sendHand(player.id);
+          player.hand = []; player.ready = player.isBot; player.finished = false; player.seen.clear(); this.sendHand(player.id);
         }
         this.assignHost();
       } else demand(false, 'ไม่รู้จักคำสั่ง');
@@ -117,7 +130,7 @@ export class OldMaidGame {
     demand(this.phase === 'LOBBY', 'เตรียมรอบใหม่ก่อน');
     const players = this.ordered();
     demand(players.length >= OLD_MAID_MIN_PLAYERS && players.length <= OLD_MAID_MAX_PLAYERS, 'ต้องมีผู้เล่น 3–8 คน');
-    demand(players.every(p => p.connected && !p.expired && (p.id === this.hostId || p.ready)), 'รอทุกคนพร้อมก่อน');
+    demand(players.every(p => p.connected && !p.expired && (p.isBot || p.id === this.hostId || p.ready)), 'รอทุกคนพร้อมก่อน');
     const cards = shuffle(deck(), this.random);
     this.removedCard = cards.pop()!; this.roundId++; this.phase = 'PLAYING'; this.result = null;
     this.discardedPairs = 0; this.lastPair = []; this.lastAction = null;
@@ -134,6 +147,11 @@ export class OldMaidGame {
       const target = this.target();
       if (this.phase === 'PLAYING' && target?.hand.length) { this.draw(this.random(target.hand.length)); }
     }, delay);
+    if (this.players.get(this.turnId!)?.isBot) this.botTimer = setTimeout(() => {
+      const target = this.target();
+      // The bot sees only how many face-down choices are available, never ranks.
+      if (this.phase === 'PLAYING' && target?.hand.length) this.draw(this.random(target.hand.length));
+    }, Math.min(this.botDelayMs, Math.floor(delay / 2)));
   }
   private draw(index: number) {
     const p = this.players.get(this.turnId!)!, target = this.target()!;

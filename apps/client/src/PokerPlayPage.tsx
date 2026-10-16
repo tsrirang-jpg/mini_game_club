@@ -1,3 +1,4 @@
+import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { pokerSession } from './session';
@@ -123,7 +124,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
     {panel && <PokerPanel panel={panel} close={() => setPanel(null)}>
       {panel === 'close' ? <><p>{playing ? 'ห้องจะปิดหลังจบรอบและแจกชิปครบแล้ว ทุกคนมีเวลา 8 วินาทีดูผลก่อนกลับหน้าสร้างห้อง' : 'ทุกคนจะออกจากห้องใน 8 วินาที และรหัสห้องนี้จะใช้ไม่ได้อีก'}</p><p>หากต้องการออกคนเดียว ให้ใช้ปุ่ม “ออกจากห้อง” ระบบจะย้าย Host ให้คนที่เหลือ</p><div className="poker-close-actions"><button onClick={() => setPanel('table')}>ยกเลิก</button><button className="fold-button" disabled={!host || !active || s.roomClosing} onClick={() => { pokerSession.send('closeRoom'); setPanel(null); }}>ยืนยันปิดห้อง</button></div></> : panel === 'rules' ? <PokerRules/> : panel === 'pots' ? potDetails : panel === 'table' ? <>
         <p className="muted">{s.players.length}/6 คน · Blinds 10/20 · ชิปจำลอง</p>
-        <label>ขนาดไพ่บนจอคอม<select value={cardSize} onChange={e => { const size = e.target.value === 'normal' ? 'normal' : 'high'; setCardSize(size); localStorage.setItem('poker.cardSize', size); }}><option value="high">ใหญ่ (High)</option><option value="normal">ปกติ</option></select></label>
+        <ClubSelect<string> label="ขนาดไพ่บนจอคอม" value={cardSize} options={[{value:'high',label:'ใหญ่ (High)'},{value:'normal',label:'ปกติ'}]} onChange={value=>{const size=value==='normal'?'normal':'high';setCardSize(size);localStorage.setItem('poker.cardSize',size);}}/>
         {host && <><h3>บอทในโต๊ะ</h3>{s.players.filter(p => p.isBot).map(p => <div className="bot-row" key={p.id}><span>{p.name}</span><button className="small" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('removeBot', p.id)}>นำออก</button></div>)}<button className="ghost full" disabled={!active || s.phase !== 'LOBBY'} onClick={() => pokerSession.send('resetTablePoints')}>รีเซ็ตทั้งโต๊ะ 1,000 ชิป</button></>}
         <p className="fine">ปรับบอทและรีเซ็ตชิปได้ก่อนเริ่มรอบ<br/>ห้องและชิปหายเมื่อ server restart</p>
         <p className="fine">เน็ตหลุดหรือรีเฟรช กลับเข้าโต๊ะเดิมได้ภายใน 60 วินาที โดยเวลาตายังเดินต่อ<br/>กดออกจากห้องจะไม่ reconnect และย้าย Host ให้คนที่เหลือ</p>

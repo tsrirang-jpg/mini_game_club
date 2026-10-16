@@ -1,3 +1,4 @@
+import {selectOption} from './select-option.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -6,7 +7,7 @@ const pages=await Promise.all(contexts.map(c=>c.newPage()));const[a,b,c]=pages,e
 const url=process.env.GAME_URL||'http://127.0.0.1:5188';const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn){const end=Date.now()+15000;while(!await fn()){if(Date.now()>end)throw new Error('Old Maid browser timeout');await sleep(50);}}
 try{
- await a.goto(url+'/oldmaid/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Game');await a.getByRole('button',{name:'สร้างห้อง Old Maid →',exact:true}).click();await a.locator('.room-bar strong').waitFor();const code=await a.locator('.room-bar strong').textContent();
+ await a.goto(url+'/oldmaid/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Game');await selectOption(a,'จำนวนบอท',0);await a.getByRole('button',{name:'สร้างห้อง Old Maid →',exact:true}).click();await a.locator('.room-bar strong').waitFor();const code=await a.locator('.room-bar strong').textContent();
  assert.equal(await a.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isDisabled(),true);
  for(const[p,name]of[[b,'มะลิ'],[c,'ใบชา']]){await p.goto(url+'/oldmaid/rooms/join?code='+code);await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByRole('button',{name:'เข้าร่วมวง Old Maid →',exact:true}).click();await p.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();}
  await until(()=>a.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isEnabled());await a.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).click();for(const p of pages)await p.locator('.oldmaid-draw-card').first().waitFor();

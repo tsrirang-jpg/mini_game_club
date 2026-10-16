@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +15,7 @@ try{
   await a.goto(url);await a.getByRole('button',{name:/เลือก Poker/}).waitFor();
   await a.screenshot({path:fileURLToPath(new URL('../preview-games.png',import.meta.url)),fullPage:true});
   await a.getByRole('button',{name:/เลือก Poker/}).click();assert.equal(new URL(a.url()).pathname,'/poker/rooms/create');
-  await a.getByLabel('ชื่อของคุณ').fill('Poker Host');await a.getByLabel('จำนวนบอท').selectOption('0');
+  await a.getByLabel('ชื่อของคุณ').fill('Poker Host');await selectOption(a,'จำนวนบอท','0');
   await a.screenshot({path:fileURLToPath(new URL('../preview-poker-create.png',import.meta.url)),fullPage:true});
   await a.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();await a.locator('.room-bar strong').waitFor();
   const code=await a.locator('.room-bar strong').textContent();

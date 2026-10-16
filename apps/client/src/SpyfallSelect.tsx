@@ -1,11 +1,11 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-interface Option { value: number; label: string; disabled?: boolean }
-interface Props { label: string; value: number; options: readonly Option[]; onChange(value: number): void; disabled?: boolean; compact?: boolean }
+interface Option<T> { value: T; label: string; disabled?: boolean }
+interface Props<T> { label: string; value: T; options: readonly Option<T>[]; onChange(value: T): void; disabled?: boolean; compact?: boolean }
 interface Position { top: number; left: number; width: number; maxHeight: number; above: boolean }
 
-export function SpyfallSelect({ label, value, options, onChange, disabled = false, compact = false }: Props) {
+export function SpyfallSelect<T extends string | number>({ label, value, options, onChange, disabled = false, compact = false }: Props<T>) {
   const id = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
@@ -103,6 +103,6 @@ export function SpyfallSelect({ label, value, options, onChange, disabled = fals
         className={`${option.value === value ? 'is-selected' : ''} ${active === index ? 'is-active' : ''}`} onPointerMove={event => { if (event.pointerType === 'mouse' && !option.disabled) setActive(index); }} onClick={() => choose(index)}>
         <span>{option.label}</span>{option.value === value && <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4 9 3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
       </li>)}
-    </ul>, document.body)}
+    </ul>, triggerRef.current?.closest('dialog') ?? document.body)}
   </div>;
 }

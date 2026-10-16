@@ -1,3 +1,4 @@
+import { countOptions } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -135,7 +136,7 @@ try {
   console.log('PASS: immediate Pok8/9 faces, private other hands and reported re-compared catch at 13 viewports');
   await fixture('DEALER_ACTION',6,'p0','p0',false,2);
   for (const [width,height] of sizes) { await page.setViewportSize({width,height}); await fits('partial catches ' + width + 'x' + height); }
-  assert.equal(await page.getByLabel('จับผู้เล่น 3 ใบ').locator('option').count(),3);
+  assert.equal(await countOptions(page,'จับผู้เล่น 3 ใบ'),3);
   await page.getByRole('button',{name:'ดูผลจับ ผู้เล่น 1',exact:true}).click();
   assert.equal(await page.locator('.pok-catch-detail').count(),2);
   assert.equal(await page.locator('.pok-catch-detail').first().locator('.card').count(),5);

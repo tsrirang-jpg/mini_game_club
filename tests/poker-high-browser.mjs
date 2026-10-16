@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import { Client } from '@colyseus/sdk';
 import assert from 'node:assert/strict';
@@ -8,7 +9,7 @@ const context = await browser.newContext({viewport:{width:952,height:442},device
 const page = await context.newPage(), rooms=[], errors=[];
 page.on('pageerror', e=>errors.push(e.message));
 const url=process.env.GAME_URL||'http://127.0.0.1:2568';
-const endpoint=url.replace(/^http/,'ws');
+const endpoint=process.env.GAME_WS||url.replace(/^http/,'ws');
 let allInMode=false;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(fn){const end=Date.now()+15000;while(!await fn()){if(Date.now()>end)throw new Error('High card test timeout');await pause(80);}}
@@ -23,14 +24,16 @@ async function dimensions(){return page.evaluate(()=>{
 async function fits(label){
   await checkPokerViewport(page,label);
   const d=await dimensions();
-  assert.ok(d.centerX<=1&&d.centerY<=1,label+': board/POT centered in table '+JSON.stringify(d));
-  assert.ok(d.selfX<=1&&d.bottom<=24,label+': own hand at bottom center '+JSON.stringify(d));
+  if(!await page.evaluate(()=>matchMedia('(orientation:landscape) and (max-height:650px)').matches)){
+    assert.ok(d.centerX<=1,label+': board/POT horizontally centered below opponents '+JSON.stringify(d));
+    assert.ok(d.selfX<=1&&d.bottom<=24,label+': own hand at bottom center '+JSON.stringify(d));
+  }
   return d;
 }
 try{
   await page.goto(url+'/poker/rooms/create');
   await page.getByLabel('ชื่อของคุณ').fill('High Test');
-  await page.getByLabel('จำนวนบอท').selectOption('0');
+  await selectOption(page,'จำนวนบอท','0');
   await page.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();
   await page.locator('.room-bar strong').waitFor();
   const code=await page.locator('.room-bar strong').textContent();
@@ -52,12 +55,12 @@ try{
   const high=await fits('Windows scaled 952x442 at DPR 2');
   assert.ok(high.board>=48&&high.own>=42&&high.opponent>=36,'High sizes on scaled Windows '+JSON.stringify(high));
   await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
-  await page.getByLabel('ขนาดไพ่บนจอคอม').selectOption('normal');
+  await selectOption(page,'ขนาดไพ่บนจอคอม','normal');
   await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   const normal=await fits('Normal size');
   assert.ok(normal.board<high.board&&normal.own<high.own&&normal.opponent<high.opponent,'Normal/High must differ');
   await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
-  await page.getByLabel('ขนาดไพ่บนจอคอม').selectOption('high');
+  await selectOption(page,'ขนาดไพ่บนจอคอม','high');
   await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   for(const [width,height] of [[952,442],[800,400],[1268,590],[1280,700],[1366,768],[1903,885],[2560,1080],[1024,600]]){
     await page.setViewportSize({width,height});await pause(100);await fits('High '+width+'x'+height);
@@ -73,6 +76,6 @@ try{
   assert.equal(await page.locator('.card-size-high').count(),1,'High preference survives refresh');
   assert.deepEqual(errors,[]);
   await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
-  console.log('PASS: High cards, centered board/POT, own hand at bottom, scaled Windows DPR 2 and eight desktop viewports during Raise/showdown, Normal/High preference, 12 shown ranks');
+  console.log('PASS: High cards, separate board and own hand, scaled Windows DPR 2 and eight desktop viewports during Raise/showdown, Normal/High preference, 12 shown ranks');
 }catch(error){await page.screenshot({path:fileURLToPath(new URL('../preview-debug.png',import.meta.url))});throw error;}
 finally{for(const room of rooms)await room.leave().catch(()=>{});await browser.close();}

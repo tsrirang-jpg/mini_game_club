@@ -457,3 +457,45 @@
 }
 .club-shell .poker-game .poker-bank .pot-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }
 .club-shell .poker-game.hand-active .poker-action-dock:has(.poker-dock-idle) { min-height:0; }
+/* Compact popover selectors replace native selects without growing the docks. */
+.club-shell .pok-dealer-control .spy-select { margin:0; min-width:0; width:155px; }
+.club-shell .pok-catch-controls > .spy-select { flex:1; min-width:0; max-width:220px; margin:0; }
+.club-shell .pok-dealer-control .spy-select.compact .spy-select-trigger,
+.club-shell .pok-catch-controls .spy-select.compact .spy-select-trigger { min-height:44px; padding:4px 9px; }
+.club-shell .pok-dealer-control .spy-select-caption,
+.club-shell .pok-catch-controls .spy-select-caption { font-size:9px; margin-bottom:1px; }
+.club-shell .pok-dealer-control .spy-select-value strong,
+.club-shell .pok-catch-controls .spy-select-value strong { font-size:12px; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.club-shell .pok-dealer-control .spy-select-value,
+.club-shell .pok-catch-controls .spy-select-value { min-width:0; }
+@media(max-width:720px) and (orientation:portrait) {
+  .club-shell .pok-dealer-control .spy-select { width:100%; }
+}
+@media(orientation:landscape) and (max-height:650px) {
+  .club-shell .pok-catch-controls > .spy-select { max-width:none; }
+  .club-shell .pok-dealer-control .spy-select { width:125px; }
+  .club-shell .pok-dealer-control .spy-select.compact .spy-select-trigger,
+  .club-shell .pok-catch-controls .spy-select.compact .spy-select-trigger { min-height:36px; padding:2px 7px; }
+  .club-shell .pok-dealer-control .spy-select-caption,.club-shell .pok-catch-controls .spy-select-caption { font-size:8px; }
+  .club-shell .pok-dealer-control .spy-select-value strong,.club-shell .pok-catch-controls .spy-select-value strong { font-size:10px; }
+}
+@media(max-width:360px) {
+  .oldmaid-shell .club-wordmark b { display:none; }
+}
+/* Preserve the Normal/High preference on short desktop windows as well. */
+@media(any-hover:hover) and (any-pointer:fine) and (min-width:800px) and (orientation:landscape) and (max-height:650px) {
+  .club-shell .poker-game.card-size-high .poker-table { --seat-card:clamp(28px,8.2dvh,45px); --board-card:clamp(40px,11dvh,64px); }
+  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:clamp(35px,10dvh,60px); }
+  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:clamp(23px,6.8dvh,37px); --board-card:clamp(30px,9.5dvh,52px); }
+  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:clamp(28px,8.5dvh,48px); }
+}
+@media(min-width:1000px) and (min-height:760px) {
+  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:44px; --board-card:60px; }
+  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:52px; }
+}
+@media(min-width:721px) and (min-height:651px) and (max-height:759px) {
+  .club-shell .poker-game.card-size-high .poker-table { --board-card:64px; }
+  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:60px; }
+  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:34px; --board-card:52px; }
+  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:46px; }
+}

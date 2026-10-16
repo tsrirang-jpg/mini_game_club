@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { checkPokerViewport } from './poker-viewport-check.mjs';
@@ -21,7 +22,7 @@ async function fits(label, actions = false) {
 try {
   await page.goto(url + '/poker/rooms/create');
   await page.getByLabel('ชื่อของคุณ').fill('ผู้เล่นชื่อยาวทดสอบ');
-  await page.getByLabel('จำนวนบอท').selectOption('1');
+  await selectOption(page,'จำนวนบอท','1');
   await page.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
   await page.locator('.poker-seat').nth(1).waitFor();
   for (let count = 2; count <= 6; count++) {

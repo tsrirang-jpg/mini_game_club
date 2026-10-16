@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +27,7 @@ async function readable(page) {
 try {
   await a.goto(url+'/poker/rooms/create');
   await a.getByLabel('ชื่อของคุณ').fill('Host');
-  await a.getByLabel('จำนวนบอท').selectOption('0');
+  await selectOption(a,'จำนวนบอท','0');
   await a.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();
   await a.locator('.room-bar strong').waitFor();
   const code=await a.locator('.room-bar strong').textContent();

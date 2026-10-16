@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import { Client } from '@colyseus/sdk';
 import assert from 'node:assert/strict';
@@ -34,7 +35,7 @@ async function rejectsJoin(code) {
 async function closePanel(page) { await page.getByRole('button', { name: 'ปิดหน้าต่าง', exact: true }).click(); }
 try {
   await a.goto(url + '/poker/rooms/create');
-  await a.getByLabel('ชื่อของคุณ').fill('Original Host'); await a.getByLabel('จำนวนบอท').selectOption('1');
+  await a.getByLabel('ชื่อของคุณ').fill('Original Host'); await selectOption(a,'จำนวนบอท','1');
   await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
   const code = await a.locator('.room-bar strong').textContent();
   await b.goto(url + '/poker/rooms/join?code=' + code); await b.getByLabel('ชื่อของคุณ').fill('New Host');
@@ -88,7 +89,7 @@ try {
   assert.match(await b.getByRole('alert').textContent(), /Host ปิดห้อง Poker แล้ว/);
   await rejectsJoin(code);
   // A deliberate exit while an SDK reconnect is queued must not reopen the room.
-  await a.getByLabel('จำนวนบอท').selectOption('2');
+  await selectOption(a,'จำนวนบอท','2');
   await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
   const emptyCode = await a.locator('.room-bar strong').textContent();
   await a.evaluate(() => window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010)));

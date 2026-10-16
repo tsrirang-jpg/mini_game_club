@@ -1,3 +1,4 @@
+import { selectOption, countOptions } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const snapshot = page => page.evaluate(async () => (await import('/src/session.ts')).session.getSnapshot().snapshot);
 async function wait(fn,ms = 15000) { const end = Date.now() + ms; while (!await fn()) { if (Date.now() > end) throw new Error('Catch browser timeout'); await pause(60); } }
 try {
-  await a.goto(url + '/rooms/create'); await a.getByLabel('ชื่อของคุณ').fill('เจ้ามือจับ'); await a.getByLabel('จำนวนบอท').selectOption('0');
+  await a.goto(url + '/rooms/create'); await a.getByLabel('ชื่อของคุณ').fill('เจ้ามือจับ'); await selectOption(a,'จำนวนบอท','0');
   await a.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click(); await a.locator('.room-bar strong').waitFor();
   const code = await a.locator('.room-bar strong').textContent();
   for (const [page,name] of [[b,'ผู้เล่นจั่ว'],[c,'ผู้เล่นอยู่']]) {
@@ -42,7 +43,7 @@ try {
   const dealerCards = await a.locator('.seat.own .card').evaluateAll(cards => cards.map(e => e.getAttribute('aria-label')));
   assert.equal(dealerCards.length,2);
   assert.equal(await c.locator('article[aria-label="ผู้เล่น ผู้เล่นจั่ว"] .card.back').count(),3);
-  assert.equal(await a.getByLabel('จับผู้เล่น 3 ใบ').locator('option').count(),1);
+  assert.equal(await countOptions(a,'จับผู้เล่น 3 ใบ'),1);
   const beforeCatch = await snapshot(a);
   assert.equal(beforeCatch.rules.actionMs,30000);
   await a.waitForTimeout(1100);

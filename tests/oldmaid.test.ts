@@ -2,7 +2,7 @@ import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
 import {OldMaidGame} from '../apps/server/src/oldmaid-game';
 import type {Card} from '../packages/shared/src/index';
 let game:OldMaidGame;let serial=0;let hands:Record<string,Card[]>;
-const rng=(seed:number)=>(max:number)=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed%max;};
+const rng=(seed:number)=>(max:number)=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)%max;};
 function create(count=3,seed=17){game=new OldMaidGame('TEST',{changed(){},hand(id,data){hands[id]=data.cards;}},rng(seed));for(let i=0;i<count;i++)game.add('Player '+i,'p'+i);}
 function act(id:string,type:string,value?:unknown,actionId='action-'+(++serial),roundId=game.roundId){game.action(id,{type,value,actionId,roundId});}
 function start(){for(const p of game.players.values())if(p.id!==game.hostId)act(p.id,'setReady',true);act(game.hostId,'startRound');}
@@ -21,4 +21,24 @@ describe('Old Maid authoritative game',()=>{
  it('keeps departed hands in play, automatically finishes expired seats and moves host',()=>{start();const s=game.snapshot();game.disconnect('p0');game.expire('p0');expect(game.hostId).not.toBe('p0');expect(game.players.has('p0')).toBe(true);if(s.turnId==='p0'){const t=game.turnNumber;vi.advanceTimersByTime(500);expect(game.turnNumber).toBe(t+1);}let n=0;while(game.phase==='PLAYING'&&n++<2500){const id=game.turnId!;if(id==='p0')vi.advanceTimersByTime(500);else draw();invariant();}expect(game.phase).toBe('RESULTS');act(game.hostId,'prepareRound');expect(game.players.has('p0')).toBe(false);expect(game.phase).toBe('LOBBY');});
  it('resets hands, results and readiness for a new round while preserving wins',()=>{start();let n=0;while(game.phase==='PLAYING'&&n++<2500)draw();const scores=game.snapshot().players.map(p=>p.wins);act(game.hostId,'prepareRound');expect(game.snapshot()).toMatchObject({phase:'LOBBY',result:null,deadline:0,discardedPairs:0});expect(Object.values(hands).every(h=>h.length===0)).toBe(true);expect(game.snapshot().players.map(p=>p.wins)).toEqual(scores);start();expect(game.roundId).toBe(2);invariant();});
  it('does not retain timers after room disposal',()=>{start();const turn=game.turnNumber;game.dispose();vi.advanceTimersByTime(90000);expect(game.turnNumber).toBe(turn);});
+});
+describe('Old Maid bots',()=>{
+ it('lets a single human start with two ready bots and draw automatically before the human deadline',()=>{
+  game.dispose();create(1);const first=game.addBot(),second=game.addBot();expect(game.snapshot().players.filter(p=>p.isBot).map(p=>p.ready)).toEqual([true,true]);act('p0','startRound');
+  while(game.turnId==='p0'&&game.phase==='PLAYING')draw();const s=game.snapshot();expect([first,second]).toContain(s.turnId);
+  vi.advanceTimersByTime(699);expect(game.turnNumber).toBe(s.turnNumber);vi.advanceTimersByTime(1);expect(game.turnNumber).toBe(s.turnNumber+1);invariant();
+ });
+ it.each([2,7])('finishes a full round with one human and %s randomly drawing bots',count=>{
+  game.dispose();create(1,29);for(let i=0;i<count;i++)game.addBot();act('p0','startRound');let n=0;
+  while(game.phase==='PLAYING'&&n++<3000){if(game.players.get(game.turnId!)!.isBot)vi.advanceTimersByTime(700);else draw();invariant();}
+  expect(n).toBeLessThan(3000);expect(game.phase).toBe('RESULTS');expect(game.snapshot().result!.winners).toHaveLength(count);
+  const s=game.snapshot();expect(s.discardedPairs).toBe(25);expect(s.result!.lastCard.rank).toBe(s.result!.removedCard.rank);act('p0','prepareRound');expect(game.snapshot().players.filter(p=>p.isBot).every(p=>p.ready)).toBe(true);act('p0','startRound');expect(game.phase).toBe('PLAYING');
+ });
+ it('counts bots in the eight-seat limit, protects management and only removes bots before a round',()=>{
+  expect(()=>act('p1','addBot')).toThrow('เฉพาะ');act('p0','addBot');const bot=game.snapshot().players.find(p=>p.isBot)!;expect(()=>act('p1','removeBot',bot.id)).toThrow('เฉพาะ');expect(()=>act('p0','removeBot','p1')).toThrow('เลือกบอท');act('p0','removeBot',bot.id);expect(game.players.has(bot.id)).toBe(false);
+  for(let i=0;i<5;i++)act('p0','addBot');expect(()=>act('p0','addBot')).toThrow('เต็ม');start();expect(()=>act('p0','addBot')).toThrow('รอรอบ');expect(()=>act('p0','removeBot',game.snapshot().players.find(p=>p.isBot)!.id)).toThrow('รอรอบ');
+ });
+ it('never transfers host to a bot, keeps human reconnection and clears bot timers on disposal',()=>{
+  game.dispose();create(1);game.addBot();game.addBot();game.disconnect('p0');expect(game.hostId).toBe('');game.reconnect('p0');expect(game.hostId).toBe('p0');act('p0','startRound');while(game.turnId==='p0'&&game.phase==='PLAYING')draw();expect(vi.getTimerCount()).toBe(2);const turn=game.turnNumber;game.dispose();expect(vi.getTimerCount()).toBe(0);vi.advanceTimersByTime(60000);expect(game.turnNumber).toBe(turn);
+ });
 });

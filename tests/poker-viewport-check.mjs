@@ -15,7 +15,7 @@ export async function checkPokerViewport(page, label) {
       hole: Math.min(...[...document.querySelectorAll('.poker-seat .card')].map(e=>e.getBoundingClientRect().width)),
       board: document.querySelector('.community .card,.card-slot').getBoundingClientRect().width,
     } : null;
-    const mobileLandscape = matchMedia('(orientation: landscape) and (max-width: 1100px) and (max-height: 600px) and (hover: none) and (pointer: coarse)').matches;
+    const mobileLandscape = matchMedia('(orientation: landscape) and (max-height: 650px)').matches;
     const desktopLayout = !mobileLandscape && matchMedia('(min-width: 1000px) and (min-height: 600px), (any-hover: hover) and (any-pointer: fine) and (min-width: 800px) and (min-height: 400px)').matches;
     const center = document.querySelector('.poker-center').getBoundingClientRect();
     const own = document.querySelector('.poker-self')?.getBoundingClientRect();

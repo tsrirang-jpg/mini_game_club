@@ -1,3 +1,4 @@
+import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -89,7 +90,7 @@ try {
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
   assert.equal(new URL(a.url()).pathname, '/rooms/create');
-  await a.getByLabel('จำนวนบอท').selectOption('2');
+  await selectOption(a,'จำนวนบอท','2');
   await a.getByRole('button', { name: 'สร้างโต๊ะใหม่' }).click();
   await wait(async () => await a.locator('.seat').count() === 3);
   assert.equal(await a.locator('.bot-badge').count(), 2);

@@ -1,10 +1,10 @@
 import type { Card } from './index.js';
 
 export type OldMaidPhase = 'LOBBY' | 'PLAYING' | 'RESULTS';
-export type OldMaidAction = 'setReady' | 'startRound' | 'draw' | 'prepareRound';
+export type OldMaidAction = 'setReady' | 'startRound' | 'draw' | 'prepareRound' | 'addBot' | 'removeBot';
 export interface OldMaidPlayer {
   id: string; name: string; seat: number; connected: boolean; ready: boolean;
-  cardCount: number; finished: boolean; wins: number;
+  cardCount: number; finished: boolean; wins: number; isBot: boolean;
 }
 export interface OldMaidResult { loserId: string; lastCard: Card; removedCard: Card; winners: string[] }
 export interface OldMaidSnapshot {
