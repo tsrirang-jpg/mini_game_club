@@ -4,6 +4,7 @@ import type { ActionType, Card, Snapshot } from '../../../packages/shared/src/in
 import type { PokerSnapshot, PokerAction } from '../../../packages/shared/src/poker';
 import { POKER_RECONNECT_SECONDS } from '../../../packages/shared/src/poker';
 import type { SpySnapshot, SpyAction, SpySecret } from '../../../packages/shared/src/spyfall';
+import type { OldMaidSnapshot, OldMaidAction } from '../../../packages/shared/src/oldmaid';
 
 type Status = 'idle' | 'connecting' | 'connected' | 'reconnecting';
 export interface SessionState<S = Snapshot> {
@@ -179,3 +180,4 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
 export const session = new GameSession();
 export const pokerSession = new GameSession<PokerSnapshot, PokerAction>('poker', '/poker/play', '/poker/rooms/create');
 export const spySession = new GameSession<SpySnapshot, SpyAction>('spyfall', '/spyfall/play', '/spyfall/rooms/create');
+export const oldMaidSession = new GameSession<OldMaidSnapshot, OldMaidAction>('oldmaid', '/oldmaid/play', '/oldmaid/rooms/create');

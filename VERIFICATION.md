@@ -1,4 +1,29 @@
-# Verification — 14 October 2026
+# Verification — 16 October 2026
+
+ตรวจบน macOS ด้วย Microsoft Edge headless หลังเพิ่ม Old Maid และเปลี่ยน UI ทั้งสี่เกมตามภาพที่เลือก
+
+| Check | Result |
+| --- | --- |
+| Strict TypeScript, client/server production build | PASS |
+| Vitest rules, state machines and real WebSocket integration | PASS — 209 tests, 13 files |
+| Old Maid 3–8 players, random removed card of any rank, auto pairs, last-card loser, turn tokens/idempotency, timeout and expired seats | PASS |
+| Old Maid real 3/8-client WebSocket rounds, private hands and refresh/reconnect | PASS |
+| Old Maid real 3-browser round, selection/confirmation, random-card reveal, next round and rules/exit | PASS |
+| Same Old Maid browser flow against compiled production build | PASS |
+| Four distinct menu/create themes; Old Maid 3/8-player fixtures with 5/13 cards; Spyfall question/results at 6 viewports | PASS |
+| Pok 2–6 players, all phases, caught/Pok-revealed hands, 13 viewports, separate ranks/suits and no page scroll | PASS |
+| Pok real multiplayer/catch/reconnect/dealer draw and final comparison | PASS |
+| Poker normal/raise/results, 13 viewports, no overlap or page scrolling, dialogs and exit | PASS |
+| Poker six real players, unequal all-ins, five pots/refund, exact awards at 15 viewports | PASS |
+| Spyfall real 3-client questioning/voting, locked ballots/reconnect, private answer/surrender, winners and cleanup | PASS |
+| Spyfall selected 7/2/3-minute timers, static 3–8-player range, settings sync/reload and readiness reset | PASS |
+| Spyfall voting/answer popups, 3/8 players, 11 desktop/mobile/keyboard viewports, expiry and focus | PASS |
+| Compiled production health, SPA deep links including Old Maid, immutable assets and 404s | PASS |
+| Compiled production create/join and deliberate exit, all four games | PASS |
+
+รอบตรวจนี้ใช้กริดใหม่: มือของเราอยู่ด้านล่างบนมือถือแนวตั้ง และอยู่ข้างพื้นที่เล่นบนแนวนอน/จอแนวตั้งที่เตี้ยมาก ผลของตารางเก่าด้านล่างเป็นประวัติของเวอร์ชันก่อนหน้าเท่านั้น โดยกติกาป๊อกเด้งล่าสุดอ้างอิง README และชุดทดสอบปัจจุบัน
+
+# Archived verification — 14 October 2026
 
 ตรวจบน Windows ด้วย Node.js 24.21.0 และ Microsoft Edge headless
 

@@ -24,7 +24,7 @@ export async function checkPokerViewport(page, label) {
     const portraitLayout = smallPortrait ? {
       columns: getComputedStyle(document.querySelector('.poker-opponents')).gridTemplateColumns.split(' ').length,
       opponentsAboveBoard: opponents.every(r => r.bottom <= center.top + 1),
-      ownBesideBoard: !own || own.left >= center.right - 1,
+      ownBelowBoard: !own || (innerHeight<=570 ? own.left>=center.right-1 : own.top >= center.bottom-1),
       boardBottomGap: table.bottom - center.bottom,
     } : null;
     const landscapeLayout = mobileLandscape ? {
@@ -65,7 +65,7 @@ export async function checkPokerViewport(page, label) {
   assert.deepEqual(report.cutAmounts, [], label + ': pot amounts must fit');
   assert.deepEqual(report.obscuredRanks, [], label + ': card ranks must fit and remain unobscured');
   assert.equal(report.potAboveBoard, true, label + ': total POT must be immediately above the board');
-  if(report.centerOffset) assert.ok(report.centerOffset.x<=1&&report.centerOffset.y<=1,label+': board/POT must be centered in the table');
+  if(report.centerOffset) assert.ok(report.centerOffset.x<=1,label+': board/POT must be horizontally centered below opponents');
   if(report.ownBottom) assert.ok(report.ownBottom.x<=1&&report.ownBottom.gap<=24,label+': own hand must be at bottom center');
   if(report.landscapeLayout) {
     assert.equal(report.landscapeLayout.opponentRow, true, label + ': landscape opponents share the top row');
@@ -76,8 +76,7 @@ export async function checkPokerViewport(page, label) {
   if(report.portraitLayout) {
     assert.equal(report.portraitLayout.columns, 3, label + ': small portrait opponents use three columns');
     assert.equal(report.portraitLayout.opponentsAboveBoard, true, label + ': small portrait board sits below opponents');
-    assert.equal(report.portraitLayout.ownBesideBoard, true, label + ': small portrait own hand sits beside the board');
-    assert.ok(report.portraitLayout.boardBottomGap <= 24, label + ': small portrait board stays at the bottom of the table');
+    assert.equal(report.portraitLayout.ownBelowBoard, true, label + ': portrait own hand has a separate panel beside the board on very short screens, below otherwise');
   }
   if(report.desktopCards) {
     assert.ok(report.desktopCards.hole >= 60, label + ': desktop hole cards must be enlarged');

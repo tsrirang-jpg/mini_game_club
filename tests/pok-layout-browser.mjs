@@ -78,9 +78,10 @@ async function fits(label) {
     let ownMetaOverlap = false;
     if (ownValue) {
       const range = document.createRange(); range.selectNodeContents(document.querySelector('.pok-self .points'));
-      ownMetaOverlap = range.getBoundingClientRect().right > box(ownValue).left - 2;
+      const a=range.getBoundingClientRect(),b=box(ownValue);
+      ownMetaOverlap = Math.min(a.right,b.right)-Math.max(a.left,b.left)>1 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
     }
-    return { clipped, outside, cardErrors, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > box(document.querySelector('.pok-action-dock')).top, scrollY };
+    return { clipped, outside, cardErrors, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, landscape:matchMedia('(orientation:landscape) and (max-height:650px)').matches, ownBesideStage:own.left>=box(document.querySelector('.pok-turn-stage')).right-1, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > box(document.querySelector('.pok-action-dock')).top, scrollY };
   });
   assert.deepEqual(report.clipped, [], label + ': clipped controls ' + JSON.stringify(report));
   assert.deepEqual(report.outside, [], label + ': outside table ' + JSON.stringify(report));
@@ -92,7 +93,8 @@ async function fits(label) {
   assert.equal(report.width, page.viewportSize().width, label + ': mobile layout must not shrink to fit overflow');
   assert.equal(report.ownSeparate, true, label + ': own hand has a separate seat');
   assert.equal(report.opponentsAboveOwn, true, label + ': opponents stay above own hand');
-  assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': own hand stays at bottom center');
+  if(report.landscape)assert.equal(report.ownBesideStage,true,label+': landscape own hand stays beside turn area');
+  else assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': portrait own hand stays at bottom center');
   assert.equal(await page.locator('.pok-self .pok-own-badge').isVisible(), true, label + ': own hand is clearly labelled');
   assert.equal(report.ownMetaOverlap, false, label + ': own balance and hand value remain separate');
 }

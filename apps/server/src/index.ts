@@ -7,6 +7,7 @@ import { WebSocketTransport } from '@colyseus/ws-transport';
 import { PokRoom } from './room.js';
 import { PokerRoom } from './poker-room.js';
 import { SpyfallRoom } from './spyfall-room.js';
+import { OldMaidRoom } from './oldmaid-room.js';
 
 // Colyseus routes matchmaking first, then delegates normal HTTP requests to Express.
 const httpServer = createServer();
@@ -29,7 +30,7 @@ const server = new Server({
       }));
       app.use(express.static(clientDist, { maxAge: 0, dotfiles: 'deny' }));
       // Only application routes receive the SPA; missing assets and APIs stay 404.
-      app.get(/^\/(?:games\/?|(?:rooms|play|poker|spyfall)(?:\/.*)?)?$/, (_request, response) => {
+      app.get(/^\/(?:games\/?|(?:rooms|play|poker|spyfall|oldmaid)(?:\/.*)?)?$/, (_request, response) => {
         response.set('Cache-Control', 'no-cache');
         response.sendFile(resolve(clientDist, 'index.html'));
       });
@@ -40,6 +41,7 @@ const server = new Server({
 server.define('pok', PokRoom);
 server.define('poker', PokerRoom);
 server.define('spyfall', SpyfallRoom);
+server.define('oldmaid', OldMaidRoom);
 const port = Number(process.env.PORT ?? 2567);
 await server.listen(port, '0.0.0.0');
 console.log(`Wong Pai server listening on port ${port}`);

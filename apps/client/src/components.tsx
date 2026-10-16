@@ -1,11 +1,12 @@
 import type { Card as CardData, Phase } from '../../../packages/shared/src/index';
+import { CourtArt } from './CourtArt';
 const suits = { clubs: '♣', diamonds: '♦', hearts: '♥', spades: '♠' };
 export const phaseLabel: Record<Phase, string> = { LOBBY: 'รอเพื่อนพร้อม', DEALING: 'กำลังแจกไพ่', PLAYER_ACTIONS: 'ผู้เล่นตัดสินใจ', DEALER_ACTION: 'เจ้ามือตัดสินใจ', REVEAL: 'เปิดไพ่', SETTLEMENT: 'สรุปแต้ม', ROUND_END: 'จบรอบ' };
 export function Card({ card, index = 0 }: { card?: CardData; index?: number }) {
   const ranks: Record<number, string> = { 1: 'A', 11: 'J', 12: 'Q', 13: 'K' };
   const rank = card ? (ranks[card.rank] ?? String(card.rank)) : '';
   return <div className={`card ${card ? (card.suit === 'hearts' || card.suit === 'diamonds' ? 'red' : '') : 'back'}`} style={{ animationDelay: `${index * 90}ms` }} aria-label={card ? `${rank} ${card.suit}` : 'ไพ่คว่ำ'}>
-    {card ? <><span>{rank}<small>{suits[card.suit]}</small></span><b>{suits[card.suit]}</b><span className="bottom">{rank}<small>{suits[card.suit]}</small></span></> : <b>♠</b>}
+    {card ? <><span>{rank}<small>{suits[card.suit]}</small></span><b>{suits[card.suit]}</b>{card.rank >= 11 && <CourtArt rank={card.rank}/>}<span className="bottom">{rank}<small>{suits[card.suit]}</small></span></> : <b>♠</b>}
   </div>;
 }
 export function Rules() {

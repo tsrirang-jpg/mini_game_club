@@ -14,7 +14,7 @@ function PokSeat({ player: p, s, state, showCatches }: { player: PlayerView; s: 
   const idle = s.phase === 'LOBBY' || s.phase === 'ROUND_END';
   const cards = result?.cards ?? revealed?.cards ?? (own && state.handRound === s.roundId ? state.hand : p.id === s.dealerId ? catches[0]?.dealerCards ?? [] : []);
   const ownValue = own && !result && cards.length >= 2 ? evaluate(cards, s.rules) : null;
-  return <article aria-label={'ผู้เล่น ' + p.name} className={`seat ${own ? 'own' : ''} ${!p.connected ? 'disconnected' : ''}`}>
+  return <article aria-label={'ผู้เล่น ' + p.name} className={`seat ${own ? 'own' : ''} ${!p.connected ? 'disconnected' : ''} ${s.phase === 'DEALER_ACTION' && p.id !== s.dealerId && p.cardCount === 3 && !result ? 'catchable' : ''}`}>
     <div className="player-name" title={p.name}><span className="pok-avatar" aria-hidden="true">{p.name.slice(0,1)}</span><span className="pok-player-label">{p.name}</span>{own && <span className="pok-own-badge">ไพ่ของคุณ</span>}{p.isBot && <span className="bot-badge">บอท</span>}{p.id === s.dealerId && <span className="dealer">เจ้ามือ</span>}</div>
     <div className="hand">{Array.from({ length: p.cardCount }, (_, i) => <Card key={`${s.roundId}-${i}`} card={cards[i]} index={i}/>)}</div>
     <div className="points">{p.points.toLocaleString()} <small>แต้ม</small></div>
@@ -55,7 +55,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
       <div className="game-layout"><section className="table-area">
         <div className="phase"><span>{canAct && 'ถึงตาคุณ · '}{phaseLabel[s.phase]} · รอบ {s.roundId || '–'}</span><span className={'pok-clock' + (canAct ? ' is-own-turn' : '')}><span>{s.deadline > 0 ? `${seconds} วินาที · ` : ''}{s.players.length}/6 คน</span>{deciding && <span className="pok-time" role="progressbar" aria-label="เวลาตัดสินใจ" aria-valuemin={0} aria-valuemax={Math.ceil(s.rules.actionMs / 1000)} aria-valuenow={seconds}><i style={{width: Math.max(0,Math.min(100,(s.deadline - now) / s.rules.actionMs * 100)) + '%'}}/></span>}</span></div>
         <div className="table" data-players={s.players.length} data-opponents={opponents.length}><div className="table-mark">♠<span>วงไพ่</span><small>POK DENG</small></div>
-          <div className="seats pok-table-seats"><div className="pok-opponents">{opponents.map(p => <PokSeat key={p.id} player={p} s={s} state={state} showCatches={() => setPanel('catches')}/>)}</div>{me && <section className="pok-self" aria-label="ไพ่ของคุณ"><PokSeat player={me} s={s} state={state} showCatches={() => setPanel('catches')}/></section>}</div>
+          <div className="seats pok-table-seats"><div className="pok-opponents">{opponents.map(p => <PokSeat key={p.id} player={p} s={s} state={state} showCatches={() => setPanel('catches')}/>)}</div><section className="pok-turn-stage"><span className="eyebrow">{idle ? 'วงไพ่ · POK DENG' : canAct ? 'ตาของคุณ' : 'กำลังเล่น'}</span><h1>{canAct ? dealer ? 'ตาเจ้ามือ' : 'เลือกอยู่หรือจั่วอีกใบ' : phaseLabel[s.phase]}</h1>{deciding && <><p>{canCatch ? 'เลือกจับผู้เล่นที่มี 3 ใบ จั่ว หรืออยู่' : 'เปิดไพ่พร้อมกันเมื่อทุกคนตัดสินใจแล้ว'}</p><strong className="club-stage-clock">00:{String(seconds).padStart(2,'0')}</strong></>}</section>{me && <section className="pok-self" aria-label="ไพ่ของคุณ"><PokSeat player={me} s={s} state={state} showCatches={() => setPanel('catches')}/></section>}</div>
         </div>
       </section></div>
       <section className="pok-action-dock" aria-label="การเล่นป๊อกเด้ง">

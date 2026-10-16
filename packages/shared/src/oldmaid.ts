@@ -1,0 +1,19 @@
+import type { Card } from './index.js';
+
+export type OldMaidPhase = 'LOBBY' | 'PLAYING' | 'RESULTS';
+export type OldMaidAction = 'setReady' | 'startRound' | 'draw' | 'prepareRound';
+export interface OldMaidPlayer {
+  id: string; name: string; seat: number; connected: boolean; ready: boolean;
+  cardCount: number; finished: boolean; wins: number;
+}
+export interface OldMaidResult { loserId: string; lastCard: Card; removedCard: Card; winners: string[] }
+export interface OldMaidSnapshot {
+  game: 'oldmaid'; code: string; roundId: number; phase: OldMaidPhase; hostId: string;
+  players: OldMaidPlayer[]; turnId: string | null; targetId: string | null;
+  turnNumber: number; deadline: number; turnDurationMs: number; discardedPairs: number;
+  lastPair: Card[]; lastAction: { playerId: string; targetId: string; paired: boolean } | null;
+  result: OldMaidResult | null;
+}
+export const OLD_MAID_MIN_PLAYERS = 3;
+export const OLD_MAID_MAX_PLAYERS = 8;
+export const OLD_MAID_TURN_MS = 30_000;

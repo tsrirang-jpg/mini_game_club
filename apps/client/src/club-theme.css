@@ -1,0 +1,119 @@
+/* Shared visual system. Theme colors follow the game-selection cards. */
+.theme-pok { --club-bg:#071f18; --club-panel:#103a2a; --club-felt:#164632; --club-edge:#386d50; --club-accent:#78bf81; --club-primary:#246943; --club-muted:#b1c9b9; --club-ink:#102e21; }
+.theme-poker { --club-bg:#071d30; --club-panel:#10334f; --club-felt:#17445f; --club-edge:#386986; --club-accent:#83c7ee; --club-primary:#1a6195; --club-muted:#b1cbdb; --club-ink:#133a55; }
+.theme-spyfall { --club-bg:#0d2e47; --club-panel:#19486a; --club-felt:#225d80; --club-edge:#588cb1; --club-accent:#8ed3fa; --club-primary:#25698f; --club-muted:#c6deef; --club-ink:#173e5d; }
+.theme-oldmaid { --club-bg:#1e1329; --club-panel:#30203e; --club-felt:#41294e; --club-edge:#70517e; --club-accent:#d9b3e9; --club-primary:#78508b; --club-muted:#d1bddb; --club-ink:#382044; }
+:root:has(.club-shell) { background:#071f18; }
+body:has(.club-shell) { background:radial-gradient(ellipse at 20% 5%,#174d37,#071f18 80%); }
+body:has(.club-shell.theme-poker) { background:radial-gradient(ellipse at 20% 5%,#173f5b,#071d30 80%); }
+body:has(.club-shell.theme-spyfall) { background:radial-gradient(ellipse at 20% 5%,#285f82,#0d2e47 80%); }
+body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 5%,#493057,#1e1329 80%); }
+.club-shell { color:#f7f6ef; --club-gold:#e6c47e; }
+.club-shell .muted,.club-shell .fine,.club-shell label,.club-shell .intro p { color:var(--club-muted); }
+.club-shell .eyebrow { color:var(--club-accent); font-size:10px; letter-spacing:1.5px; }
+.club-shell > .top { height:76px; border-color:var(--club-edge); }
+.club-shell .brand { color:#ebc982; }
+.club-shell .brand span { color:#faf6e8; }
+.club-shell .brand small { color:var(--club-muted); }
+.club-shell .tag { border-color:var(--club-edge); color:var(--club-muted); }
+.club-shell button { color:#f7f6ef; background:var(--club-panel); border-color:var(--club-edge); }
+.club-shell button:hover:not(:disabled) { background:var(--club-felt); transform:none; }
+.club-shell button.primary { background:linear-gradient(color-mix(in srgb,var(--club-primary),white 14%),var(--club-primary)); border-color:var(--club-accent); color:#fff; box-shadow:inset 0 1px 0 #ffffff30,0 3px 8px #0003; }
+.club-shell button.primary:hover:not(:disabled) { background:color-mix(in srgb,var(--club-primary),white 16%); }
+.club-shell .theme-oldmaid button.primary,.club-shell.theme-oldmaid button.primary { background:linear-gradient(#f3d69a,#d9ac58); color:#251b11; border-color:#e7c886; }
+.club-shell button.ghost { background:transparent; }
+.club-shell button:focus-visible,.club-shell input:focus-visible,.club-shell select:focus-visible { outline-color:var(--club-accent); }
+.club-shell .entry,.club-shell .spy-welcome .entry { background:linear-gradient(140deg,var(--club-panel),var(--club-bg)); border:1px solid var(--club-edge); box-shadow:inset 0 1px 0 #ffffff0c,0 14px 35px #0002; }
+.club-shell input,.club-shell select { background:color-mix(in srgb,var(--club-bg),var(--club-felt) 28%); color:#fff; border:1px solid var(--club-edge); color-scheme:dark; }
+.club-shell input::placeholder { color:var(--club-muted); }
+.club-shell .tabs button.selected,.club-shell.spy-shell .spy-welcome .tabs button.selected { color:#fff4d8!important; background:var(--club-felt)!important; border-color:var(--club-gold)!important; box-shadow:0 0 0 1px #e6c47e25; }
+.club-shell .rules { color:var(--club-muted); border-color:var(--club-edge); }
+.club-shell .rules summary { color:#e9eef3; }
+.club-shell .welcome { padding:36px 26px; gap:60px; grid-template-columns:minmax(0,1fr) minmax(0,500px); }
+.club-shell .entry { position:relative; overflow:hidden; padding:24px; }
+.club-shell .entry > .eyebrow,.club-shell .entry > h2 { text-align:center; }
+.club-shell .entry h2 { font-size:25px; margin:0 0 18px; }
+.club-shell .welcome .entry > .game-artwork { display:none; }
+.club-shell .intro .game-artwork { margin:25px 0; width:280px; height:210px; }
+.club-shell .intro h1 span { color:var(--club-accent); }
+.entry-facts { display:flex; gap:7px; margin:2px 0 18px; }
+.entry-facts > span { flex:1; text-align:center; padding:10px 4px; min-width:0; border:1px solid var(--club-edge); border-radius:9px; background:var(--club-bg); font-size:10px; color:var(--club-muted); }
+.entry-facts strong { display:block; color:#f5f3eb; font-size:13px; margin-top:3px; }
+.club-shell .spy-select .spy-select-trigger { display:flex; width:100%; min-height:50px; padding:11px 14px; text-align:left; align-items:center; justify-content:space-between; color:#f7f6ef; background:var(--club-bg); border:1px solid var(--club-edge); box-shadow:inset 0 1px 0 #ffffff10; }
+.club-shell .spy-select .spy-select-trigger:hover:not(:disabled) { background:var(--club-panel); color:#fff; border-color:var(--club-accent); }
+.club-shell .spy-select .spy-select-trigger:disabled { background:var(--club-panel); color:var(--club-muted); opacity:.6; }
+.club-shell .spy-select.compact .spy-select-trigger { min-height:64px; padding:10px; background:var(--club-panel); color:#fff; }
+.club-shell .spy-player-summary { background:var(--club-panel); color:#fff; border:1px solid var(--club-edge); }
+.spy-select-menu { border-color:#7d9ab0; }
+.game-artwork { position:relative; display:flex; align-items:center; justify-content:center; width:170px; height:140px; color:var(--club-accent); pointer-events:none; }
+.art-leaf { position:absolute; z-index:0; font-size:132px; line-height:1; opacity:.12; color:var(--club-accent); }
+.leaf-left { left:-12px; bottom:-3px; transform:rotate(-25deg); }
+.leaf-right { right:-12px; bottom:-3px; transform:rotate(25deg) scaleX(-1); }
+.art-cards { display:flex; position:relative; align-items:center; justify-content:center; }
+.game-artwork .card { width:73px!important; height:104px!important; border-radius:7px; animation:none; box-shadow:0 8px 15px #0005; transform:rotate(-12deg); padding:7px!important; }
+.game-artwork .card + .card { margin-left:-15px; transform:translateY(7px) rotate(12deg); }
+.game-artwork .card > span:not(.bottom) { position:relative!important; display:block; font-size:22px!important; line-height:1!important; }
+.game-artwork .card > span small { display:block; font-size:18px!important; line-height:1.1; margin-top:2px; }
+.game-artwork .card > b { display:grid; inset:auto 8px 8px auto; font-size:29px; }
+.game-artwork .card .bottom { display:none; }
+.court-art { display:none; pointer-events:none; }
+.game-artwork .card .court-art { display:block; position:absolute; width:65%; height:88%; right:0; bottom:0; }
+.game-artwork .card:has(.court-art) > b { display:none; }
+.artwork-oldmaid .card:first-of-type { transform:rotate(-20deg) translateX(-3px); background-color:#4b2b61; }
+.artwork-oldmaid .card:nth-child(2) { z-index:1; margin-left:-42px; transform:rotate(-7deg); width:80px!important; height:114px!important; }
+.artwork-oldmaid .card:nth-child(3) { width:54px!important; height:78px!important; margin-left:-10px; transform:translateY(20px) rotate(14deg); }
+.spy-artwork { width:155px; height:145px; flex:none; color:#87c9f0; }
+.club-shell .game-select { padding:38px 0 28px; min-height:0; }
+.club-shell .game-select > h1 { font-size:clamp(30px,4vw,45px); }
+.club-shell .game-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:28px; }
+.club-shell .game-option { position:relative; isolation:isolate; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:25px 30px; min-height:238px; overflow:hidden; background:linear-gradient(130deg,var(--club-panel),var(--club-bg)); border:1px solid var(--club-edge); box-shadow:0 7px 22px #0002; }
+.club-shell .game-option:hover { border-color:var(--club-accent); box-shadow:0 8px 25px #0004; }
+.club-shell .game-option .game-artwork { position:absolute; right:20px; top:28px; z-index:-1; width:43%; height:150px; }
+.club-shell .game-option h2 { font-size:30px; margin:6px 0; }
+.club-shell .game-option > p { max-width:55%; color:var(--club-muted); font-size:13px; margin:5px 0 15px; line-height:1.8; }
+.game-option-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:auto; }
+.club-shell .game-option strong { font-size:12px; color:#f1ecdf; }
+.player-count-pill { border:1px solid var(--club-edge); border-radius:20px; padding:3px 12px; color:#f5f2e8; font-size:12px; white-space:nowrap; }
+.club-avatar { display:grid; place-items:center; flex:none; width:38px; height:38px; border:1px solid var(--club-accent); border-radius:50%; background:var(--club-felt); color:#fff; font-size:17px; }
+.club-own-pill { display:inline-block; padding:2px 8px; border-radius:20px; background:#e6c47e; color:#2b2330; font-size:10px; white-space:nowrap; }
+.club-dialog { padding:24px; width:min(540px,calc(100% - 24px)); max-height:calc(100dvh - 24px); border:1px solid var(--club-edge); border-radius:18px; background:var(--club-panel); color:#fff; overflow:auto; }
+.club-dialog::backdrop { background:#071724c9; backdrop-filter:blur(4px); }
+.club-dialog .rules { margin:10px 0 0; }
+.dialog-close { display:block; margin:0 0 0 auto; min-width:44px; }
+.club-shell .card.back { background-color:var(--club-felt); background-image:repeating-linear-gradient(45deg,transparent 0 4px,#ffffff12 4px 5px),repeating-linear-gradient(-45deg,transparent 0 4px,#ffffff0b 4px 5px); border-color:color-mix(in srgb,var(--club-accent),var(--club-bg) 25%); color:var(--club-accent); }
+@media(max-width:720px) {
+  .club-shell > .top { height:58px; }
+  .club-shell .top .brand { font-size:28px; gap:7px; }
+  .club-shell .top .brand span { font-size:20px; }
+  .club-shell .top .brand small { display:none; }
+  .club-shell .tag { font-size:9px; padding:5px 8px; }
+  .club-shell .welcome { display:block; padding:20px 0; }
+  .club-shell .welcome .intro { display:none; }
+  .club-shell .welcome .entry { max-width:500px; margin:auto; padding:20px; }
+  .club-shell .welcome .entry > .game-artwork { display:flex; margin:0 auto 8px; height:126px; width:205px; }
+  .club-shell .entry .tabs { margin-bottom:18px; }
+  .club-shell .entry h2 { font-size:23px; }
+  .club-shell .game-select { padding:22px 0; }
+  .club-shell .game-select > .eyebrow { display:none; }
+  .club-shell .game-select > h1 { font-size:29px; margin:5px 0 8px; }
+  .club-shell .game-select > p { font-size:12px; margin:5px 0; }
+  .club-shell .game-options { grid-template-columns:1fr; gap:10px; margin-top:18px; }
+  .club-shell .game-option { min-height:140px; padding:16px 18px; border-radius:13px; }
+  .club-shell .game-option h2 { font-size:25px; margin:2px 0; }
+  .club-shell .game-option > .eyebrow { display:none; }
+  .club-shell .game-option > p { font-size:11px; line-height:1.6; margin:2px 0 10px; max-width:56%; }
+  .club-shell .game-option .game-artwork { top:5px; right:10px; height:115px; width:42%; }
+  .club-shell .game-option .game-artwork .card { width:57px!important; height:82px!important; padding:4px!important; }
+  .club-shell .game-option .game-artwork .card > span:not(.bottom) { font-size:18px!important; }
+  .club-shell .game-option .game-artwork .card > span small { font-size:15px!important; }
+  .club-shell .game-option .spy-artwork { width:130px; height:115px; }
+  .club-shell .game-option strong { font-size:11px; }
+  .player-count-pill { font-size:10px; padding:1px 9px; }
+  .game-option-bottom { width:100%; }
+  .club-shell footer { margin-top:8px; padding:18px 0; border-color:var(--club-edge); color:var(--club-muted); }
+}
+@media(max-height:700px) and (max-width:720px) {
+  .club-shell .welcome .entry > .game-artwork { height:100px; }
+  .club-shell .welcome .entry > .game-artwork .art-cards { transform:scale(.82); }
+}
+body:has(.club-shell) { min-height:100vh; min-height:100dvh; }
