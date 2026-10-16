@@ -1,11 +1,15 @@
 # Verification — 16 October 2026
 
-ตรวจบน macOS ด้วย Microsoft Edge headless หลังเพิ่มบอท Old Maid และใช้ dropdown แบบ Spyfall ในป๊อกเด้งและ Poker
+ตรวจบน macOS ด้วย Microsoft Edge headless หลังเพิ่มผลการจั่ว คู่ที่ทิ้ง และประวัติ Old Maid โดยคงบอทและ dropdown แบบ Spyfall
 
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
-| Vitest rules, state machines and real WebSocket integration | PASS — 221 tests, 13 files |
+| Vitest rules, state machines and real WebSocket integration | PASS — 225 tests, 13 files |
+| Old Maid private drawn cards, exact discarded pairs including initial deal, replay protection, deep copies and next-round reset | PASS |
+| Real WebSocket private-history isolation and restoration after reconnect | PASS |
+| Three real browsers: drawn-card/pair details, new-card badges, history popup, refresh and complete round | PASS |
+| Old Maid feedback at seven viewports, 3/8 players, matched/unmatched draws and up to 13 cards; no page scroll or panel overlap | PASS |
 | Shared dropdowns: Pok/Poker/Old Maid creation, touch/keyboard, five viewports, dealer/catch targets and card size inside native modal | PASS |
 | Old Maid 0–7 bots, default 2 in creation form, host-only add/remove, total capacity 8 and human host transfer | PASS |
 | Old Maid one human with 2/7 bots: full rounds, private hands, automatic readiness, fair random draws and timer cleanup | PASS |

@@ -4,13 +4,14 @@ import type { ActionType, Card, Snapshot } from '../../../packages/shared/src/in
 import type { PokerSnapshot, PokerAction } from '../../../packages/shared/src/poker';
 import { POKER_RECONNECT_SECONDS } from '../../../packages/shared/src/poker';
 import type { SpySnapshot, SpyAction, SpySecret } from '../../../packages/shared/src/spyfall';
-import type { OldMaidSnapshot, OldMaidAction } from '../../../packages/shared/src/oldmaid';
+import type { OldMaidSnapshot, OldMaidAction, OldMaidPrivateState } from '../../../packages/shared/src/oldmaid';
 
 type Status = 'idle' | 'connecting' | 'connected' | 'reconnecting';
 export interface SessionState<S = Snapshot> {
   status: Status; snapshot: S | null; hand: Card[]; handRound: number;
   playerId: string; error: string;
   secret: SpySecret | null;
+  oldMaid?: OldMaidPrivateState | null;
 }
 const endpoint = import.meta.env.VITE_GAME_URL?.trim()
   || `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${import.meta.env.DEV ? '/game' : ''}`;
@@ -52,9 +53,10 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       this.update({ snapshot,
         ...(this.state.handRound === snapshot.roundId ? {} : { hand: [] }) });
     });
-    room.onMessage('hand', (message: { roundId: number; cards: Card[] }) => {
+    room.onMessage('hand', (message: { roundId: number; cards: Card[]; oldMaid?: OldMaidPrivateState }) => {
       if (generation === this.generation && message.roundId >= this.snapshotRound) {
-        this.update({ hand: message.cards, handRound: message.roundId });
+        this.update({ hand: message.cards, handRound: message.roundId,
+          ...(this.roomName === 'oldmaid' ? {oldMaid:message.oldMaid ?? null} : {}) });
       }
     });
     room.onMessage('secret', (message: SpySecret) => {
@@ -102,7 +104,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       this.reconnectTimer = undefined;
       this.room = undefined;
       sessionStorage.removeItem(this.key);
-      this.update({ status: 'idle', snapshot: null, hand: [], secret: null,
+      this.update({ status: 'idle', snapshot: null, hand: [], secret: null, oldMaid:null,
         error: closedMessage || (code === 4028 ? 'ส่งคำสั่งมากเกินไป กรุณาเข้าห้องใหม่' : code === 4000 || code === 1000 ? '' : 'การเชื่อมต่อสิ้นสุด กรุณาเข้าห้องอีกครั้ง') });
       navigate(this.entryPath, true);
     });
@@ -111,7 +113,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   async connect(name: string, code?: string, botCount = 0, options: Record<string, unknown> = {}) {
     const generation = ++this.generation;
     this.snapshotRound = -1;
-    this.update({ status: 'connecting', error: '', hand: [], snapshot: null, secret: null });
+    this.update({ status: 'connecting', error: '', hand: [], snapshot: null, secret: null, oldMaid:null });
     try {
       const room = code ? await client.joinById(code.trim().toUpperCase(), { name: name.trim(), game: this.roomName })
         : await client.create(this.roomName, { ...options, name: name.trim(), botCount, game: this.roomName });
@@ -137,7 +139,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
         if (generation !== this.generation) return;
         if (Date.now() >= until) {
           sessionStorage.removeItem(this.key);
-          this.update({ status: 'idle', snapshot: null, hand: [], secret: null, error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
+          this.update({ status: 'idle', snapshot: null, hand: [], secret: null, oldMaid:null, error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
         } else this.retryTimer = setTimeout(() => { void attempt(); }, 1500);
       }
     };
@@ -173,7 +175,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       }
     }
     this.room = undefined; this.snapshotRound = -1;
-    this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null });
+    this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null, oldMaid:null });
     navigate(destination);
   }
 }

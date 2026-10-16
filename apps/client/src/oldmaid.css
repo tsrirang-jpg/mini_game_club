@@ -31,7 +31,7 @@
 .oldmaid-hand > span { display:block; font-size:12px; margin-bottom:6px; }
 .oldmaid-hand .hand { flex-wrap:wrap; gap:5px; min-height:50px; }
 .oldmaid-hand .card { width:57px; height:80px; padding:5px; animation:none; }
-.oldmaid-hand .card > span:not(.bottom) { font-size:20px; line-height:1; }
+.oldmaid-hand .card > span:not(.bottom) { display:block; position:relative; z-index:1; font-size:20px; line-height:1; }
 .oldmaid-hand .card > span small { font-size:16px; line-height:1; margin-top:2px; }
 .oldmaid-hand .card > b { inset:auto 7px 7px auto; font-size:28px; }
 .oldmaid-hand .card .bottom { display:none; }
@@ -144,4 +144,177 @@
   .oldmaid-self-name .club-avatar { display:none; }
   .oldmaid-wait > span { display:none; }
   .club-shell .oldmaid-confirm { min-height:38px; padding:6px; }
+}
+
+/* Private draw feedback stays visible while the following players take a turn. */
+.oldmaid-game.has-draw-feedback .oldmaid-table { grid-template-rows:auto minmax(0,1fr) auto auto auto; }
+.oldmaid-feedback { width:min(100%,850px); justify-self:center; min-width:0; padding:13px 16px; border:1px solid var(--club-edge); border-radius:15px; background:linear-gradient(135deg,var(--club-panel),var(--club-bg)); }
+.oldmaid-feedback header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.oldmaid-feedback header strong { font-size:13px; color:#edd295; }
+.oldmaid-feedback header > span { border:1px solid var(--club-edge); border-radius:20px; padding:2px 8px; font-size:10px; color:var(--club-muted); }
+.oldmaid-feedback-body { display:grid; grid-template-columns:1fr 1.2fr; gap:18px; align-items:center; }
+.oldmaid-feedback:not(.paired) .oldmaid-feedback-body { grid-template-columns:1fr; }
+.oldmaid-drawn { display:flex; align-items:center; gap:16px; min-width:0; }
+.oldmaid-drawn > div:not(.card) { min-width:0; }
+.oldmaid-drawn h2 { font-size:24px; color:#edd295; margin:0 0 5px; }
+.oldmaid-feedback p { color:var(--club-muted); font-size:12px; margin:5px 0 0; overflow-wrap:anywhere; }
+.oldmaid-feedback .card,.oldmaid-history-cards .card { flex:none; width:57px; height:80px; padding:5px; animation:none; }
+.oldmaid-feedback .card > span:not(.bottom),.oldmaid-history-cards .card > span:not(.bottom) { display:block; position:relative; z-index:1; font-size:20px; line-height:1; }
+.oldmaid-feedback .card small,.oldmaid-history-cards .card small { font-size:16px; line-height:1; margin-top:2px; }
+.oldmaid-feedback .card > b,.oldmaid-history-cards .card > b { inset:auto 6px 5px auto; font-size:28px; }
+.oldmaid-feedback .card .bottom,.oldmaid-history-cards .card .bottom { display:none; }
+.oldmaid-feedback .court-art,.oldmaid-history-cards .court-art { display:none; }
+.oldmaid-feedback .card > b,.oldmaid-history-cards .card > b { display:none; }
+.oldmaid-paired { border-left:1px solid var(--club-edge); padding-left:18px; min-width:0; }
+.oldmaid-paired > strong { color:#91dfa5; font-size:13px; }
+.oldmaid-paired > div { display:flex; align-items:center; gap:12px; margin-top:6px; }
+.oldmaid-paired b { font-size:18px; white-space:nowrap; }
+.oldmaid-pair-cards { display:flex; gap:6px; }
+.oldmaid-pair-cards .card { width:43px; height:60px; outline:1px solid #91dfa5; }
+.oldmaid-pair-cards .card > b { font-size:23px; }
+.oldmaid-card-name { white-space:nowrap; }
+.oldmaid-card-name.red { color:#ff8c91; }
+.oldmaid-no-pair { display:inline-block; font-size:12px; color:#ddd0eb; background:#aa86ce20; border:1px solid var(--club-edge); border-radius:20px; padding:3px 10px; margin-top:6px; }
+.oldmaid-hand-card { position:relative; flex:none; }
+.oldmaid-hand-card.is-new .card { outline:2px solid #e6c47e; box-shadow:0 0 12px #e6c47e44; }
+.oldmaid-new-badge { position:absolute; top:-6px; right:-3px; z-index:1; font-size:9px; font-weight:800; background:#efd38e; color:#281b30; border-radius:10px; padding:1px 5px; }
+.oldmaid-discard { align-items:center; min-width:0; }
+.oldmaid-discard small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:55%; }
+.club-shell .oldmaid-history-button { flex:none; min-height:30px; padding:3px 7px; font-size:11px; }
+.oldmaid-history h2 { margin-top:0; }
+.oldmaid-history ol { list-style:none; margin:16px 0 0; padding:0; }
+.oldmaid-history li { padding:12px 0; border-top:1px solid var(--club-edge); }
+.oldmaid-history li > div:first-child { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.oldmaid-history li small { color:var(--club-muted); }
+.oldmaid-history li p { font-size:13px; margin:6px 0; overflow-wrap:anywhere; }
+.oldmaid-history-paired { font-size:13px; color:#91dfa5; }
+.oldmaid-history-cards { display:flex; gap:6px; margin-top:8px; }
+.oldmaid-history-cards .card { width:36px; height:50px; }
+.oldmaid-history-cards .card > span:not(.bottom) { font-size:15px; }
+.oldmaid-history-cards .card small { font-size:12px; }
+.oldmaid-history-cards .card > b { font-size:20px; }
+@media(orientation:landscape) and (max-height:650px), (orientation:portrait) and (max-height:740px) {
+  .oldmaid-feedback:not(.paired) .oldmaid-drawn > div:not(.card) { display:grid; grid-template-columns:auto auto; gap:2px 8px; align-items:center; }
+  .oldmaid-feedback:not(.paired) .oldmaid-drawn h2 { grid-column:1; grid-row:1; margin:0; }
+  .oldmaid-feedback:not(.paired) .oldmaid-no-pair { grid-column:2; grid-row:1; margin:0; }
+  .oldmaid-feedback:not(.paired) .oldmaid-drawn p:not(.oldmaid-keep) { grid-column:1/-1; grid-row:2; margin:0; }
+}
+@media(max-width:720px) and (orientation:portrait) {
+  .oldmaid-hand .card > b { display:none; }
+  .oldmaid-feedback { padding:10px 12px; border-radius:12px; }
+  .oldmaid-feedback-body { grid-template-columns:1fr; gap:9px; }
+  .oldmaid-feedback header { margin-bottom:7px; }
+  .oldmaid-feedback header strong { font-size:12px; }
+  .oldmaid-drawn { gap:13px; }
+  .oldmaid-drawn h2 { font-size:21px; }
+  .oldmaid-feedback .card { width:43px; height:60px; }
+  .oldmaid-paired { padding:8px 0 0; border-left:0; border-top:1px solid var(--club-edge); }
+  .oldmaid-paired > div { margin-top:5px; }
+  .oldmaid-pair-cards .card { width:36px; height:50px; }
+  .oldmaid-pair-cards .card > span:not(.bottom) { font-size:16px; }
+  .oldmaid-pair-cards .card small { font-size:12px; }
+  .oldmaid-paired b { font-size:18px; }
+  .oldmaid-discard { flex-direction:row; flex-wrap:wrap; gap:2px 7px; }
+  .oldmaid-discard small { flex:1; min-width:0; }
+  .club-shell .oldmaid-history-button { font-size:10px; }
+}
+@media(max-height:740px) and (orientation:portrait) {
+  .oldmaid-game.has-draw-feedback .oldmaid-table { gap:5px; }
+  .oldmaid-feedback { padding:7px 8px; }
+  .oldmaid-feedback header { margin-bottom:5px; }
+  .oldmaid-feedback-body { grid-template-columns:1fr 1fr; gap:7px; }
+  .oldmaid-drawn { gap:7px; }
+  .oldmaid-drawn h2 { font-size:14px; }
+  .oldmaid-feedback p { font-size:9px; }
+  .oldmaid-feedback .card { width:32px; height:45px; padding:3px; }
+  .oldmaid-feedback .card > span:not(.bottom) { font-size:15px; }
+  .oldmaid-feedback .card small { font-size:11px; }
+  .oldmaid-feedback .card > b { font-size:20px; inset:auto 3px 3px auto; }
+  .oldmaid-paired { padding:0 0 0 7px; border-top:0; border-left:1px solid var(--club-edge); }
+  .oldmaid-paired > strong { font-size:10px; }
+  .oldmaid-paired > div { gap:5px; margin-top:4px; }
+  .oldmaid-pair-cards { gap:4px; }
+  .oldmaid-pair-cards .card { width:25px; height:35px; }
+  .oldmaid-pair-cards .card > span:not(.bottom) { font-size:12px; }
+  .oldmaid-pair-cards .card small { font-size:9px; }
+  .oldmaid-pair-cards .card > b { font-size:15px; }
+  .oldmaid-paired b { font-size:10px; }
+  .oldmaid-paired p { display:none; }
+  .oldmaid-no-pair { font-size:10px; margin-top:3px; padding:2px 7px; }
+  .oldmaid-feedback .oldmaid-keep { display:none; }
+}
+@media(max-width:720px) and (min-height:571px) and (orientation:portrait) {
+  .oldmaid-hand .card > span:not(.bottom) { font-size:clamp(16px,5.1vw,20px); text-align:center; }
+  .oldmaid-hand .card > span small { font-size:clamp(12px,4vw,16px); }
+}
+@media(max-height:570px) and (orientation:portrait) {
+  .oldmaid-game.has-draw-feedback .oldmaid-seat { min-height:30px; padding:3px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-seat .club-avatar { display:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-seat { grid-template-columns:minmax(0,1fr); gap:0; }
+  .oldmaid-game.has-draw-feedback .oldmaid-seat small { grid-column:1; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { gap:3px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn h1 { font-size:15px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-card .card { width:24px; height:34px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-confirm { min-height:30px; padding:4px; }
+  .oldmaid-feedback { padding:4px 6px; }
+  .oldmaid-feedback header { margin-bottom:3px; }
+  .oldmaid-feedback header strong { font-size:10px; }
+  .oldmaid-feedback header > span { font-size:8px; padding:0 5px; }
+  .oldmaid-feedback .card { width:25px; height:35px; }
+  .oldmaid-pair-cards { display:none; }
+  .oldmaid-paired > div { margin-top:2px; }
+  .oldmaid-new-badge { font-size:7px; top:-4px; padding:0 3px; }
+}
+@media(orientation:landscape) and (max-height:650px) {
+  .oldmaid-game.has-draw-feedback .oldmaid-table { grid-template-rows:auto minmax(0,1fr) auto auto; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { grid-row:2/5; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self { grid-row:3; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self { position:relative; display:block; padding:6px 8px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self-name { width:auto; flex-direction:row; gap:5px; margin-bottom:4px; padding-right:36px; font-size:10px; line-height:1.3; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self-name .club-avatar,.oldmaid-game.has-draw-feedback .oldmaid-self-name small { display:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self .club-own-pill { font-size:8px; line-height:1; padding:2px 5px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand > span { font-size:9px; margin-bottom:4px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .card { width:clamp(22px,3.8vw,32px); height:clamp(31px,5.3vw,45px); }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .card > span:not(.bottom) { font-size:12px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .card small { font-size:9px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .card > b { font-size:16px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .hand { min-height:0; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand .card > b { display:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-sort { position:absolute; top:3px; right:4px; min-height:23px; font-size:8px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-discard { grid-row:4; }
+  .oldmaid-feedback { grid-column:2; grid-row:2; align-self:center; padding:7px 9px; border-radius:10px; }
+  .oldmaid-feedback header { margin-bottom:5px; }
+  .oldmaid-feedback header strong { font-size:11px; }
+  .oldmaid-feedback header > span { font-size:8px; padding:0 6px; }
+  .oldmaid-feedback-body { gap:7px; grid-template-columns:1fr 1fr; }
+  .oldmaid-feedback .card { width:28px; height:39px; padding:3px; }
+  .oldmaid-feedback .card > span:not(.bottom) { font-size:13px; }
+  .oldmaid-feedback .card small { font-size:10px; }
+  .oldmaid-feedback .card > b { font-size:17px; inset:auto 3px 3px auto; }
+  .oldmaid-drawn { gap:6px; }
+  .oldmaid-drawn h2 { font-size:12px; margin-bottom:2px; white-space:nowrap; }
+  .oldmaid-feedback p { font-size:9px; margin-top:2px; }
+  .oldmaid-paired { padding-left:7px; font-size:10px; line-height:1.25; }
+  .oldmaid-paired > strong { font-size:10px; }
+  .oldmaid-paired > div { gap:4px; margin-top:3px; }
+  .oldmaid-pair-cards { gap:3px; }
+  .oldmaid-pair-cards .card { width:22px; height:31px; }
+  .oldmaid-pair-cards .card > span:not(.bottom) { font-size:11px; }
+  .oldmaid-pair-cards .card small { font-size:8px; }
+  .oldmaid-pair-cards .card > b { font-size:13px; }
+  .oldmaid-paired b { font-size:10px; }
+  .oldmaid-paired p,.oldmaid-feedback .oldmaid-keep { display:none; }
+  .oldmaid-no-pair { font-size:9px; padding:1px 6px; margin-top:3px; }
+  .club-shell .oldmaid-history-button { min-height:25px; padding:2px 4px; font-size:9px; }
+}
+@media(orientation:landscape) and (max-height:350px) {
+  .oldmaid-pair-cards { display:none; }
+  .oldmaid-feedback { padding:5px 7px; }
+  .oldmaid-feedback header { margin-bottom:3px; }
+  .oldmaid-feedback .card { width:24px; height:34px; }
+  .oldmaid-feedback .card > b { display:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-hand > span { display:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self { padding-top:4px; padding-bottom:4px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self-name { margin-bottom:2px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-table { gap:4px 12px; }
 }
