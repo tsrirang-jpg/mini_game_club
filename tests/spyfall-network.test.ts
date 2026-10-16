@@ -16,7 +16,7 @@ function observe(room:Room):Observer{room.reconnection.enabled=false;rooms.push(
 function send(o:Observer,type:string,value?:unknown){o.room.send('action',{type,value,roundId:o.state!.roundId,actionId:`net-spy-${++serial}`});}
 beforeAll(async()=>{const http=createServer();server=new Server({gracefullyShutdown:false,transport:new WebSocketTransport({server:http,maxPayload:4096})});server.define('spyfall',TestSpyRoom);await server.listen(0,'127.0.0.1');const address=http.address();if(!address||typeof address==='string')throw new Error('No address');endpoint=`ws://127.0.0.1:${address.port}`;});
 afterAll(async()=>{await Promise.all(rooms.map(r=>Promise.race([r.leave().catch(()=>{}),sleep(200)])));await server.gracefullyShutdown(false);});
-it('3 WebSocket clients get private roles, chat, reconnect and vote/guess without exposing hidden state',async()=>{
+it.each(['wrong_answer','surrender'])('3 WebSocket clients get private roles, chat, reconnect and vote/%s without exposing hidden state',async(outcome)=>{
   const a=observe(await new Client(endpoint).create('spyfall',{name:'A',questionMinutes:5}));
   let b=observe(await new Client(endpoint).joinById(a.room.roomId,{name:'B',game:'spyfall'}));
   const c=observe(await new Client(endpoint).joinById(a.room.roomId,{name:'C',game:'spyfall'}));
@@ -37,8 +37,11 @@ it('3 WebSocket clients get private roles, chat, reconnect and vote/guess withou
   send(c,'vote',a.room.sessionId);await until(()=>a.state!.phase==='GUESS');expect(JSON.stringify(a.state)).not.toContain('โรงพยาบาล');
   send(b,'chat','ห้ามบอกคำตอบ');await until(()=>b.errors.some(e=>e.includes('พักแชต')));
   send(c,'guess','โรงพยาบาล');await until(()=>c.errors.some(e=>e.includes('เฉพาะสายลับ')));
-  send(a,'guess','โรงเรียน');await until(()=>a.state!.phase==='RESULTS'&&b.state!.phase==='RESULTS'&&c.state!.phase==='RESULTS');
+  send(c,'surrender');await until(()=>c.errors.some(e=>e.includes('ยอมแพ้ได้')));
+  if(outcome==='surrender')send(a,'surrender');else send(a,'guess','โรงเรียน');
+  await until(()=>a.state!.phase==='RESULTS'&&b.state!.phase==='RESULTS'&&c.state!.phase==='RESULTS');
   expect(a.state!.result!.winner).toBe('citizens');expect(a.state!.result!.location).toBe('โรงพยาบาล');expect(b.state!.players.find(p=>p.id===b.room.sessionId)?.score).toBe(1);
+  for(const o of [a,b,c])expect(o.state!.result!.reason).toBe(outcome==='surrender'?'spy_surrendered':'wrong_guess');
   send(a,'prepareRound');await until(()=>b.state!.phase==='LOBBY'&&b.secret?.role===null);expect(a.state!.chat).toEqual([]);
 });
 it.each([[' HOSPITAL ','spy','correct_guess'],['โรงเรียน','citizens','wrong_guess']] as const)('spy can answer %s during questioning over WebSocket',async(answer,winner,reason)=>{

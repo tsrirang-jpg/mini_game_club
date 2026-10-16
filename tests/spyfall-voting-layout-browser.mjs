@@ -10,7 +10,7 @@ let roundId = 0;
 
 // Deterministic eight-player snapshots exercise layouts; the real room flow,
 // private ballots, reconnection and winner transitions are in spyfall-browser.
-async function fixture(phase = 'VOTING', count = 8, remaining = 30000) {
+async function fixture(phase = 'VOTING', count = 8, remaining = 60000) {
   await page.evaluate(async ({ phase, count, remaining, roundId }) => {
     const { spySession } = await import('/src/session.ts');
     const { navigate } = await import('/src/router.ts');
@@ -20,10 +20,12 @@ async function fixture(phase = 'VOTING', count = 8, remaining = 30000) {
     }));
     const snapshot = { game: 'spyfall', code: 'ABCDEF0123', phase, roundId,
       deadline: phase === 'RESULTS' ? 0 : Date.now() + remaining,
-      hostId: 'p0', questionMinutes: 5, phaseDurationMs: 30000, votingDurationMs: 30000,
-      guessDurationMs: 60000, players, chat: [], caughtSpyId: null, result: null };
+      hostId: 'p0', questionMinutes: 5, phaseDurationMs: 60000, votingDurationMs: 60000,
+      guessDurationMs: 60000, players, chat: [], caughtSpyId: phase === 'GUESS' ? 'p0' : null, result: null };
     window.confirmedVotes = [];
+    window.spyAnswers = [];
     spySession.send = (type, value) => {
+      if (type === 'guess' || type === 'surrender') { window.spyAnswers.push({ type, value }); return; }
       if (type !== 'vote') return;
       window.confirmedVotes.push(value);
       const state = spySession.getSnapshot();
@@ -31,10 +33,11 @@ async function fixture(phase = 'VOTING', count = 8, remaining = 30000) {
         secret: { roundId, role: { ...state.secret.role, ownVote: value } } });
     };
     spySession.update({ status: 'connected', playerId: 'p0', error: '', snapshot,
-      secret: { roundId, role: { kind: 'citizen', location: 'โรงเรียน', occupation: 'ครู', ownVote: null } } });
+      secret: { roundId, role: phase === 'GUESS' ? { kind: 'spy', ownVote: null } : { kind: 'citizen', location: 'โรงเรียน', occupation: 'ครู', ownVote: null } } });
     navigate('/spyfall/play/ABCDEF0123');
   }, { phase, count, remaining, roundId: ++roundId });
   if (phase === 'VOTING') await page.getByRole('dialog', { name: 'ใครคือ Spy?' }).waitFor();
+  if (phase === 'GUESS') await page.getByRole('dialog', { name: 'Spy ตอบสถานที่', exact: true }).waitFor();
 }
 
 async function fits(label) {
@@ -88,6 +91,32 @@ try {
   assert.equal(await page.getByRole('button', { name: 'ยืนยันโหวต', exact: true }).isDisabled(), true);
   await fixture('QUESTION');assert.equal(await page.getByRole('dialog').count(), 0);
   assert.equal(await page.evaluate(() => document.body.style.overflow), '');
+  for (const [width,height] of [...sizes,[375,320]]) {
+    await page.setViewportSize({width,height});await fixture('GUESS');
+    assert.equal(await page.getByLabel('เฉลยสถานที่').evaluate(e=>e===document.activeElement),true);
+    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').isVisible(),true);
+    await page.getByLabel('เฉลยสถานที่').fill('   ');
+    assert.equal(await page.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).isDisabled(),true);
+    assert.equal(await page.getByRole('button',{name:'ยอมแพ้',exact:true}).isEnabled(),true);
+    const clipped=await page.evaluate(()=>['.spy-guess-dialog','.spy-guess-fields input','.spy-guess-buttons button:first-child','.spy-guess-buttons button:last-child','.spy-guess-footer .spy-voting-clock'].filter(selector=>{
+      const el=document.querySelector(selector),r=el.getBoundingClientRect();
+      return r.top<0||r.left<0||r.bottom>innerHeight+1||r.right>innerWidth+1||!el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+    }));
+    assert.deepEqual(clipped,[],`answer popup ${width}x${height}: input, countdown and buttons stay visible`);
+    await page.getByLabel('เฉลยสถานที่').fill(' โรงเรียน ');
+    await page.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
+    assert.deepEqual(await page.evaluate(()=>window.spyAnswers),[{type:'guess',value:'โรงเรียน'}]);
+    assert.equal(await page.getByRole('button',{name:'ยอมแพ้',exact:true}).isDisabled(),true);
+    if(width===375||width===568||width===1366)await page.screenshot({path:`preview-spyfall-guess-${width}x${height}.png`});
+  }
+  await fixture('GUESS');await page.getByRole('button',{name:'ยอมแพ้',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>window.spyAnswers),[{type:'surrender',value:undefined}]);
+  assert.equal(await page.getByLabel('เฉลยสถานที่').isDisabled(),true);
+  await fixture('GUESS',8,500);
+  await page.waitForFunction(()=>document.querySelector('.spy-guess-footer .spy-voting-clock strong').textContent==='0');
+  assert.equal(await page.getByRole('button',{name:'ยอมแพ้',exact:true}).isDisabled(),true);
+  await fixture('QUESTION');assert.equal(await page.getByRole('dialog').count(),0);
+  assert.equal(await page.evaluate(()=>document.body.style.overflow),'');
   assert.deepEqual(errors, []);
-  console.log('PASS: 3/8 players, 10 portrait/landscape/desktop sizes, long names, fixed countdown/confirmation, draft changes, locked ballots, expiry, modal focus and cleanup');
+  console.log('PASS: voting and caught-spy popups, 3/8 players, 11 portrait/landscape/desktop/keyboard sizes, visible controls, single answer/surrender submission, expiry, focus and cleanup');
 } finally { await browser.close(); }

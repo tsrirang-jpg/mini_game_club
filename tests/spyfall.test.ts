@@ -18,16 +18,16 @@ describe('Spyfall custom rules',()=>{
     expect(snapshot.players.every(p=>!('role'in p)&&!('location'in p))).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('โรงพยาบาล');
   });
-  it('supports only 5 or 10 minutes, and automatically starts a 30-second vote',()=>{
+  it('supports only 5 or 10 minutes, and automatically starts a 60-second vote',()=>{
     expect(()=>act('a','setQuestionMinutes',3)).toThrow();expect(()=>act('b','setQuestionMinutes',10)).toThrow('เฉพาะ');
     act('a','setQuestionMinutes',10);start();expect(game.deadline-Date.now()).toBe(600000);
-    vi.advanceTimersByTime(600000);expect(game.phase).toBe('VOTING');expect(game.deadline-Date.now()).toBe(30000);
-    vi.advanceTimersByTime(30000);expect(game.phase).toBe('RESULTS');expect(game.snapshot().result?.reason).toBe('no_majority');
+    vi.advanceTimersByTime(600000);expect(game.phase).toBe('VOTING');expect(game.deadline-Date.now()).toBe(60000);
+    vi.advanceTimersByTime(60000);expect(game.phase).toBe('RESULTS');expect(game.snapshot().result?.reason).toBe('no_majority');
   });
   it('requires everybody ready before voting early and allows readiness cancellation',()=>{
     start();act('a','readyVote',true);act('b','readyVote',true);act('b','readyVote',false);act('c','readyVote',true);
     expect(game.phase).toBe('QUESTION');act('b','readyVote',true);expect(game.phase).toBe('VOTING');
-    expect(game.snapshot().phaseDurationMs).toBe(30000);
+    expect(game.snapshot().phaseDurationMs).toBe(60000);
   });
   it('keeps ballots private and preserves the voter choice on reconnect',()=>{
     start();ready();act('b','vote','a');expect(secrets.b.role?.ownVote).toBe('a');
@@ -42,7 +42,7 @@ describe('Spyfall custom rules',()=>{
     act('b','vote','c',game.roundId,'confirmed-vote');
     expect(()=>act('b','vote','c')).toThrow('เปลี่ยนเสียงไม่ได้');
     vi.advanceTimersByTime(5000);game.disconnect('b');game.reconnect('b');
-    expect(game.deadline).toBe(deadline);expect(game.deadline-Date.now()).toBe(25000);
+    expect(game.deadline).toBe(deadline);expect(game.deadline-Date.now()).toBe(55000);
     expect(secrets.b.role?.ownVote).toBe('a');
     expect(()=>act('b','vote','c')).toThrow('เปลี่ยนเสียงไม่ได้');
     expect(game.snapshot().players.filter(p=>p.hasVoted)).toHaveLength(1);
@@ -54,11 +54,11 @@ describe('Spyfall custom rules',()=>{
     expect(game.phase).toBe('GUESS');expect(game.deadline-Date.now()).toBe(60000);
     expect(game.snapshot().result).toBeNull();
     act('a','guess','โรงเรียน');expect(game.snapshot().result?.winner).toBe('citizens');
-    vi.advanceTimersByTime(30000);expect(game.players.get('b')?.score).toBe(1);
+    vi.advanceTimersByTime(60000);expect(game.players.get('b')?.score).toBe(1);
   });
-  it.each([false,true])('closes after exactly 30 seconds with missing confirmations (majority: %s)',majority=>{
+  it.each([false,true])('closes after exactly 60 seconds with missing confirmations (majority: %s)',majority=>{
     start();ready();act('b','vote','a');if(majority)act('c','vote','a');
-    vi.advanceTimersByTime(29999);expect(game.phase).toBe('VOTING');
+    vi.advanceTimersByTime(59999);expect(game.phase).toBe('VOTING');
     vi.advanceTimersByTime(1);expect(game.phase).toBe(majority?'GUESS':'RESULTS');
     if(majority){act('a','guess','โรงพยาบาล');expect(game.snapshot().result?.winner).toBe('spy');}
     else expect(game.snapshot().result).toMatchObject({winner:'spy',reason:'no_majority',votes:{a:null,b:'a',c:null}});
@@ -105,6 +105,32 @@ describe('Spyfall custom rules',()=>{
     start();caught();vi.advanceTimersByTime(59999);expect(game.phase).toBe('GUESS');vi.advanceTimersByTime(1);
     expect(game.snapshot().result?.reason).toBe('guess_timeout');expect(game.snapshot().result?.winner).toBe('citizens');
   });
+  it('lets a caught spy surrender immediately and awards citizens only once',()=>{
+    start();caught();act('a','surrender',undefined,game.roundId,'give-up');
+    expect(game.phase).toBe('RESULTS');expect(game.deadline).toBe(0);
+    expect(game.snapshot().result).toMatchObject({winner:'citizens',reason:'spy_surrendered',accusedId:'a',guess:'',location:'โรงพยาบาล'});
+    expect([...game.players.values()].map(p=>p.score)).toEqual([0,1,1]);
+    act('a','surrender',undefined,game.roundId,'give-up');
+    expect(()=>act('a','surrender')).toThrow();expect(()=>act('a','guess','โรงพยาบาล')).toThrow();
+    vi.advanceTimersByTime(120000);expect(game.snapshot().result?.reason).toBe('spy_surrendered');
+    expect([...game.players.values()].map(p=>p.score)).toEqual([0,1,1]);
+    act('a','prepareRound');start();expect(()=>act('a','surrender',undefined,1)).toThrow();
+    expect(game.phase).toBe('QUESTION');expect(game.snapshot().result).toBeNull();
+  });
+  it('rejects surrender outside the captured-spy phase, from citizens, or after the deadline',()=>{
+    expect(()=>act('a','surrender')).toThrow();start();expect(()=>act('a','surrender')).toThrow();
+    ready();expect(()=>act('a','surrender')).toThrow();act('a','vote','b');act('b','vote','a');act('c','vote','a');
+    expect(()=>act('b','surrender')).toThrow();expect(game.phase).toBe('GUESS');expect(game.snapshot().result).toBeNull();
+    vi.setSystemTime(game.deadline);expect(()=>act('a','surrender')).toThrow();expect(game.snapshot().result).toBeNull();
+  });
+  it('keeps the caught-spy deadline on reconnect and still allows surrender before it expires',()=>{
+    start();caught();const deadline=game.deadline;
+    vi.advanceTimersByTime(17000);game.disconnect('a');game.reconnect('a');
+    expect(game.deadline).toBe(deadline);expect(game.deadline-Date.now()).toBe(43000);
+    expect(game.snapshot().caughtSpyId).toBe('a');expect(secrets.a.role?.kind).toBe('spy');
+    expect(JSON.stringify(game.snapshot())).not.toContain('โรงพยาบาล');
+    act('a','surrender');expect(game.snapshot().result?.winner).toBe('citizens');
+  });
   it('wrong accusation or tied votes lets the spy win without a guess',()=>{
     start();ready();act('a','vote','b');act('b','vote','c');act('c','vote','b');
     expect(game.snapshot().result?.winner).toBe('spy');expect(game.snapshot().result?.reason).toBe('wrong_accusation');
@@ -138,7 +164,7 @@ describe('Spyfall custom rules',()=>{
   });
   it('preserves disconnected participants until result and transfers host',()=>{
     start();game.disconnect('a');game.expire('a');expect(game.hostId).toBe('b');expect(game.players.has('a')).toBe(true);
-    vi.advanceTimersByTime(300000+30000);expect(game.phase).toBe('RESULTS');expect(game.players.has('a')).toBe(false);
+    vi.advanceTimersByTime(300000+60000);expect(game.phase).toBe('RESULTS');expect(game.players.has('a')).toBe(false);
     expect(game.snapshot().result?.spyId).toBe('a');
   });
   it('normalizes Thai combining marks and case without accepting arbitrary substring guesses',()=>{

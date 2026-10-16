@@ -89,6 +89,10 @@ export class SpyfallGame {
       demand(typeof a.value === 'string' && a.value !== id && this.participants.includes(a.value), 'เลือกผู้เล่นคนอื่นในรอบนี้');
       this.votes.set(id, a.value as string); p!.hasVoted = true; this.sendSecret(id);
       if (this.participants.every(pid => this.votes.has(pid))) this.resolveVote();
+    } else if (a.type === 'surrender') {
+      demand(this.phase === 'GUESS' && id === this.spyId && Date.now() < this.deadline,
+        'เฉพาะสายลับที่ถูกจับเท่านั้นที่ยอมแพ้ได้ก่อนหมดเวลาตอบ');
+      this.finish('citizens', 'spy_surrendered', this.spyId);
     } else if (a.type === 'guess') {
       demand((this.phase === 'QUESTION' || this.phase === 'GUESS') && id === this.spyId && Date.now() < this.deadline,
         'เฉพาะสายลับตอบได้ในช่วงสอบสวนหรือหลังโหวตจับได้');

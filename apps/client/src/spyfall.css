@@ -95,3 +95,37 @@
   .spy-voting-confirm{min-height:42px;min-width:135px;padding:6px 14px;font-size:13px}
   .spy-voting-note{margin-top:6px;font-size:9px}
 }
+
+.spy-guess-dialog{width:min(620px,calc(100vw - 32px))}
+.spy-guess-dialog[open]{grid-template-rows:auto minmax(0,1fr)}
+.spy-caught-guess-form{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:18px;min-height:0;margin:0}
+.spy-guess-fields{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px}
+.spy-guess-fields label{font-size:14px;font-weight:600;color:#284b65;margin:0}
+.spy-guess-fields input{width:100%;min-width:0;margin-top:8px;padding:13px 15px;border:2px solid #7c9bb3;border-radius:12px;background:#f6fbff;color:#1d3c54;font-size:17px;min-height:52px;outline-color:#315f7e}
+.spy-guess-fields input::placeholder{color:#70869a;font-size:14px}
+.spy-guess-fields input:disabled{background:#d9e5ee}
+.spy-guess-fields p{color:#496b84;font-size:12px;line-height:1.7;margin:12px 0 0}
+.spy-guess-buttons{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}
+.spy-guess-buttons button{width:100%;min-width:0;min-height:50px}
+.spy-guess-surrender{border:2px solid #9d696b;border-radius:12px;background:#fff2ee;color:#913b3d;font-size:15px;font-weight:600}
+.spy-guess-surrender:hover:not(:disabled){background:#f7d8d3;color:#7e2c30;transform:none}
+.spy-guess-surrender:focus-visible{outline:3px solid #913b3d;outline-offset:2px}
+.spy-guess-surrender:disabled{opacity:1;color:#826e73;background:#d6cbd0;border-color:#b19ba3}
+@media(max-width:600px){
+  .spy-guess-dialog{width:calc(100vw - 20px)}
+  .spy-guess-dialog .spy-voting-heading h2{font-size:22px}
+  .spy-caught-guess-form{gap:14px}
+  .spy-guess-fields label{font-size:12px}
+  .spy-guess-fields input{font-size:16px;min-height:48px;padding:10px 12px}
+  .spy-guess-fields p{font-size:11px}
+  .spy-guess-buttons{gap:9px}
+  .spy-guess-buttons button{min-height:47px;font-size:14px}
+}
+@media(max-height:500px) and (orientation:landscape){
+  .spy-guess-dialog{width:min(620px,calc(100vw - 24px))}
+  .spy-caught-guess-form{gap:8px}
+  .spy-guess-fields label{font-size:11px}
+  .spy-guess-fields input{margin-top:4px;font-size:16px;min-height:44px;padding:7px 12px}
+  .spy-guess-fields p{font-size:10px;margin-top:6px;line-height:1.5}
+  .spy-guess-buttons button{min-height:42px}
+}

@@ -14,7 +14,7 @@ export function SpyfallCreatePage({ state, join }: { state: SessionState<SpySnap
       <form onSubmit={e => { e.preventDefault(); localStorage.setItem('pok.name', name.trim()); void spySession.connect(name,join ? code : undefined,0,{questionMinutes:minutes}); }}>
         <label>ชื่อของคุณ<input required maxLength={20} value={name} onChange={e => setName(e.target.value)} autoComplete="nickname"/></label>
         {join ? <label>รหัสห้อง<input required maxLength={10} value={code} onChange={e => setCode(e.target.value.toUpperCase())}/></label> : <label>เวลาถามตอบ<select value={minutes} onChange={e => setMinutes(Number(e.target.value))}><option value={5}>5 นาที</option><option value={10}>10 นาที</option></select></label>}
-        <div className="spy-setting-summary"><span>โหวต<strong>30 วินาที</strong></span><span>สายลับตอบ<strong>60 วินาที</strong></span><span>ผู้เล่น<strong>3–8 คน</strong></span></div>
+        <div className="spy-setting-summary"><span>โหวต<strong>1 นาที</strong></span><span>สายลับตอบ<strong>60 วินาที</strong></span><span>ผู้เล่น<strong>3–8 คน</strong></span></div>
         <button className="primary full" disabled={state.status !== 'idle' || !name.trim() || (join && !code.trim())}>{state.status === 'connecting' ? 'กำลังเข้าห้อง…' : join ? 'เข้าร่วมภารกิจ →' : 'สร้างห้อง Spyfall →'}</button>
       </form><SpyfallRules/></section></main>;
 }
