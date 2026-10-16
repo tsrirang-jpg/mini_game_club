@@ -16,6 +16,9 @@
 .spy-select-value strong { font-size: 16px; line-height: 1.5; font-weight: 500; white-space: nowrap; }
 .spy-setting-selects { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-bottom: 18px; }
 .spy-setting-selects .spy-select { margin: 0; }
+.spy-player-summary { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 66px; padding: 10px; border-radius: 10px; background: #315d7d; color: #f4f9ff; text-align: center; }
+.spy-player-summary span { font-size: 10px; line-height: 1.5; margin-bottom: 3px; }
+.spy-player-summary strong { font-size: 15px; line-height: 1.5; white-space: nowrap; }
 .spy-shell .spy-select.compact .spy-select-trigger { min-height: 66px; padding: 10px 12px; gap: 6px; color: #f4f9ff; background: #315d7d; border-color: #79a4c34d; }
 .spy-shell .spy-select.compact .spy-select-trigger:hover:not(:disabled) { background: #396d90; color: #fff; }
 .spy-shell .spy-select.compact .spy-select-trigger[aria-expanded="true"] { border-color: #c3e6fc; }
@@ -27,6 +30,8 @@
 .mission-actions .spy-select.compact .spy-select-value { flex-direction: row; align-items: center; gap: 10px; }
 .mission-actions .spy-select.compact .spy-select-caption { margin: 0; font-size: 11px; }
 .spy-shell .mission-actions .spy-select.compact .spy-select-trigger { min-height: 48px; }
+.mission-actions .spy-player-summary { flex-direction: row; gap: 10px; min-height: 48px; }
+.mission-actions .spy-player-summary span { margin: 0; font-size: 11px; }
 .spy-settings-readonly { padding: 10px 12px; margin: 12px 0 0; border: 1px solid #a2c5de70; border-radius: 10px; background: #315d7d; color: #f0f7fc; font-size: 11px; line-height: 1.9; }
 .spy-select-menu {
   position: fixed; z-index: 1500; margin: 0; padding: 6px; min-width: 0;
@@ -48,5 +53,6 @@
   .spy-shell .spy-select.compact .spy-select-trigger { padding: 9px 7px; gap: 3px; }
   .spy-select-caption { font-size: 9px; }
   .spy-select.compact .spy-select-value strong { font-size: 13px; }
+  .spy-player-summary strong { font-size: 13px; }
   .spy-select.compact svg { width: 11px; }
 }

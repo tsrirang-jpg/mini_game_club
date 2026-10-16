@@ -14,7 +14,7 @@ async function select(page,label,value){await combo(page,label).click();await pa
 try{
   await a.goto(url);await a.getByRole('button',{name:/เลือก Spyfall/}).click();
   await a.getByLabel('ชื่อของคุณ').fill('Settings A');
-  const expected={'เวลาถามตอบ':['5 นาที','7 นาที','10 นาที'],'โหวต':['1 นาที','2 นาที','3 นาที'],'สายลับตอบ':['1 นาที','2 นาที','3 นาที'],'ผู้เล่น':['3 คน','4 คน','5 คน','6 คน','7 คน','8 คน']};
+  const expected={'เวลาถามตอบ':['5 นาที','7 นาที','10 นาที'],'โหวต':['1 นาที','2 นาที','3 นาที'],'สายลับตอบ':['1 นาที','2 นาที','3 นาที']};
   for(const[label,options]of Object.entries(expected))assert.match(await combo(a,label).textContent(),new RegExp(options[0]));
   await a.screenshot({path:'preview-spyfall-settings-default.png',fullPage:true});
   for(const[width,height]of[[320,480],[375,667],[568,320],[844,390],[1366,1000]]){
@@ -29,13 +29,15 @@ try{
       await a.keyboard.press('Escape');assert.equal(await a.getByRole('listbox').count(),0);
       assert.match(await combo(a,label).textContent(),new RegExp(options[0]));
     }
+    assert.equal(await combo(a,'ผู้เล่น').count(),0);
+    assert.match(await a.locator('.spy-player-summary').textContent(),/ผู้เล่น3–8 คน/);
     assert.equal(await a.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }
   await combo(a,'เวลาถามตอบ').focus();await a.keyboard.press('ArrowDown');await a.keyboard.press('ArrowDown');await a.keyboard.press('Enter');
   assert.match(await combo(a,'เวลาถามตอบ').textContent(),/7 นาที/);
   await select(a,'โหวต','2 นาที');await select(a,'สายลับตอบ','3 นาที');
-  await combo(a,'ผู้เล่น').focus();await a.keyboard.press('End');await a.keyboard.press('Enter');
-  assert.match(await combo(a,'ผู้เล่น').textContent(),/8 คน/);
+  assert.equal(await combo(a,'ผู้เล่น').count(),0);
+  assert.match(await a.locator('.spy-player-summary').textContent(),/ผู้เล่น3–8 คน/);
   await combo(a,'โหวต').click();assert.equal(await a.getByRole('option',{name:'2 นาที',exact:true}).getAttribute('aria-selected'),'true');
   await a.locator('.entry h2').click();assert.equal(await a.getByRole('listbox').count(),0);
   await combo(a,'โหวต').focus();await a.keyboard.press('ArrowDown');await a.keyboard.press('Tab');assert.equal(await a.getByRole('listbox').count(),0);
@@ -48,6 +50,8 @@ try{
   await until(async()=>await a.locator('.spy-player').count()===3);
   for(const page of pages){assert.match(await page.locator('.spy-settings-readonly').textContent(),/ถาม 7 นาที · โหวต 2 นาที/);assert.match(await page.locator('.spy-settings-readonly').textContent(),/ตอบ 3 นาที · สูงสุด 8 คน/);}
   assert.equal(await b.getByRole('combobox').count(),0);
+  assert.equal(await combo(a,'ผู้เล่น').count(),0);
+  assert.match(await a.locator('.spy-player-summary').textContent(),/ผู้เล่น3–8 คน/);
   await b.reload();await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).waitFor();
   await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();await c.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();
   await until(()=>a.getByRole('button',{name:'เริ่มภารกิจ',exact:true}).isEnabled());

@@ -8,7 +8,7 @@ interface Player extends SpyPlayer { expired: boolean; seen: Set<string>; chatTi
 export interface SpyHooks { changed(): void; secret(id: string, data: SpySecret): void }
 export class SpyfallGame {
   players = new Map<string, Player>(); phase: SpyPhase = 'LOBBY'; roundId = 0; deadline = 0; hostId = '';
-  questionMinutes = 5; votingMinutes = 1; guessMinutes = 1; playerCount = 3; private phaseDurationMs = 0;
+  questionMinutes = 5; votingMinutes = 1; guessMinutes = 1; playerCount = 8; private phaseDurationMs = 0;
   private participants: string[] = []; private spyId = ''; private locationIndex = -1;
   private roles = new Map<string, SpyRole>(); private votes = new Map<string, string>();
   private chat: ChatMessage[] = []; private result: SpyResult | null = null;

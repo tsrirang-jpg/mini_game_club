@@ -174,9 +174,10 @@ describe('Spyfall custom rules',()=>{
   });
 });
 describe('Spyfall room settings',()=>{
-  it('defaults to five minutes, one-minute voting/answers and a three-player capacity',()=>{
-    expect(game.snapshot()).toMatchObject({questionMinutes:5,votingMinutes:1,guessMinutes:1,playerCount:3,votingDurationMs:60000,guessDurationMs:60000});
-    expect(()=>game.add('D','d')).toThrow('ห้องเต็ม');
+  it('defaults to five minutes, one-minute voting/answers and an eight-player capacity',()=>{
+    expect(game.snapshot()).toMatchObject({questionMinutes:5,votingMinutes:1,guessMinutes:1,playerCount:8,votingDurationMs:60000,guessDurationMs:60000});
+    for(const id of ['d','e','f','g','h'])game.add(id,id);
+    expect(()=>game.add('Extra','extra')).toThrow('ห้องเต็ม');
   });
   it.each([3,4,5,6,7,8])('enforces a maximum of %s players and gives every participant a private role',count=>{
     act('a','setPlayerCount',count);

@@ -15,7 +15,7 @@ export function SpyfallCreatePage({ state, join }: { state: SessionState<SpySnap
       {state.snapshot && <div className="notice"><span>ห้อง {state.snapshot.code}</span><button onClick={() => navigate('/spyfall/play/' + state.snapshot!.code)}>กลับไปเล่น</button><button onClick={() => spySession.leave()}>ออกจากห้อง</button></div>}
       <form onSubmit={e => { e.preventDefault(); localStorage.setItem('pok.name', name.trim()); void spySession.connect(name,join ? code : undefined,0,{...settings}); }}>
         <label>ชื่อของคุณ<input required maxLength={20} value={name} onChange={e => setName(e.target.value)} autoComplete="nickname"/></label>
-        {join ? <><label>รหัสห้อง<input required maxLength={10} value={code} onChange={e => setCode(e.target.value.toUpperCase())}/></label><p className="fine">เวลาและจำนวนผู้เล่นสูงสุดใช้ตามที่ผู้สร้างห้องกำหนด</p></> : <SpyfallSettingsFields value={settings} disabled={state.status !== 'idle'} onChange={(key,value) => setSettings(previous => ({ ...previous, [key]: value }))}/>}
+        {join ? <><label>รหัสห้อง<input required maxLength={10} value={code} onChange={e => setCode(e.target.value.toUpperCase())}/></label><p className="fine">ผู้เล่น 3–8 คน · เวลาใช้ตามที่ผู้สร้างห้องกำหนด</p></> : <SpyfallSettingsFields value={settings} disabled={state.status !== 'idle'} onChange={(key,value) => setSettings(previous => ({ ...previous, [key]: value }))}/>}
         <button className="primary full" disabled={state.status !== 'idle' || !name.trim() || (join && !code.trim())}>{state.status === 'connecting' ? 'กำลังเข้าห้อง…' : join ? 'เข้าร่วมภารกิจ →' : 'สร้างห้อง Spyfall →'}</button>
       </form><SpyfallRules/></section></main>;
 }
