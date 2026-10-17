@@ -1,3 +1,5 @@
+import { useDeadlineNow } from './hooks/useDeadlineNow';
+import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { useDesktopLayout } from './useDesktopLayout';
 import { useEffect, useRef, useState } from 'react';
@@ -41,15 +43,13 @@ function PokerPanel({ panel, close, children }: { panel: Panel; close: () => voi
 
 export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapshot>; code: string }) {
   const desktop = useDesktopLayout();
-  const [now, setNow] = useState(Date.now());
   const [raiseTo, setRaiseTo] = useState(40);
-  const [copied, setCopied] = useState(false);
   const [panel, setPanel] = useState<Panel | null>(null);
   const [hostNotice, setHostNotice] = useState('');
   const lastHost = useRef<string | undefined>(undefined);
   const [cardSize, setCardSize] = useState<'normal' | 'high'>(() => localStorage.getItem('poker.cardSize') === 'normal' ? 'normal' : 'high');
-  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 200); return () => clearInterval(timer); }, []);
   const s = state.snapshot;
+  const now = useDeadlineNow(s?.deadline);
   useEffect(() => {
     if (!s) return;
     const changed = lastHost.current !== undefined && lastHost.current !== s.hostId;
@@ -84,7 +84,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const canStart = active && !s.roomClosing && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
   return <main className={'game poker-game card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
     <div className="room-bar">
-      <div className="poker-room-id"><span className="poker-wordmark">♠ <span>Poker</span></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); } catch { setCopied(false); } }}>{copied ? '✓' : 'คัดลอก'}</button></div>
+      <div className="poker-room-id"><span className="poker-wordmark">♠ <span>Poker</span></span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div>
       <div className="poker-tools"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}>ออกจากห้อง</button></div>
     </div>
     <div className="game-layout"><section className="table-area">

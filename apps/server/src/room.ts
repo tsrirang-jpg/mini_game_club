@@ -1,12 +1,13 @@
+import { ClientRateLimiter, SnapshotPublisher, claimRoomCode, roomCodes } from './runtime/room-resources.js';
 import { Room, Client, ServerError } from '@colyseus/core';
-import { randomBytes } from 'node:crypto';
 import { Game, GameError } from './game.js';
 import type { GameHooks } from './game.js';
 
 export class PokRoom extends Room {
-  static codes = new Set<string>();
+  static codes = roomCodes;
   game!: Game;
-  private rates = new Map<string, { start: number; count: number }>();
+  private rates = new ClientRateLimiter('ส่งคำสั่งเร็วเกินไป กรุณารอสักครู่');
+  private publication = new SnapshotPublisher(() => this.publishSnapshot());
   private initialBots = 0;
   private creatorJoined = false;
 
@@ -16,9 +17,7 @@ export class PokRoom extends Room {
       throw new ServerError(400, 'เลือกจำนวนบอท 0–5 ตัว');
     }
     this.initialBots = count;
-    let code: string;
-    do { code = randomBytes(5).toString('hex').toUpperCase(); } while (PokRoom.codes.has(code));
-    PokRoom.codes.add(code);
+    const code = claimRoomCode();
     this.roomId = code;
     this.maxClients = 6;
     this.game = this.makeGame(code, {
@@ -30,8 +29,8 @@ export class PokRoom extends Room {
     });
     this.onMessage('sync', client => {
       if (!this.limit(client)) return;
-      // Resend private data through reconnect, never through a room broadcast.
-      this.game.reconnect(client.sessionId);
+      // Sync private data to its owner without broadcasting a fake state change.
+      this.game.sync(client.sessionId);
       client.send('snapshot', this.game.snapshot());
     });
     this.onMessage('action', (client, message) => {
@@ -49,18 +48,7 @@ export class PokRoom extends Room {
     this.onMessage('*', client => { this.limit(client); });
   }
   protected makeGame(code: string, hooks: GameHooks) { return new Game(code, hooks); }
-  private limit(client: Client) {
-    const now = Date.now();
-    let rate = this.rates.get(client.sessionId);
-    if (!rate || now - rate.start >= 1000) {
-      rate = { start: now, count: 0 }; this.rates.set(client.sessionId, rate);
-    }
-    rate.count++;
-    if (rate.count <= 20) return true;
-    if (rate.count === 21) client.send('error', { code: 'RATE_LIMIT', message: 'ส่งคำสั่งเร็วเกินไป กรุณารอสักครู่' });
-    if (rate.count >= 100) client.leave(4028);
-    return false;
-  }
+  private limit(client: Client) { return this.rates.allow(client); }
   onAuth(_client: Client, options: { name?: unknown; game?: unknown }) {
     if (options.game && options.game !== 'pok') throw new ServerError(400, 'ห้องนี้เป็นป๊อกเด้ง');
     if (typeof options?.name !== 'string' || !options.name.trim() || options.name.trim().length > 20) {
@@ -80,9 +68,9 @@ export class PokRoom extends Room {
         });
       }
     }
-    client.send('snapshot', this.game.snapshot());
   }
-  private publish() {
+  private publish() { this.publication.request(); }
+  private publishSnapshot() {
     if (!this.game) return;
     this.broadcast('snapshot', this.game.snapshot());
     const active = !['LOBBY', 'ROUND_END'].includes(this.game.phase);
@@ -101,7 +89,7 @@ export class PokRoom extends Room {
     this.game.disconnect(client.sessionId);
     this.game.expire(client.sessionId);
   }
-  onDispose() {
-    this.game.dispose(); this.rates.clear(); PokRoom.codes.delete(this.roomId);
+  onDispose() { this.publication.dispose();
+    this.game.dispose(); this.rates.clear(); roomCodes.delete(this.roomId);
   }
 }

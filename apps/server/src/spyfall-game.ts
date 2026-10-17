@@ -29,6 +29,7 @@ export class SpyfallGame {
   private changed() { this.hooks.changed(); }
   private reassign() { if (!this.players.get(this.hostId)?.connected) this.hostId = [...this.players.values()].find(p => p.connected)?.id ?? ''; }
   disconnect(id: string) { const p = this.players.get(id); if (!p) return; p.connected = false; p.ready = false; this.reassign(); this.changed(); }
+  sync(id: string) { const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect'); this.sendSecret(id); }
   reconnect(id: string) {
     const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect'); p!.connected = true;
     if (!this.hostId) this.hostId = id; this.sendSecret(id); this.changed();

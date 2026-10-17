@@ -1,19 +1,20 @@
+import { useDeadlineNow } from './hooks/useDeadlineNow';
+import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
 import { useEffect, useRef, useState } from 'react';
 import { oldMaidSession } from './session';
 import type { SessionState } from './session';
 import type { OldMaidSnapshot } from '../../../packages/shared/src/oldmaid';
 import { navigate } from './router';
 import { Card } from './components';
-import { OldMaidRules } from './OldMaidCreatePage';
+import { OldMaidRules } from './components/entry/OldMaidRules';
 import { OldMaidFeedback, OldMaidHistory, PairName } from './OldMaidFeedback';
 
 export function OldMaidPlayPage({state,code}: {state:SessionState<OldMaidSnapshot>;code:string}) {
-  const [now,setNow] = useState(Date.now()); const [selected,setSelected] = useState<number|null>(null);
-  const [sorted,setSorted] = useState(false); const [rules,setRules] = useState(false); const [manage,setManage] = useState(false); const [copied,setCopied] = useState(false);
-  const [pending,setPending] = useState(false); const dialog = useRef<HTMLDialogElement>(null);
+  const [selected,setSelected] = useState<number|null>(null);
+  const [sorted,setSorted] = useState(false); const [rules,setRules] = useState(false); const [manage,setManage] = useState(false); const [pending,setPending] = useState(false); const dialog = useRef<HTMLDialogElement>(null);
   const [historyOpen,setHistoryOpen] = useState(false);
   const s = state.snapshot;
-  useEffect(() => {const timer=setInterval(()=>setNow(Date.now()),250);return()=>clearInterval(timer);},[]);
+  const now = useDeadlineNow(s?.deadline);
   useEffect(() => {setSelected(null);setPending(false);},[s?.turnNumber,s?.roundId]);
   useEffect(() => {if(state.error||state.status!=='connected')setPending(false);},[state.error,state.status]);
   useEffect(() => {if(rules||manage||historyOpen)dialog.current?.showModal();return()=>dialog.current?.close();},[rules,manage,historyOpen]);
@@ -33,7 +34,7 @@ export function OldMaidPlayPage({state,code}: {state:SessionState<OldMaidSnapsho
   const lastActivity=s.history?.at(-1);
   const closeDialog=()=>{setRules(false);setManage(false);setHistoryOpen(false);};
   return <main className={'oldmaid-game phase-'+s.phase+(latest&&s.phase==='PLAYING'?' has-draw-feedback':'')}>
-    <div className="room-bar"><div className="club-room-id"><span className="club-wordmark">♠ <b>อีแก่กินน้ำ</b></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async()=>{try{await navigator.clipboard.writeText(s.code);setCopied(true);}catch{setCopied(false);}}}>{copied?'✓':'คัดลอก'}</button></div><div className="club-room-tools"><button className="small" aria-label="จัดการโต๊ะ Old Maid" onClick={()=>setManage(true)}>โต๊ะ</button><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>oldMaidSession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar"><div className="club-room-id"><span className="club-wordmark">♠ <b>อีแก่กินน้ำ</b></span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="club-room-tools"><button className="small" aria-label="จัดการโต๊ะ Old Maid" onClick={()=>setManage(true)}>โต๊ะ</button><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>oldMaidSession.leave()}>ออกจากห้อง</button></div></div>
     <div className="oldmaid-meta">รอบ {s.roundId||'–'} · {s.players.length}/8 คน<span>{s.phase==='LOBBY'?'รอทุกคนพร้อม':s.phase==='RESULTS'?'จบรอบ':'จับคู่แล้วทิ้งอัตโนมัติ'}</span></div>
     <section className="oldmaid-table">
       <div className="oldmaid-opponents">{s.players.filter(p=>p.id!==state.playerId).map(p=><article key={p.id} className={'oldmaid-seat'+(s.phase==='PLAYING'&&p.id===s.targetId?' target':'')+(p.finished?' finished':'')} aria-label={'ผู้เล่น '+p.name}><span className="club-avatar">{p.isBot?'🤖':p.name.slice(0,1)}</span><strong title={p.name}>{p.name}</strong><div className="mini-card-stack" aria-hidden="true">{!p.finished&&Array.from({length:Math.min(p.cardCount,3)},(_,i)=><i key={i}/>)}</div><small>{p.isBot&&'บอท · '}{!p.connected?'เชื่อมต่อใหม่':s.phase==='LOBBY'?p.ready||p.id===s.hostId?'พร้อม':'รอพร้อม':p.finished?'✓ ไพ่หมดแล้ว':`เหลือ ${p.cardCount} ใบ`}</small>{s.phase==='RESULTS'&&<em>{s.result?.loserId===p.id?'เหลือไพ่ใบสุดท้าย':'รอดแล้ว'}</em>}</article>)}</div>

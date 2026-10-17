@@ -28,6 +28,12 @@ const server = new Server({
       app.use('/assets', express.static(resolve(clientDist, 'assets'), {
         immutable: true, maxAge: '1y', dotfiles: 'deny',
       }));
+      app.use('/images', express.static(resolve(clientDist, 'images'), {
+        maxAge: 0, dotfiles: 'deny',
+        setHeaders(response, path) {
+          if (/-v\d+\.(?:webp|png|avif|jpg|svg)$/.test(path)) response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        },
+      }));
       app.use(express.static(clientDist, { maxAge: 0, dotfiles: 'deny' }));
       // Only application routes receive the SPA; missing assets and APIs stay 404.
       app.get(/^\/(?:games\/?|(?:rooms|play|poker|spyfall|oldmaid)(?:\/.*)?)?$/, (_request, response) => {

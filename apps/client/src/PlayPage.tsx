@@ -1,3 +1,5 @@
+import { useDeadlineNow } from './hooks/useDeadlineNow';
+import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -33,11 +35,10 @@ function PokPanel({ title, close, children }: { title: string; close: () => void
   </dialog>;
 }
 export function PlayPage({ state, code }: { state: SessionState; code: string }) {
-  const [now, setNow] = useState(Date.now()); const [copied, setCopied] = useState(false);
   const [panel, setPanel] = useState<'rules' | 'table' | 'catches' | null>(null);
   const [catchTarget, setCatchTarget] = useState('');
-  useEffect(() => { const tick = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(tick); }, []);
   const s = state.snapshot;
+  const now = useDeadlineNow(s?.deadline);
   if (!s || s.code !== code) return <main className="page-message"><h1>{state.status === 'reconnecting' || state.status === 'connecting' ? 'กำลังกลับเข้าโต๊ะ…' : 'ยังไม่ได้เข้าห้องนี้'}</h1><p>ห้อง {code}</p>{state.status === 'idle' && <button className="primary" onClick={() => navigate('/rooms/join?code=' + code)}>เข้าห้องนี้</button>}</main>;
   const me = s.players.find(p => p.id === state.playerId);
   const idle = s.phase === 'LOBBY' || s.phase === 'ROUND_END';
@@ -52,7 +53,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
   const selectedCatch = catchable.find(p => p.id === catchTarget)?.id ?? catchable[0]?.id;
   const canCatch = canAct && dealer && me?.cardCount === 2 && catchable.length > 0;
   return (<main className="game pok-game">
-      <div className="room-bar"><div className="pok-room-id"><span className="pok-wordmark" aria-label="ป๊อกเด้ง">♠ <span>ป๊อกเด้ง</span></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); } }}>{copied ? '✓' : 'คัดลอก'}</button></div><div className="pok-navigation"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span>{active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกาป๊อกเด้ง" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะป๊อกเด้ง" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => session.leave()}>ออกจากห้อง</button></div></div>
+      <div className="room-bar"><div className="pok-room-id"><span className="pok-wordmark" aria-label="ป๊อกเด้ง">♠ <span>ป๊อกเด้ง</span></span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="pok-navigation"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span>{active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกาป๊อกเด้ง" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะป๊อกเด้ง" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => session.leave()}>ออกจากห้อง</button></div></div>
       <div className="game-layout"><section className="table-area">
         <div className="phase"><span>{canAct && 'ถึงตาคุณ · '}{phaseLabel[s.phase]} · รอบ {s.roundId || '–'}</span><span className={'pok-clock' + (canAct ? ' is-own-turn' : '')}><span>{s.deadline > 0 ? `${seconds} วินาที · ` : ''}{s.players.length}/6 คน</span>{deciding && <span className="pok-time" role="progressbar" aria-label="เวลาตัดสินใจ" aria-valuemin={0} aria-valuemax={Math.ceil(s.rules.actionMs / 1000)} aria-valuenow={seconds}><i style={{width: Math.max(0,Math.min(100,(s.deadline - now) / s.rules.actionMs * 100)) + '%'}}/></span>}</span></div>
         <div className="table" data-players={s.players.length} data-opponents={opponents.length}><div className="table-mark">♠<span>วงไพ่</span><small>POK DENG</small></div>

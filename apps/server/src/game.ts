@@ -56,6 +56,11 @@ export class Game {
     if (this.idle()) this.reassign();
     this.hooks.changed();
   }
+  sync(id: string) {
+    const p = this.players.get(id);
+    requireCondition(p && !p.expired, 'SESSION_EXPIRED', 'หมดเวลาเชื่อมต่อใหม่แล้ว');
+    this.hooks.privateHand(id, this.hands[id] ?? []);
+  }
   reconnect(id: string) {
     const p = this.players.get(id);
     requireCondition(p && !p.expired, 'SESSION_EXPIRED', 'หมดเวลาเชื่อมต่อใหม่แล้ว');

@@ -45,6 +45,7 @@ export class PokerGame {
     p.connected = false; p.ready = false; p.reconnectUntil = Date.now() + reconnectSeconds * 1000;
     this.reassign(); this.changed();
   }
+  sync(id: string) { const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect'); this.hooks.privateHand(id, this.hands[id] ?? []); }
   reconnect(id: string) {
     const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect');
     p!.connected = true; p!.reconnectUntil = 0; if (!this.hostId && !p!.isBot) this.hostId = id;

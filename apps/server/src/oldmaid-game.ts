@@ -54,6 +54,7 @@ export class OldMaidGame {
       oldMaid: structuredClone({roundId: this.roundId, draws: p.draws}),
     });
   }
+  sync(id: string) { const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect'); this.sendHand(id); }
   reconnect(id: string) {
     const p = this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect');
     p!.connected = true; if (!this.hostId) this.hostId = id; this.sendHand(id); this.changed();

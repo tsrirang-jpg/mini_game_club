@@ -1,3 +1,5 @@
+import { useDeadlineNow } from './hooks/useDeadlineNow';
+import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
 import { useEffect,useRef,useState } from 'react';
 import { spySession } from './session';
 import type { SessionState } from './session';
@@ -15,12 +17,11 @@ const reason: Record<SpyResult['reason'],string> = { correct_guess:'สายล
 const initials = (name:string) => Array.from(name).slice(0,2).join('');
 export function SpyfallPlayPage({state,code}:{state:SessionState<SpySnapshot>;code:string}) {
   const desktop = useDesktopLayout();
-  const [now,setNow]=useState(Date.now()); const [revealed,setRevealed]=useState(false);
-  const [message,setMessage]=useState(''); const [guess,setGuess]=useState(''); const [copied,setCopied]=useState(false);
-  const [answerOpen,setAnswerOpen]=useState(false); const [rulesOpen,setRulesOpen]=useState(false); const rulesRef=useRef<HTMLDialogElement>(null); const [votesOpen,setVotesOpen]=useState(false); const votesRef=useRef<HTMLDialogElement>(null);
+  const [revealed,setRevealed]=useState(false);
+  const [message,setMessage]=useState(''); const [guess,setGuess]=useState(''); const [answerOpen,setAnswerOpen]=useState(false); const [rulesOpen,setRulesOpen]=useState(false); const rulesRef=useRef<HTMLDialogElement>(null); const [votesOpen,setVotesOpen]=useState(false); const votesRef=useRef<HTMLDialogElement>(null);
   const chatEnd=useRef<HTMLDivElement>(null); const phaseTitleRef=useRef<HTMLHeadingElement>(null); const resultTitleRef=useRef<HTMLHeadingElement>(null); const s=state.snapshot;
+  const now = useDeadlineNow(s?.deadline);
   const role=state.secret?.roundId===s?.roundId ? state.secret?.role : null;
-  useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),200);return()=>clearInterval(timer);},[]);
   useEffect(()=>{setRevealed(false);setGuess('');setMessage('');setAnswerOpen(false);},[s?.roundId,s?.phase==='LOBBY']);
   useEffect(()=>{chatEnd.current?.scrollIntoView({block:'nearest',behavior:'auto'});},[s?.chat.length]);
   useEffect(()=>{const title=s?.phase==='RESULTS'?resultTitleRef.current:s?.phase==='GUESS'?phaseTitleRef.current:null;if(title){title.focus({preventScroll:true});title.scrollIntoView({block:'start'});}},[s?.phase]);
@@ -36,7 +37,7 @@ export function SpyfallPlayPage({state,code}:{state:SessionState<SpySnapshot>;co
   const answerForm=<form id="spy-guess-form" className="spy-guess-form" onSubmit={e=>{e.preventDefault();if(canGuess&&guess.trim())spySession.send('guess',guess);}}><p>ถ้าถูกสงสัยหรือรู้สถานที่แล้ว คุณตอบเพื่อชนะได้ทันที</p><label>เฉลยสถานที่<input maxLength={80} required autoComplete="off" autoFocus={answerOpen&&s.phase==='QUESTION'} value={guess} onChange={e=>setGuess(e.target.value)} placeholder="คุณคิดว่าที่นี่คือที่ไหน?"/></label><button type="submit" className="primary full" disabled={!canGuess||!guess.trim()}>ยืนยันคำตอบ</button><p className="fine">ตอบได้ครั้งเดียว ตอบถูก Spy ชนะ ตอบผิดคนทั่วไปชนะ</p></form>;
   const steps:SpyPhase[]=['QUESTION','VOTING','GUESS','RESULTS'];
   return <main className={`spy-game phase-${s.phase}`}>
-    <div className="room-bar"><div className="club-room-id"><span className="club-wordmark">♠ <b>Spyfall</b></span><strong>{s.code}</strong><button className="small" onClick={async()=>{try{await navigator.clipboard.writeText(s.code);setCopied(true);}catch{setCopied(false);}}}>{copied?'คัดลอกแล้ว':'คัดลอกรหัส'}</button></div><div className="club-room-tools"><button className="small" onClick={()=>setRulesOpen(true)}>กติกา</button><button className="ghost" onClick={()=>spySession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar"><div className="club-room-id"><span className="club-wordmark">♠ <b>Spyfall</b></span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code} label="คัดลอกรหัส" copiedLabel="คัดลอกแล้ว" ariaLabel="คัดลอกรหัส"/></div><div className="club-room-tools"><button className="small" onClick={()=>setRulesOpen(true)}>กติกา</button><button className="ghost" onClick={()=>spySession.leave()}>ออกจากห้อง</button></div></div>
     <section className="mission-banner"><SpyArtwork/><div><span className="eyebrow">ภารกิจที่ {s.roundId||'–'}</span><h1 ref={phaseTitleRef} tabIndex={-1}>{phases[s.phase]}</h1><div className="mission-steps">{steps.map((step,i)=><span className={s.phase===step?'current':''} key={step}>{i+1}. {step==='QUESTION'?'ถาม':step==='VOTING'?'โหวต':step==='GUESS'?'ตอบ':'เฉลย'}</span>)}</div>{(s.phase==='QUESTION'&&role?.kind==='spy')&&<button type="button" className="primary spy-answer-shortcut" disabled={!canGuess} aria-expanded={answerOpen} aria-controls="spy-guess-form" onClick={()=>{setAnswerOpen(!answerOpen);}}>{answerOpen?'ปิดช่องตอบ':'ตอบสถานที่'}</button>}</div><div className="mission-clock" role="timer" aria-label="เวลาที่เหลือ"><strong>{s.deadline?time:'—'}</strong><small>{s.phase==='QUESTION'?'เวลาถามตอบ':s.phase==='VOTING'?'เวลาโหวต':s.phase==='GUESS'?'เวลาสายลับตอบ':'เตรียมพร้อม'}</small></div>{s.deadline>0&&<div className="mission-progress"><i style={{width:`${Math.max(0,Math.min(100,(s.deadline-now)/s.phaseDurationMs*100))}%`}}/></div>}</section>
     {s.phase==='RESULTS'&&s.result&&<section className={`mission-result ${s.result.winner}`} role="status"><span className="result-icon">{s.result.winner==='spy'?'◉':'✓'}</span><div><span className="eyebrow">MISSION COMPLETE</span><h2 ref={resultTitleRef} tabIndex={-1}>{s.result.winner==='spy'?'สายลับชนะ':'คนทั่วไปชนะ'}</h2><p>{reason[s.result.reason]}</p><div className="result-facts"><span>สถานที่<strong>{s.result.location}</strong></span><span>สายลับ<strong>{s.players.find(p=>p.id===s.result!.spyId)?.name??'ผู้เล่นที่ออกจากห้อง'}</strong></span><span>คำตอบ<strong>{s.result.guess||'ไม่ได้ตอบ'}</strong></span></div><button className="small spy-result-votes" onClick={()=>setVotesOpen(true)}>ดูผลโหวต</button></div></section>}
     <div className="spy-dashboard"><aside className="spy-personal-panel">
