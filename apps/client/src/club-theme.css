@@ -1,7 +1,10 @@
 /* Shared visual system. Theme colors follow the game-selection cards. */
-.theme-undercover { --club-bg:#0c1917; --club-panel:#142e29; --club-felt:#21473e; --club-edge:#527b68; --club-accent:#91d7b6; --club-primary:#387e64; --club-muted:#bbcec2; --club-ink:#102a23; }
-body:has(.club-shell.theme-undercover) { background:radial-gradient(ellipse at 15% 5%,#26483a,#091512 85%); }
-.artwork-undercover .spy-artwork { filter:sepia(.65) hue-rotate(325deg) saturate(.65); }
+.theme-undercover {
+  --club-bg:#0b0b0d; --club-panel:#19191c; --club-felt:#29251d;
+  --club-edge:#806844; --club-accent:#f1cd89; --club-primary:#cda45e;
+  --club-muted:#cec8bd; --club-ink:#20190e;
+  --under-paper:#fff8e9; --under-paper-ink:#282118;
+}
 .theme-liar { --club-bg:#141024; --club-panel:#241d38; --club-felt:#322448; --club-edge:#786197; --club-accent:#d2b5f4; --club-primary:#7250aa; --club-muted:#c8bcd9; --club-ink:#221633; }
 body:has(.club-shell.theme-liar) { background:radial-gradient(ellipse at 15% 5%,#35224f,#100d1d 85%); }
 .theme-pok { --club-bg:#071f18; --club-panel:#103a2a; --club-felt:#164632; --club-edge:#386d50; --club-accent:#78bf81; --club-primary:#246943; --club-muted:#b1c9b9; --club-ink:#102e21; }
@@ -13,6 +16,7 @@ body:has(.club-shell) { background:radial-gradient(ellipse at 20% 5%,#174d37,#07
 body:has(.club-shell.theme-poker) { background:radial-gradient(ellipse at 20% 5%,#173f5b,#071d30 80%); }
 body:has(.club-shell.theme-spyfall) { background:radial-gradient(ellipse at 20% 5%,#285f82,#0d2e47 80%); }
 body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 5%,#493057,#1e1329 80%); }
+body:has(.club-shell.theme-undercover) { background:radial-gradient(ellipse at 15% 5%,#29231a,#080809 85%); }
 .club-shell { color:#f7f6ef; --club-gold:#e6c47e; }
 .club-shell .muted,.club-shell .fine,.club-shell label,.club-shell .intro p { color:var(--club-muted); }
 .club-shell .eyebrow { color:var(--club-accent); font-size:10px; letter-spacing:1.5px; }
@@ -94,6 +98,21 @@ body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 
 .club-shell .game-option > p { max-width:55%; color:var(--club-muted); font-size:13px; margin:5px 0 15px; line-height:1.8; }
 .game-option-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:auto; }
 .club-shell .game-option strong { font-size:12px; color:#f1ecdf; }
+/* Keep menu copy selectable by the browser and independent of the illustration. */
+.club-shell .game-option.theme-undercover {
+  background:linear-gradient(120deg,#1b1916,#090909); color:#fff;
+}
+.club-shell .game-option .artwork-undercover {
+  inset:0 0 0 auto; width:59%; height:100%; align-items:flex-end;
+  mask-image:linear-gradient(90deg,transparent,#000 20%);
+}
+.artwork-undercover img { display:block; width:100%; height:100%; object-fit:contain; object-position:right bottom; }
+.club-shell .game-option.theme-undercover .game-option-bottom { position:relative; }
+.club-shell .game-option.theme-undercover .game-option-bottom strong {
+  padding:8px 15px; border:1px solid #f7dca6; border-radius:24px;
+  color:#17120c; background:linear-gradient(#ffe6b0,#bf8e45);
+}
+.club-shell .game-option.theme-undercover .player-count-pill { background:#0a0a0ae6; color:#f3cf8b; }
 .player-count-pill { border:1px solid var(--club-edge); border-radius:20px; padding:3px 12px; color:#f5f2e8; font-size:12px; white-space:nowrap; }
 .club-avatar { display:grid; place-items:center; flex:none; width:38px; height:38px; border:1px solid var(--club-accent); border-radius:50%; background:var(--club-felt); color:#fff; font-size:17px; }
 .club-own-pill { display:inline-block; padding:2px 8px; border-radius:20px; background:#e6c47e; color:#2b2330; font-size:10px; white-space:nowrap; }
@@ -128,6 +147,9 @@ body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 
   .club-shell .game-option .game-artwork .card > span:not(.bottom) { font-size:18px!important; }
   .club-shell .game-option .game-artwork .card > span small { font-size:15px!important; }
   .club-shell .game-option .spy-artwork { width:130px; height:115px; }
+  .club-shell .game-option .artwork-undercover { inset:0 0 28px auto; width:54%; height:calc(100% - 28px); }
+  .club-shell .game-option.theme-undercover h2 { font-size:23px; }
+  .club-shell .game-option.theme-undercover .game-option-bottom strong { padding:5px 10px; }
   .club-shell .game-option strong { font-size:11px; }
   .player-count-pill { font-size:10px; padding:1px 9px; }
   .game-option-bottom { width:100%; }

@@ -7,6 +7,6 @@ export const games: Record<GameKind, GameMetadata> = {
   oldmaid: {game:'oldmaid',name:'อีแก่กินน้ำ',caption:'OLD MAID',copy:'จับคู่ให้หมดมือ ใครเหลือไพ่ไร้คู่เป็นคนสุดท้าย',players:'3–8 คน',path:'/oldmaid/rooms/create',action:'เลือก Old Maid →',tag:'จับคู่ · จั่วไพ่ · เล่นกับเพื่อน',footer:'จับคู่ให้หมดมือ · สนุกกับเพื่อนทั้งวง'},
   whoami: {game:'whoami',name:'Who am I',caption:'ฉันคือใคร?',copy:'เพื่อนเห็นคำของคุณ ถามให้ตรงจุดแล้วทายตัวตน',players:'3–8 คน',path:'/whoami/rooms/create',action:'เลือก Who am I →',tag:'ถาม · ตอบ · ทายตัวตน',footer:'เพื่อนเห็นคำของคุณ แต่คุณต้องทายเอง'},
   liar: {game:'liar',name:'ไพ่ตอแหล',caption:'LIAR’S CARD',copy:'ลงไพ่ให้เนียน จับโกหกให้ทัน ใครไพ่หมดก่อนชนะ',players:'2–6 คน',path:'/liar/rooms/create',action:'เลือก Liar’s Card →',tag:'ลงไพ่ · ข้าม · จับโกหก',footer:'ไพ่ตอแหล · เล่นเพื่อความสนุกกับเพื่อน'},
-  undercover: {game:'undercover',name:'Undercover',caption:'COVERT WORDS',copy:'อธิบายคำให้เนียน หาใครได้คำต่างจากคุณ',players:'3–8 คน',path:'/undercover/rooms/create',action:'เลือก Undercover →',tag:'คำลับ · คำใบ้ · จับพิรุธ',footer:'คำลับเฉพาะคุณ · สนุกด้วยกันทั้งวง'},
+  undercover: {game:'undercover',name:'Undercover',caption:'COVERT WORDS',copy:'อธิบายคำให้เนียน หาคนที่ได้คำต่างจากคุณ',players:'3–8 คน',path:'/undercover/rooms/create',action:'เลือก Undercover →',tag:'คำลับ · คำใบ้ · จับพิรุธ',footer:'คำลับเฉพาะคุณ · สนุกด้วยกันทั้งวง'},
 };
 export const gameOptions = Object.values(games);
