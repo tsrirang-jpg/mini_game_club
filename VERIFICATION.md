@@ -5,6 +5,9 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Poker/Spyfall/Old Maid desktop create/join: 8 sizes 1000×651–2560×1440, aligned game switch/artwork, inputs/dropdowns/navigation and no horizontal overflow | PASS |
+| Three redesigned entry forms: real create/join, settings retained across mobile/desktop resize, consented exit | PASS |
+| Baseline comparison: Pok Deng create/join and compact entry geometry/colors match production at 5 phone/tablet/desktop sizes | PASS |
 | No game switch in room screens: all 4 games in lobby/play/results at 7 mobile/desktop sizes; create/join switches remain available | PASS |
 | Dropdown theme follows all 4 games, including selected/focused choices and native-modal portals; keyboard selection preserved | PASS |
 | Mobile game switch: all 4 create/join pages at 5 phone sizes, visible 44px button above the form, touch navigation, no horizontal overflow; desktop switch unchanged | PASS |
