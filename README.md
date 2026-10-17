@@ -1,8 +1,8 @@
 # วงเซียน — Mini Game Club
 
-เล่นออนไลน์: [วงเซียน](https://wong-pai.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
+เล่นออนไลน์: [วงเซียน](https://wong-sian.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
 
-โลโก้ 03C และชื่อแบรนด์ใช้ component กลางทุกหน้า ดู [โครงสร้างแบรนด์](docs/branding.md)
+โลโก้หยินหยางแบบ 04 และชื่อแบรนด์ใช้ component กลางทุกหน้า ดู [โครงสร้างแบรนด์](docs/branding.md)
 
 ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต รวมถึง Old Maid (อีแก่กินน้ำ) สำหรับเพื่อนและบอทรวม 3–8 คน และ Who am I สำหรับผู้เล่นจริง 3–8 คน
 
@@ -254,9 +254,9 @@ Deploy ด้วย Node web service เดียว: server เสิร์ฟ 
 
 Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` , `/spyfall/*`, `/oldmaid/*` และ `/whoami/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
 
-บริการจริงชื่อ `wong-pai` ใน Render My Workspace ใช้ Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` เปิด auto-deploy จาก branch `main` ของ `tsrirang-jpg/mini_game_club`
+บริการจริงชื่อ `wong-sian` ใน Render My Workspace ใช้ Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` เปิด auto-deploy จาก branch `main` ของ `tsrirang-jpg/mini_game_club`
 
-สร้างบริการผ่าน MCP จึงไม่ได้เชื่อม Blueprint อัตโนมัติ `render.yaml` เก็บค่าตั้งสำหรับสร้างซ้ำและตั้ง HTTP health check `/health` ส่วนบริการที่สร้างด้วย MCP ใช้ health check ค่าเริ่มต้นของ Render และมี `/health` ให้ตรวจ HTTP ได้
+บริการ `wong-sian` ย้ายมาจากบริการเดิมผ่าน Render CLI และตั้ง HTTP health check `/health` โดยใช้แผน Free ใน Singapore เหมือนเดิม `render.yaml` เก็บค่าตั้งสำหรับสร้างซ้ำ ไม่ได้เชื่อม Blueprint อัตโนมัติ บริการเดิมปิด auto-deploy และพักการทำงานหลังตรวจเว็บใหม่สำเร็จ
 
 ทดสอบ production บนเครื่อง: build ก่อน แล้วตั้ง `$env:NODE_ENV='production'; $env:PORT='2568'` และรัน `npm.cmd start` เปิด `http://127.0.0.1:2568/games` หรือทดสอบด้วย `node tests/production-smoke.mjs` ใช้ `GAME_URL` เปลี่ยนปลายทาง browser tests และ `PRODUCTION_GAME_URL` เปลี่ยนปลายทาง WebSocket smoke
 

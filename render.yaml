@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wong-pai
+    name: wong-sian
     runtime: node
     region: singapore
     plan: free

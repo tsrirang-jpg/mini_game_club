@@ -5,7 +5,8 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
-| วงเซียน / MINI GAME CLUB: shared 03C SVG/component and favicon; menu plus 10 create/join routes at 11 viewports, full wordmark/descriptor visible, no clipped or overlapping header content | PASS |
+| Unused-local/parameter checks and client import graph; obsolete 03C logo removed, four used entry artworks preserved | PASS |
+| วงเซียน / MINI GAME CLUB: shared yin-yang 04 artwork/component and favicon; menu plus 10 create/join routes at 11 viewports, full wordmark/descriptor visible, no clipped or overlapping header content | PASS |
 | New room branding across all 5 games: real room creation/copy/exit at 11 sizes; Pok/Poker gameplay at 13 sizes, Who am I at 11 sizes and four-game desktop lobby/play/results at 8 sizes | PASS |
 | Who am I history: all yes/no/unknown counts for split and unanimous-unknown votes, pending state, personal-only side panel/mobile popup, three real clients including reload | PASS |
 | Shared room-code copy button in all 5 games: 11 desktop/tablet/phone viewports, text/icon switch in both orientations, full code copied, feedback/reset/rotation, denied clipboard, no header clipping/overlap | PASS |
@@ -89,7 +90,7 @@
 | All three browser suites against the same-origin production server | PASS |
 | render.yaml against the official Render JSON Schema | PASS |
 | Public HTTPS/WSS health, SPA routing, all-three-game create/join and normal consented exit | PASS |
-| All three browser suites on https://wong-pai.onrender.com | PASS |
+| Initial three-game browser suites before the domain migration | PASS |
 | npm audit | 0 vulnerabilities reported at verification time |
 | Two independent browser sessions | PASS |
 | Create/join with room code | PASS |
@@ -163,10 +164,10 @@ and `$env:PORT='2568'` and run `npm.cmd start`; in another terminal run
 to run the browser suites against that production server.
 
 Published to https://github.com/tsrirang-jpg/mini_game_club (branch main).
-Render service wong-pai is live in My Workspace, Free plan, Singapore,
+Render service wong-sian is live in My Workspace, Free plan, Singapore,
 Node 24, with one web service serving both the client and game server.
-Public URL: https://wong-pai.onrender.com/games.
-Render service ID: srv-db7i3oqvcj2c73do6460. Auto-deploy from main is enabled.
+Public URL: https://wong-sian.onrender.com/games.
+Auto-deploy from main is enabled. The previous wong-pai service has auto-deploy disabled and is suspended after successful migration checks.
 Real browser tests on the public URL passed for all three games, including
 mobile layout, private cards/roles, refresh/reconnect, Poker betting, and
 Spyfall chat, voting, and both guess outcomes. The WSS diagnostic additionally

@@ -1,8 +1,9 @@
 import './brand-logo.css';
+import { brandImage } from '../../assets/images';
 
-// One versioned vector asset is shared by headers, room branding and the favicon.
-export function BrandMark() {
-  return <img className="brand-mark" src="/images/brand/wong-sian-mark-v2.svg" alt="" width="48" height="48" decoding="async"/>;
+// Use the approved 04 artwork itself; do not redraw it per game or breakpoint.
+function BrandMark() {
+  return <img className="brand-mark" src={brandImage.src} alt="" width={brandImage.width} height={brandImage.height} decoding="async"/>;
 }
 
 export function BrandLogo({ compact = false }: { compact?: boolean }) {

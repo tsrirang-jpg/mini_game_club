@@ -52,4 +52,4 @@ server.define('oldmaid', OldMaidRoom);
 server.define('whoami', WhoAmIRoom);
 const port = Number(process.env.PORT ?? 2567);
 await server.listen(port, '0.0.0.0');
-console.log(`Wong Pai server listening on port ${port}`);
+console.log(`Wong Sian server listening on port ${port}`);
