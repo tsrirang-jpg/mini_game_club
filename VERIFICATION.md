@@ -2,6 +2,8 @@
 
 ## Liar’s Card addition
 
+Menu artwork update: native Card fans show Q♠/Q♥ for Old Maid and two backs + A♣ for Liar without an inset image box. Brand/menu checks pass at 11 sizes. Shared RoomIdentity is used by Spyfall and Liar; copy tests compare their brand/code/copy vertical positions and display mode at all 11 sizes, alongside clipboard feedback and header-fit checks for all six games.
+
 - Strict TypeScript including unused locals/parameters, client/server production build: PASS.
 - Vitest: **292 tests in 20 files**, including custom Liar rules, card conservation, last-card challenges, rank-preserving skips, capped history, timer disposal, real 2/3/6-client challenge/reconnect/scoring and unchanged Old Maid transport: PASS.
 - Liar Create/Join, five game phases, Emergency popup and 26-card hand strip at 11 desktop/tablet/mobile sizes (down to 320×480 and 568×320), no active-game page scroll or table-content collisions: PASS.

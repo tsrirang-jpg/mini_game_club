@@ -15,8 +15,6 @@
 .spy-select-menu.theme-liar { background:#241b36; color:#f4eafd; border-color:#9679b9; color-scheme:dark; }
 .spy-select-menu.theme-liar [role=option]:is(.is-active,.is-selected) { background:#50386c; color:#fff; box-shadow:none; }
 .liar-dashboard { flex:1; min-height:0; display:flex; flex-direction:column; gap:10px; }
-.liar-room-tools { display:flex; gap:6px; }
-.liar-room-bar { flex:none; }
 .liar-lobby,.liar-results { flex:1; min-height:0; overflow:auto; padding:24px; border:1px solid var(--club-edge); border-radius:18px; background:linear-gradient(130deg,#2e2242,#171225); }
 .liar-lobby h1,.liar-results h1 { margin:0 0 8px; font-size:28px; color:#f9dfa4; }
 .liar-lobby p,.liar-results p { color:var(--club-muted); }
@@ -86,8 +84,6 @@
   .liar-entry-hero p { font-size:12px; }
   .club-shell .entry.liar-entry-form { padding:18px; }
   .liar-dashboard { gap:5px; }
-  .liar-room-bar { flex-wrap:wrap!important; gap:4px!important; }
-  .liar-room-tools { width:100%; justify-content:flex-end; }
   .liar-board { border-radius:18px; padding:8px; gap:6px; }
   .liar-opponents { grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; }
   .liar-opponents .liar-player { display:grid; grid-template-columns:20px minmax(0,1fr); padding:4px; gap:1px 3px; }
@@ -128,7 +124,6 @@
   .liar-dialog .card { width:48px; height:68px; }
   .liar-dialog .liar-modal-actions { clear:both; margin-top:10px; }
   .liar-dashboard { gap:4px; }
-  .liar-room-tools { gap:4px; }
   .liar-board { grid-template-columns:minmax(0,1fr) minmax(200px,.9fr); grid-template-rows:auto minmax(0,1fr) auto; padding:7px; gap:5px; border-radius:16px; }
   .liar-opponents { grid-template-columns:repeat(6,minmax(0,1fr)); }
   .liar-opponents .liar-player { padding:3px; gap:1px; }

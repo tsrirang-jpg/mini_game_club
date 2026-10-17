@@ -9,6 +9,7 @@ page.on('pageerror',error=>errors.push(error.message));
 await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async code=>{if(window.__rejectCopy)throw new Error('clipboard denied');window.__copiedCode=code;}}}));
 const sizes=[[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[932,430],[844,390],[667,375],[568,320]];
 const games=[['pok','/rooms/create','สร้างโต๊ะใหม่ →'],['poker','/poker/rooms/create','สร้างโต๊ะ Poker →'],['spyfall','/spyfall/rooms/create','สร้างห้อง Spyfall →'],['oldmaid','/oldmaid/rooms/create','สร้างห้อง Old Maid →'],['whoami','/whoami/rooms/create','สร้างห้อง Who am I →'],['liar','/liar/rooms/create','สร้างห้อง Liar’s Card →']];
+const spyLayout=new Map();
 try{
  for(const[game,route,create]of games){
   await page.setViewportSize({width:1366,height:768});await page.goto(url+route);await page.getByLabel('ชื่อของคุณ').fill('Copy Test');await page.getByRole('button',{name:create,exact:true}).click();await page.locator('.room-bar').waitFor();
@@ -20,6 +21,10 @@ try{
    assert.equal(await page.locator('.room-bar .brand-name').textContent(),'วงเซียน');assert.equal(await page.locator('.room-bar .brand-descriptor').textContent(),'MINI GAME CLUB');assert.equal(await page.locator('.room-bar .brand-mark').isVisible(),true);
    const bad=await page.locator('.room-bar .brand-logo,.room-bar .brand-name,.room-bar .brand-descriptor,.room-bar strong,.copy-room-code,.room-bar button').evaluateAll(es=>es.flatMap(e=>{const r=e.getBoundingClientRect();return r.width&&r.height&&(r.x<0||r.y<0||r.right>innerWidth+1||r.bottom>innerHeight+1)?[e.className]:[]}));assert.deepEqual(bad,[],`${game} header fits ${width}x${height}`);
    const overlaps=await page.locator('.room-bar').evaluate(bar=>{const boxes=[...bar.querySelectorAll('.brand-logo,strong,button')].map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);return boxes.some((a,i)=>boxes.slice(i+1).some(b=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+1));});assert.equal(overlaps,false,`${game} no header overlap ${width}x${height}`);
+   if(game==='spyfall'||game==='liar'){
+    const layout=await page.locator('.room-bar .club-room-id').evaluate(id=>{const r=e=>e.getBoundingClientRect(),brand=r(id.querySelector('.brand-logo')),code=r(id.querySelector('strong')),copy=r(id.querySelector('.copy-room-code'));return{display:getComputedStyle(id).display,brandY:brand.top-r(id).top,codeY:code.top-brand.top,copyY:copy.top-brand.top,copyHeight:copy.height};});
+    const key=width+'x'+height;if(game==='spyfall')spyLayout.set(key,layout);else{const expected=spyLayout.get(key);assert.equal(layout.display,expected.display,'shared identity layout '+key);for(const field of ['brandY','codeY','copyY','copyHeight'])assert.ok(Math.abs(layout[field]-expected[field])<=1,'Liar matches Spyfall '+field+' '+key+JSON.stringify({layout,expected}));}
+   }
    if(width===1366||width===375)await page.screenshot({path:previewPath(`preview-copy-${game}-${width}x${height}.png`)});
   }
   await button.click();assert.equal(await page.evaluate(()=>window.__copiedCode),code,'complete room code copied');await page.waitForFunction(()=>document.querySelector('.copy-room-code')?.title==='คัดลอกแล้ว');assert.equal(await button.locator('[role="status"]').textContent(),'คัดลอกรหัสแล้ว');

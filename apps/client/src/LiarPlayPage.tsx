@@ -3,8 +3,7 @@ import type { SessionState } from './session';
 import { liarSession } from './session';
 import { liarCardKey, liarRank } from '../../../packages/shared/src/liar';
 import type { LiarAction, LiarSnapshot } from '../../../packages/shared/src/liar';
-import { BrandLogo } from './components/ui/BrandLogo';
-import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
+import { RoomIdentity } from './components/ui/RoomIdentity';
 import { Card } from './components/ui/Card';
 import { GameDialog } from './components/ui/GameDialog';
 import { LiarRules } from './components/entry/LiarRules';
@@ -31,7 +30,7 @@ export function LiarPlayPage({state,code}:{state:SessionState<LiarSnapshot>;code
   const send=(type:LiarAction,value?:string|number|boolean)=>{if(!connected||pending)return;liarSession.clearError();setPending(true);liarSession.send(type,value);};
   const play=()=>send('play',`${s.turnNumber}|${s.opening?'1:clubs':selected}`);
   return <main className="liar-dashboard">
-    <div className="room-bar liar-room-bar"><div className="club-room-identity"><BrandLogo compact/><strong className="liar-room-code">{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="liar-room-tools"><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small" onClick={()=>setDialog('players')}>ผู้เล่น ({s.players.length}/6)</button><button className="small ghost" onClick={()=>liarSession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar liar-room-bar"><RoomIdentity code={s.code} codeClassName="liar-room-code"/><div className="club-room-tools"><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small" onClick={()=>setDialog('players')}>ผู้เล่น</button><button className="small ghost" onClick={()=>liarSession.leave()}>ออกจากห้อง</button></div></div>
     {s.phase==='LOBBY'?<LiarLobby s={s} playerId={state.playerId} connected={connected}/>
     :s.phase==='RESULTS'&&s.result?<LiarResults s={s} playerId={state.playerId} connected={connected}/>
     :<section className="liar-board" aria-label="โต๊ะไพ่ตอแหล">

@@ -1,7 +1,6 @@
 /* Shared visual system. Theme colors follow the game-selection cards. */
 .theme-liar { --club-bg:#141024; --club-panel:#241d38; --club-felt:#322448; --club-edge:#786197; --club-accent:#d2b5f4; --club-primary:#7250aa; --club-muted:#c8bcd9; --club-ink:#221633; }
 body:has(.club-shell.theme-liar) { background:radial-gradient(ellipse at 15% 5%,#35224f,#100d1d 85%); }
-.artwork-liar img { width:100%; height:100%; object-fit:cover; border-radius:16px; }
 .theme-pok { --club-bg:#071f18; --club-panel:#103a2a; --club-felt:#164632; --club-edge:#386d50; --club-accent:#78bf81; --club-primary:#246943; --club-muted:#b1c9b9; --club-ink:#102e21; }
 .theme-poker { --club-bg:#071d30; --club-panel:#10334f; --club-felt:#17445f; --club-edge:#386986; --club-accent:#83c7ee; --club-primary:#1a6195; --club-muted:#b1cbdb; --club-ink:#133a55; }
 .theme-spyfall { --club-bg:#0d2e47; --club-panel:#19486a; --club-felt:#225d80; --club-edge:#588cb1; --club-accent:#8ed3fa; --club-primary:#25698f; --club-muted:#c6deef; --club-ink:#173e5d; }
@@ -75,7 +74,12 @@ body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 
 .game-artwork .card:has(.court-art) > b { display:none; }
 .artwork-oldmaid .card:first-of-type { transform:rotate(-20deg) translateX(-3px); background-color:#4b2b61; }
 .artwork-oldmaid .card:nth-child(2) { z-index:1; margin-left:-42px; transform:rotate(-7deg); width:80px!important; height:114px!important; }
-.artwork-oldmaid .card:nth-child(3) { width:54px!important; height:78px!important; margin-left:-10px; transform:translateY(20px) rotate(14deg); }
+.artwork-oldmaid .card:nth-child(3) { width:73px!important; height:104px!important; margin-left:-10px; transform:translateY(12px) rotate(14deg); }
+.artwork-liar .card.back { background-color:#4b2b61; }
+.artwork-liar .card:first-child { transform:rotate(-20deg); }
+.artwork-liar .card:nth-child(2) { margin-left:-44px; transform:rotate(-5deg); z-index:1; }
+.artwork-liar .card:nth-child(3) { margin-left:-14px; transform:translateY(12px) rotate(14deg); z-index:2; }
+.artwork-liar .card:not(.back) > b { inset:30px 0 0; font-size:38px; }
 .spy-artwork { width:155px; height:145px; flex:none; color:#87c9f0; }
 .club-shell .game-select { padding:38px 0 28px; min-height:0; }
 .club-shell .game-select > h1 { font-size:clamp(30px,4vw,45px); }
