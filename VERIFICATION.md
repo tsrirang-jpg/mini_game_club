@@ -5,6 +5,7 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Mobile game switch: all 4 create/join pages at 5 phone sizes, visible 44px button above the form, touch navigation, no horizontal overflow; desktop switch unchanged | PASS |
 | Four desktop designs: 8 sizes from 1000×651 to 2560×1440, active/lobby/results, readable ranks/suits, no panel overlap or page scroll | PASS |
 | Poker six pots, High/Normal preferences, 12-card showdown, desktop width cap 1680 and existing compact windows | PASS |
 | Spyfall all 8 players visible, separate role/chat/vote areas, answer draft survives desktop/mobile resize with a single form | PASS |

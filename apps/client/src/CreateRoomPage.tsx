@@ -1,3 +1,4 @@
+import { EntryGameSwitch } from './EntryGameSwitch';
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { GameArtwork } from './GameArtwork';
 import { useState } from 'react';
@@ -13,7 +14,7 @@ export function CreateRoomPage({ state, join }: { state: SessionState; join: boo
   return (<main className="welcome">
       <button className="ghost pok-home" onClick={() => session.leave('/games')}>← กลับหน้าแรก</button>
       <div className="intro"><span className="eyebrow">ชวนเพื่อนมาเข้าวง</span><h1>ไพ่หนึ่งสำรับ<br/>ความสนุกทั้งวง<span>ป๊อกเด้งออนไลน์</span></h1><p>สร้างโต๊ะ ส่งรหัสให้เพื่อน แล้วเริ่มเล่น<br/>เปิดผ่าน browser ได้เลย เล่นกับเพื่อนหรือบอท รวม 2–6 คน</p><div className="hero-cards"><Card card={{ rank: 9, suit: 'spades' }}/><Card card={{ rank: 13, suit: 'hearts' }} index={1}/></div></div>
-      <section className="entry"><GameArtwork game="pok"/><span className="eyebrow">POK DENG</span><h2>{join ? 'เข้าห้องป๊อกเด้ง' : 'ป๊อกเด้ง'}</h2><div className="tabs"><button className={!join ? 'selected' : ''} onClick={() => navigate('/rooms/create')}>สร้างห้อง</button><button className={join ? 'selected' : ''} onClick={() => navigate('/rooms/join')}>เข้าห้องเพื่อน</button></div>
+      <section className="entry"><EntryGameSwitch/><GameArtwork game="pok"/><span className="eyebrow">POK DENG</span><h2>{join ? 'เข้าห้องป๊อกเด้ง' : 'ป๊อกเด้ง'}</h2><div className="tabs"><button className={!join ? 'selected' : ''} onClick={() => navigate('/rooms/create')}>สร้างห้อง</button><button className={join ? 'selected' : ''} onClick={() => navigate('/rooms/join')}>เข้าห้องเพื่อน</button></div>
         {state.snapshot && <div className="notice"><span>คุณยังอยู่ในห้อง {state.snapshot.code}</span><button onClick={() => navigate('/play/' + state.snapshot!.code)}>กลับไปเล่น</button><button onClick={() => session.leave()}>ออกจากห้อง</button></div>}
         <form onSubmit={e => { e.preventDefault(); connect(); }}>
           <label>ชื่อของคุณ<input maxLength={20} required value={name} onChange={e => setName(e.target.value)} placeholder="เพื่อนจะเห็นชื่อนี้" autoComplete="nickname"/></label>
