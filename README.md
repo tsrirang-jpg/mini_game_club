@@ -4,6 +4,12 @@
 
 ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต รวมถึง Old Maid (อีแก่กินน้ำ) สำหรับเพื่อนและบอทรวม 3–8 คน
 
+## โครงสร้างและประสิทธิภาพ
+
+รูปประกอบอยู่ใน `apps/client/public/images/entry/` และอ้างผ่าน manifest `src/assets/images.ts`; component ร่วมอยู่ใน `src/components/entry/`, `src/components/ui/` และ hook จับเวลาใน `src/hooks/` แต่ละหน้าเกมและ SDK โหลดเมื่อต้องใช้ การ sync ส่งกลับเฉพาะผู้ร้องขอ และ timer หยุดเมื่อไม่มี deadline หรือซ่อนแท็บ
+
+ดู [กราฟก่อน/หลังแบบเลือกตัวชี้วัดได้](reports/performance/index.html), [กราฟ PNG](reports/performance/comparison.png) และ [วิธีวัด/ข้อจำกัด/โครงสร้างที่ปรับ](docs/performance.md) ผลเป็นค่าที่วัดจาก production build บนเครื่องเดียวกัน มีข้อมูลดิบครบ ไม่ใช่การประมาณความเร็วหรือผล load test ของ production
+
 ## Old Maid · อีแก่กินน้ำ
 
 - เพื่อนและบอทรวม 3–8 คน สร้างห้อง ส่งรหัสให้เพื่อน ทุกคนกดพร้อม แล้ว Host เริ่มเกมได้ตั้งแต่ 3 คน

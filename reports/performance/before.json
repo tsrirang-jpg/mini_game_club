@@ -1,0 +1,344 @@
+{
+  "phase": "before",
+  "origin": "http://127.0.0.1:2568",
+  "commit": "92b8a23947aa98093b1a734c85af5387cb62b459",
+  "measuredAt": "2026-10-17T03:59:19.662Z",
+  "environment": {
+    "browser": "155.0.4283.45",
+    "node": "v22.21.1",
+    "platform": "darwin",
+    "viewport": "1366x768",
+    "samples": 3,
+    "idleMs": 3000,
+    "notes": "Local compiled production build, fresh browser context per cold sample; warm samples reuse HTTP cache. Heap values follow forced GC and are not proof of a memory leak."
+  },
+  "cold": {
+    "menu": {
+      "samples": [
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2535204
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2531896
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2531884
+        }
+      ],
+      "medianJsBytes": 494100,
+      "medianJsRequests": 1,
+      "medianHeapBytes": 2531896
+    },
+    "pok": {
+      "samples": [
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2635156
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2635160
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2635160
+        }
+      ],
+      "medianJsBytes": 494100,
+      "medianJsRequests": 1,
+      "medianHeapBytes": 2635160
+    },
+    "poker": {
+      "samples": [
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2875784
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2875784
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2875832
+        }
+      ],
+      "medianJsBytes": 494100,
+      "medianJsRequests": 1,
+      "medianHeapBytes": 2875784
+    },
+    "spyfall": {
+      "samples": [
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2665016
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2665016
+        },
+        {
+          "jsBytes": 494100,
+          "jsRequests": 1,
+          "heapBytes": 2665016
+        }
+      ],
+      "medianJsBytes": 494100,
+      "medianJsRequests": 1,
+      "medianHeapBytes": 2665016
+    },
+    "oldmaid": {
+      "samples": [
+        {
+          "jsBytes": 499470,
+          "jsRequests": 2,
+          "heapBytes": 2790016
+        },
+        {
+          "jsBytes": 499470,
+          "jsRequests": 2,
+          "heapBytes": 2790164
+        },
+        {
+          "jsBytes": 499470,
+          "jsRequests": 2,
+          "heapBytes": 2790176
+        }
+      ],
+      "medianJsBytes": 499470,
+      "medianJsRequests": 2,
+      "medianHeapBytes": 2790164
+    }
+  },
+  "warmImages": {
+    "poker": [
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      }
+    ],
+    "spyfall": [
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      }
+    ],
+    "oldmaid": [
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      },
+      {
+        "networkRequests": 1,
+        "transferBytes": 300
+      }
+    ]
+  },
+  "idle": {
+    "pok": {
+      "samples": [
+        {
+          "timerCallbacks": 12,
+          "scriptMs": 8.795,
+          "taskMs": 10.69
+        },
+        {
+          "timerCallbacks": 12,
+          "scriptMs": 8.708,
+          "taskMs": 10.663
+        },
+        {
+          "timerCallbacks": 12,
+          "scriptMs": 7.777,
+          "taskMs": 9.627000000000002
+        }
+      ],
+      "medianTimerCallbacks": 12,
+      "medianScriptMs": 8.708,
+      "medianTaskMs": 10.663
+    },
+    "poker": {
+      "samples": [
+        {
+          "timerCallbacks": 16,
+          "scriptMs": 11.895000000000001,
+          "taskMs": 14.003000000000002
+        },
+        {
+          "timerCallbacks": 15,
+          "scriptMs": 11.859,
+          "taskMs": 14.110999999999999
+        },
+        {
+          "timerCallbacks": 15,
+          "scriptMs": 12.624,
+          "taskMs": 14.886
+        }
+      ],
+      "medianTimerCallbacks": 15,
+      "medianScriptMs": 11.895000000000001,
+      "medianTaskMs": 14.110999999999999
+    },
+    "spyfall": {
+      "samples": [
+        {
+          "timerCallbacks": 15,
+          "scriptMs": 8.997,
+          "taskMs": 10.848
+        },
+        {
+          "timerCallbacks": 15,
+          "scriptMs": 10.084,
+          "taskMs": 12.361
+        },
+        {
+          "timerCallbacks": 15,
+          "scriptMs": 12.052999999999999,
+          "taskMs": 14.238
+        }
+      ],
+      "medianTimerCallbacks": 15,
+      "medianScriptMs": 10.084,
+      "medianTaskMs": 12.361
+    },
+    "oldmaid": {
+      "samples": [
+        {
+          "timerCallbacks": 12,
+          "scriptMs": 5.968999999999999,
+          "taskMs": 7.515000000000001
+        },
+        {
+          "timerCallbacks": 12,
+          "scriptMs": 5.565,
+          "taskMs": 7.036999999999998
+        },
+        {
+          "timerCallbacks": 13,
+          "scriptMs": 9.297,
+          "taskMs": 11.368000000000002
+        }
+      ],
+      "medianTimerCallbacks": 12,
+      "medianScriptMs": 5.968999999999999,
+      "medianTaskMs": 7.515000000000001
+    }
+  },
+  "sync": {
+    "pok": {
+      "samples": [
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 10
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 10
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 10
+        }
+      ],
+      "medianPeerSnapshots": 5,
+      "medianRequesterSnapshots": 10
+    },
+    "poker": {
+      "samples": [
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        }
+      ],
+      "medianPeerSnapshots": 5,
+      "medianRequesterSnapshots": 5
+    },
+    "spyfall": {
+      "samples": [
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        }
+      ],
+      "medianPeerSnapshots": 5,
+      "medianRequesterSnapshots": 5
+    },
+    "oldmaid": {
+      "samples": [
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        },
+        {
+          "peerSnapshots": 5,
+          "requesterSnapshots": 5
+        }
+      ],
+      "medianPeerSnapshots": 5,
+      "medianRequesterSnapshots": 5
+    }
+  },
+  "cleanup": {
+    "samples": [
+      1,
+      1,
+      1
+    ],
+    "medianPendingClipboardTimeouts": 1,
+    "note": "Pending 1800 ms clipboard callbacks shortly after leaving. This measures temporary retained callbacks, not an unbounded heap leak."
+  }
+}

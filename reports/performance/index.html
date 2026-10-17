@@ -1,0 +1,698 @@
+<!doctype html><html lang="th"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>วงไพ่ — Before / after performance</title><style>
+*{box-sizing:border-box}body{margin:0;background:#edf3f8;color:#13283a;font:16px/1.65 system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:32px 24px}h1{line-height:1.3}h2{font-size:21px}a{color:#076c93}section,.intro,.interactive{background:white;padding:24px;border:1px solid #dae4ec;border-radius:16px;margin:22px 0}svg,img{width:100%;height:auto}section svg{max-height:360px}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{padding:9px;border-bottom:1px solid #e2e8f0;text-align:right}th:first-child,td:first-child{text-align:left}small,.muted{color:#526475}label{display:inline-block;margin:0 20px 12px 0}select{display:block;font:inherit;padding:8px 12px;border:1px solid #a5bac9;border-radius:8px;max-width:100%}.legend{display:flex;gap:20px}.legend span:before{content:'';display:inline-block;width:18px;height:12px;border-radius:3px;margin-right:8px;background:#64748b}.legend span+span:before{background:#0b8b79}#dynamic-table{overflow:auto}code{overflow-wrap:anywhere}details pre{white-space:pre-wrap;font-size:12px}nav{display:flex;gap:18px;flex-wrap:wrap}@media(max-width:600px){main{padding:18px 12px}section,.intro,.interactive{padding:16px}h1{font-size:26px}table{font-size:13px}}
+</style><main><h1>วงไพ่ — ประสิทธิภาพก่อนและหลังปรับ</h1><p>ผลจาก production build บนเครื่องเดียวกัน วัด 3 ครั้งต่อกรณีและใช้ค่ามัธยฐาน ข้อมูลดิบเก็บครบทุกครั้ง</p><nav><a href="comparison.png">ดาวน์โหลดกราฟ PNG</a><a href="comparison.svg">กราฟ SVG</a><a href="before.json">ข้อมูลก่อนปรับ</a><a href="after.json">ข้อมูลหลังปรับ</a></nav><div class="intro"><p>ปรับการโหลดเกมตามหน้าที่เปิด ใช้ component และวงจรจัดการทรัพยากรร่วมกัน หยุด clock เมื่อไม่มี deadline หรือซ่อนแท็บ และให้ sync ส่งข้อมูลกลับเฉพาะผู้ร้องขอ</p><p><strong>ขอบเขต:</strong> ไม่ได้วัด FPS, เวลาเปิดเว็บจริงบนเครือข่ายมือถือ หรือจำนวนผู้เล่นสูงสุดของ production ค่า heap หลัง GC เพียงครั้งเดียวไม่ยืนยันว่าไม่มี memory leak การแยก chunk ทำให้จำนวน request ของ JavaScript เพิ่มขึ้น แม้ขนาดที่ต้องโหลดเริ่มต้นลดลง</p><p class="muted">Before: <code>92b8a23947aa98093b1a734c85af5387cb62b459</code><br>After: <code>4d859836bc56b9839687ac9ba25fb8076393706c</code><br>Edge 155.0.4283.45 · Node v22.21.1 · darwin · 1366x768 · 2026-10-17T04:21:56.145Z</p></div><img src="comparison.svg" alt="Before and after: JavaScript bytes, idle timers, peer snapshots and warm image requests"><div class="interactive"><h2>เลือกดูรายละเอียด</h2><div class="legend"><span>Before</span><span>After</span></div><p><label>ตัวชี้วัด<select id="metric"><option value="js">Cold JavaScript</option><option value="timers">Idle timer callbacks</option><option value="sync">Unnecessary peer snapshots</option><option value="cache">Warm hero image requests</option><option value="heap">JavaScript heap after GC</option><option value="cpu">Idle script execution</option><option value="requests">Cold JavaScript requests</option><option value="cleanup">Pending clipboard callbacks after exit</option></select></label><label>หน้าจอ<select id="game"><option value="all">ทุกหน้าจอที่มีข้อมูล</option><option value="menu">Game menu</option><option value="pok">Pok Deng</option><option value="poker">Poker</option><option value="spyfall">Spyfall</option><option value="oldmaid">Old Maid</option></select></label></p><p id="description"></p><div id="dynamic-chart"></div><div id="dynamic-table"></div><p id="no-data" hidden>ไม่มีข้อมูลของหน้าจอนี้ในกรณีที่เลือก</p></div><details><summary>รายละเอียดตัวเลขทั้งหมด</summary><section id="js"><h2>Cold JavaScript</h2><p>Decoded response body; fresh context, before creating a room.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Cold JavaScript" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Cold JavaScript</text><text x="24" y="52" font-size="12" fill="#64748b">kB · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Game menu</text><g><title>Game menu · before: 494.1 kB</title><rect x="112" y="76" width="392.0355576911526" height="16" rx="3" fill="#64748b"/><text x="511.0355576911526" y="90" font-size="12" fill="#64748b">494.1</text></g><g><title>Game menu · after: 238.842 kB</title><rect x="112" y="97" width="189.50527559212765" height="16" rx="3" fill="#0b8b79"/><text x="308.50527559212765" y="111" font-size="12" fill="#0b8b79">238.84</text></g><text x="100" y="148.2" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 494.1 kB</title><rect x="112" y="123.2" width="392.0355576911526" height="16" rx="3" fill="#64748b"/><text x="511.0355576911526" y="137.2" font-size="12" fill="#64748b">494.1</text></g><g><title>Pok Deng · after: 252.116 kB</title><rect x="112" y="144.2" width="200.03731362651814" height="16" rx="3" fill="#0b8b79"/><text x="319.03731362651814" y="158.2" font-size="12" fill="#0b8b79">252.12</text></g><text x="100" y="195.4" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 494.1 kB</title><rect x="112" y="170.4" width="392.0355576911526" height="16" rx="3" fill="#64748b"/><text x="511.0355576911526" y="184.4" font-size="12" fill="#64748b">494.1</text></g><g><title>Poker · after: 261.438 kB</title><rect x="112" y="191.4" width="207.43370194628528" height="16" rx="3" fill="#0b8b79"/><text x="326.4337019462853" y="205.4" font-size="12" fill="#0b8b79">261.44</text></g><text x="100" y="242.60000000000002" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 494.1 kB</title><rect x="112" y="217.60000000000002" width="392.0355576911526" height="16" rx="3" fill="#64748b"/><text x="511.0355576911526" y="231.60000000000002" font-size="12" fill="#64748b">494.1</text></g><g><title>Spyfall · after: 255.545 kB</title><rect x="112" y="238.60000000000002" width="202.75799755147858" height="16" rx="3" fill="#0b8b79"/><text x="321.7579975514786" y="252.60000000000002" font-size="12" fill="#0b8b79">255.55</text></g><text x="100" y="289.8" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 499.47 kB</title><rect x="112" y="264.8" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="278.8" font-size="12" fill="#64748b">499.47</text></g><g><title>Old Maid · after: 252.418 kB</title><rect x="112" y="285.8" width="200.2769305834555" height="16" rx="3" fill="#0b8b79"/><text x="319.2769305834555" y="299.8" font-size="12" fill="#0b8b79">252.42</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Game menu</td><td>494.1</td><td>238.842</td><td>-51.7%</td></tr><tr><td>Pok Deng</td><td>494.1</td><td>252.116</td><td>-49%</td></tr><tr><td>Poker</td><td>494.1</td><td>261.438</td><td>-47.1%</td></tr><tr><td>Spyfall</td><td>494.1</td><td>255.545</td><td>-48.3%</td></tr><tr><td>Old Maid</td><td>499.47</td><td>252.418</td><td>-49.5%</td></tr></tbody></table><small>Unit: kB</small></section><section id="timers"><h2>Idle timer callbacks</h2><p>Created lobby, no user input. Lower means fewer idle wakeups.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Idle timer callbacks" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Idle timer callbacks</text><text x="24" y="52" font-size="12" fill="#64748b">callbacks / 3 seconds · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 12 callbacks / 3 seconds</title><rect x="112" y="76" width="317.03703703703695" height="16" rx="3" fill="#64748b"/><text x="436.03703703703695" y="90" font-size="12" fill="#64748b">12</text></g><g><title>Pok Deng · after: 0 callbacks / 3 seconds</title><rect x="112" y="97" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="111" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="160" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 15 callbacks / 3 seconds</title><rect x="112" y="135" width="396.2962962962962" height="16" rx="3" fill="#64748b"/><text x="515.2962962962962" y="149" font-size="12" fill="#64748b">15</text></g><g><title>Poker · after: 0 callbacks / 3 seconds</title><rect x="112" y="156" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="170" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="219" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 15 callbacks / 3 seconds</title><rect x="112" y="194" width="396.2962962962962" height="16" rx="3" fill="#64748b"/><text x="515.2962962962962" y="208" font-size="12" fill="#64748b">15</text></g><g><title>Spyfall · after: 0 callbacks / 3 seconds</title><rect x="112" y="215" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="229" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="278" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 12 callbacks / 3 seconds</title><rect x="112" y="253" width="317.03703703703695" height="16" rx="3" fill="#64748b"/><text x="436.03703703703695" y="267" font-size="12" fill="#64748b">12</text></g><g><title>Old Maid · after: 0 callbacks / 3 seconds</title><rect x="112" y="274" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="288" font-size="12" fill="#0b8b79">0</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Pok Deng</td><td>12</td><td>0</td><td>-100%</td></tr><tr><td>Poker</td><td>15</td><td>0</td><td>-100%</td></tr><tr><td>Spyfall</td><td>15</td><td>0</td><td>-100%</td></tr><tr><td>Old Maid</td><td>12</td><td>0</td><td>-100%</td></tr></tbody></table><small>Unit: callbacks / 3 seconds</small></section><section id="sync"><h2>Unnecessary peer snapshots</h2><p>Second client requests sync; count snapshots sent to the first client.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Unnecessary peer snapshots" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Unnecessary peer snapshots</text><text x="24" y="52" font-size="12" fill="#64748b">snapshots / 5 sync requests · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 5 snapshots / 5 sync requests</title><rect x="112" y="76" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="90" font-size="12" fill="#64748b">5</text></g><g><title>Pok Deng · after: 0 snapshots / 5 sync requests</title><rect x="112" y="97" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="111" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="160" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 5 snapshots / 5 sync requests</title><rect x="112" y="135" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="149" font-size="12" fill="#64748b">5</text></g><g><title>Poker · after: 0 snapshots / 5 sync requests</title><rect x="112" y="156" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="170" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="219" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 5 snapshots / 5 sync requests</title><rect x="112" y="194" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="208" font-size="12" fill="#64748b">5</text></g><g><title>Spyfall · after: 0 snapshots / 5 sync requests</title><rect x="112" y="215" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="229" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="278" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 5 snapshots / 5 sync requests</title><rect x="112" y="253" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="267" font-size="12" fill="#64748b">5</text></g><g><title>Old Maid · after: 0 snapshots / 5 sync requests</title><rect x="112" y="274" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="288" font-size="12" fill="#0b8b79">0</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Pok Deng</td><td>5</td><td>0</td><td>-100%</td></tr><tr><td>Poker</td><td>5</td><td>0</td><td>-100%</td></tr><tr><td>Spyfall</td><td>5</td><td>0</td><td>-100%</td></tr><tr><td>Old Maid</td><td>5</td><td>0</td><td>-100%</td></tr></tbody></table><small>Unit: snapshots / 5 sync requests</small></section><section id="cache"><h2>Warm hero image requests</h2><p>Versioned hero image after a warm reload; cache hits transfer zero bytes.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Warm hero image requests" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Warm hero image requests</text><text x="24" y="52" font-size="12" fill="#64748b">network requests / reload · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 1 network requests / reload</title><rect x="112" y="76" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="90" font-size="12" fill="#64748b">1</text></g><g><title>Poker · after: 0 network requests / reload</title><rect x="112" y="97" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="111" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="179.66666666666669" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 1 network requests / reload</title><rect x="112" y="154.66666666666669" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="168.66666666666669" font-size="12" fill="#64748b">1</text></g><g><title>Spyfall · after: 0 network requests / reload</title><rect x="112" y="175.66666666666669" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="189.66666666666669" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="258.33333333333337" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 1 network requests / reload</title><rect x="112" y="233.33333333333334" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="247.33333333333334" font-size="12" fill="#64748b">1</text></g><g><title>Old Maid · after: 0 network requests / reload</title><rect x="112" y="254.33333333333334" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="268.33333333333337" font-size="12" fill="#0b8b79">0</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Poker</td><td>1</td><td>0</td><td>-100%</td></tr><tr><td>Spyfall</td><td>1</td><td>0</td><td>-100%</td></tr><tr><td>Old Maid</td><td>1</td><td>0</td><td>-100%</td></tr></tbody></table><small>Unit: network requests / reload</small></section><section id="heap"><h2>JavaScript heap after GC</h2><p>Single settled page after forced GC; this is not a long-term memory leak test.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="JavaScript heap after GC" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">JavaScript heap after GC</text><text x="24" y="52" font-size="12" fill="#64748b">MiB · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Game menu</text><g><title>Game menu · before: 2.415 MiB</title><rect x="112" y="76" width="348.9069441263347" height="16" rx="3" fill="#64748b"/><text x="467.9069441263347" y="90" font-size="12" fill="#64748b">2.41</text></g><g><title>Game menu · after: 2.063 MiB</title><rect x="112" y="97" width="298.13862288735226" height="16" rx="3" fill="#0b8b79"/><text x="417.13862288735226" y="111" font-size="12" fill="#0b8b79">2.06</text></g><text x="100" y="148.2" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 2.513 MiB</title><rect x="112" y="123.2" width="363.13719950738584" height="16" rx="3" fill="#64748b"/><text x="482.13719950738584" y="137.2" font-size="12" fill="#64748b">2.51</text></g><g><title>Pok Deng · after: 2.309 MiB</title><rect x="112" y="144.2" width="333.6464614712216" height="16" rx="3" fill="#0b8b79"/><text x="452.6464614712216" y="158.2" font-size="12" fill="#0b8b79">2.31</text></g><text x="100" y="195.4" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 2.743 MiB</title><rect x="112" y="170.4" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="184.4" font-size="12" fill="#64748b">2.74</text></g><g><title>Poker · after: 2.588 MiB</title><rect x="112" y="191.4" width="374.0298272028054" height="16" rx="3" fill="#0b8b79"/><text x="493.0298272028054" y="205.4" font-size="12" fill="#0b8b79">2.59</text></g><text x="100" y="242.60000000000002" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 2.542 MiB</title><rect x="112" y="217.60000000000002" width="367.25149398229155" height="16" rx="3" fill="#64748b"/><text x="486.25149398229155" y="231.60000000000002" font-size="12" fill="#64748b">2.54</text></g><g><title>Spyfall · after: 2.354 MiB</title><rect x="112" y="238.60000000000002" width="340.12493185755153" height="16" rx="3" fill="#0b8b79"/><text x="459.12493185755153" y="252.60000000000002" font-size="12" fill="#0b8b79">2.35</text></g><text x="100" y="289.8" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 2.661 MiB</title><rect x="112" y="264.8" width="384.49746547698265" height="16" rx="3" fill="#64748b"/><text x="503.49746547698265" y="278.8" font-size="12" fill="#64748b">2.66</text></g><g><title>Old Maid · after: 2.353 MiB</title><rect x="112" y="285.8" width="340.05878564412865" height="16" rx="3" fill="#0b8b79"/><text x="459.05878564412865" y="299.8" font-size="12" fill="#0b8b79">2.35</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Game menu</td><td>2.415</td><td>2.063</td><td>-14.6%</td></tr><tr><td>Pok Deng</td><td>2.513</td><td>2.309</td><td>-8.1%</td></tr><tr><td>Poker</td><td>2.743</td><td>2.588</td><td>-5.6%</td></tr><tr><td>Spyfall</td><td>2.542</td><td>2.354</td><td>-7.4%</td></tr><tr><td>Old Maid</td><td>2.661</td><td>2.353</td><td>-11.6%</td></tr></tbody></table><small>Unit: MiB</small></section><section id="cpu"><h2>Idle script execution</h2><p>CDP ScriptDuration delta. Small local CPU samples are sensitive to noise.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Idle script execution" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Idle script execution</text><text x="24" y="52" font-size="12" fill="#64748b">ms / 3 seconds · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 8.708 ms / 3 seconds</title><rect x="112" y="76" width="290.1175408279233" height="16" rx="3" fill="#64748b"/><text x="409.1175408279233" y="90" font-size="12" fill="#64748b">8.71</text></g><g><title>Pok Deng · after: 0 ms / 3 seconds</title><rect x="112" y="97" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="111" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="160" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 11.895 ms / 3 seconds</title><rect x="112" y="135" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="149" font-size="12" fill="#64748b">11.9</text></g><g><title>Poker · after: 0 ms / 3 seconds</title><rect x="112" y="156" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="170" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="219" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 10.084 ms / 3 seconds</title><rect x="112" y="194" width="335.9606432830476" height="16" rx="3" fill="#64748b"/><text x="454.9606432830476" y="208" font-size="12" fill="#64748b">10.08</text></g><g><title>Spyfall · after: 0 ms / 3 seconds</title><rect x="112" y="215" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="229" font-size="12" fill="#0b8b79">0</text></g><text x="100" y="278" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 5.969 ms / 3 seconds</title><rect x="112" y="253" width="198.86444662400942" height="16" rx="3" fill="#64748b"/><text x="317.8644466240094" y="267" font-size="12" fill="#64748b">5.97</text></g><g><title>Old Maid · after: 0 ms / 3 seconds</title><rect x="112" y="274" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="288" font-size="12" fill="#0b8b79">0</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Pok Deng</td><td>8.708</td><td>0</td><td>-100%</td></tr><tr><td>Poker</td><td>11.895</td><td>0</td><td>-100%</td></tr><tr><td>Spyfall</td><td>10.084</td><td>0</td><td>-100%</td></tr><tr><td>Old Maid</td><td>5.969</td><td>0</td><td>-100%</td></tr></tbody></table><small>Unit: ms / 3 seconds</small></section><section id="requests"><h2>Cold JavaScript requests</h2><p>Code splitting reduces initial bytes but increases the number of smaller JS requests.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Cold JavaScript requests" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Cold JavaScript requests</text><text x="24" y="52" font-size="12" fill="#64748b">requests · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Game menu</text><g><title>Game menu · before: 1 requests</title><rect x="112" y="76" width="44.03292181069958" height="16" rx="3" fill="#64748b"/><text x="163.03292181069958" y="90" font-size="12" fill="#64748b">1</text></g><g><title>Game menu · after: 2 requests</title><rect x="112" y="97" width="88.06584362139915" height="16" rx="3" fill="#0b8b79"/><text x="207.06584362139915" y="111" font-size="12" fill="#0b8b79">2</text></g><text x="100" y="148.2" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 1 requests</title><rect x="112" y="123.2" width="44.03292181069958" height="16" rx="3" fill="#64748b"/><text x="163.03292181069958" y="137.2" font-size="12" fill="#64748b">1</text></g><g><title>Pok Deng · after: 6 requests</title><rect x="112" y="144.2" width="264.1975308641975" height="16" rx="3" fill="#0b8b79"/><text x="383.1975308641975" y="158.2" font-size="12" fill="#0b8b79">6</text></g><text x="100" y="195.4" text-anchor="end" font-size="13" fill="#334155">Poker</text><g><title>Poker · before: 1 requests</title><rect x="112" y="170.4" width="44.03292181069958" height="16" rx="3" fill="#64748b"/><text x="163.03292181069958" y="184.4" font-size="12" fill="#64748b">1</text></g><g><title>Poker · after: 9 requests</title><rect x="112" y="191.4" width="396.29629629629625" height="16" rx="3" fill="#0b8b79"/><text x="515.2962962962963" y="205.4" font-size="12" fill="#0b8b79">9</text></g><text x="100" y="242.60000000000002" text-anchor="end" font-size="13" fill="#334155">Spyfall</text><g><title>Spyfall · before: 1 requests</title><rect x="112" y="217.60000000000002" width="44.03292181069958" height="16" rx="3" fill="#64748b"/><text x="163.03292181069958" y="231.60000000000002" font-size="12" fill="#64748b">1</text></g><g><title>Spyfall · after: 8 requests</title><rect x="112" y="238.60000000000002" width="352.26337448559667" height="16" rx="3" fill="#0b8b79"/><text x="471.26337448559667" y="252.60000000000002" font-size="12" fill="#0b8b79">8</text></g><text x="100" y="289.8" text-anchor="end" font-size="13" fill="#334155">Old Maid</text><g><title>Old Maid · before: 2 requests</title><rect x="112" y="264.8" width="88.06584362139915" height="16" rx="3" fill="#64748b"/><text x="207.06584362139915" y="278.8" font-size="12" fill="#64748b">2</text></g><g><title>Old Maid · after: 8 requests</title><rect x="112" y="285.8" width="352.26337448559667" height="16" rx="3" fill="#0b8b79"/><text x="471.26337448559667" y="299.8" font-size="12" fill="#0b8b79">8</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Game menu</td><td>1</td><td>2</td><td>100%</td></tr><tr><td>Pok Deng</td><td>1</td><td>6</td><td>500%</td></tr><tr><td>Poker</td><td>1</td><td>9</td><td>800%</td></tr><tr><td>Spyfall</td><td>1</td><td>8</td><td>700%</td></tr><tr><td>Old Maid</td><td>2</td><td>8</td><td>300%</td></tr></tbody></table><small>Unit: requests</small></section><section id="cleanup"><h2>Pending clipboard callbacks after exit</h2><p>Pending 1,800 ms timeout 50 ms after exit. Temporary retention, not an unbounded leak.</p><svg xmlns="http://www.w3.org/2000/svg" width="620" height="340" role="img" aria-label="Pending clipboard callbacks after exit" viewBox="0 0 620 340" style="font-family:Arial,sans-serif"><rect width="620" height="340" rx="16" fill="#fff"/><text x="24" y="30" font-size="19" font-weight="700" fill="#13283a">Pending clipboard callbacks after exit</text><text x="24" y="52" font-size="12" fill="#64748b">callbacks · median of 3 runs</text><path d="M112 68V315" stroke="#e2e8f0"/><text x="100" y="101" text-anchor="end" font-size="13" fill="#334155">Pok Deng</text><g><title>Pok Deng · before: 1 callbacks</title><rect x="112" y="76" width="396.29629629629625" height="16" rx="3" fill="#64748b"/><text x="515.2962962962963" y="90" font-size="12" fill="#64748b">1</text></g><g><title>Pok Deng · after: 0 callbacks</title><rect x="112" y="97" width="1" height="16" rx="3" fill="#0b8b79"/><text x="119" y="111" font-size="12" fill="#0b8b79">0</text></g></svg><table><thead><tr><th>Screen / game</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody><tr><td>Pok Deng</td><td>1</td><td>0</td><td>-100%</td></tr></tbody></table><small>Unit: callbacks</small></section></details><section><h2>วิธีวัดและอ่านผล</h2><ul><li>Cold: browser context ใหม่ เปิดเมนูหรือฟอร์มก่อนสร้างห้อง วัด decoded JavaScript bytes และ heap หลัง forced GC</li><li>Idle: สร้างห้องจริง รอให้พร้อม แล้วนับ callback และ CDP ScriptDuration เป็นเวลา 3 วินาที</li><li>Sync: เชื่อมต่อ 2 คน ส่ง sync 5 ครั้ง ห่างกัน 100 ms และนับ snapshot ที่ผู้ร้องขอและเพื่อนร่วมห้องได้รับ</li><li>Warm image: โหลดภาพ hero สำเร็จแล้ว reload ใน context เดิม นับภาพที่ยังต้องติดต่อ network รวมการตรวจ 304</li><li>Cleanup: คัดลอกรหัสแล้วออกจากห้อง ตรวจ timeout 1,800 ms ที่ค้างหลังออก 50 ms ค่านี้หมายถึง callback ที่เก็บชั่วคราว ไม่ใช่หลักฐานของ heap ที่โตไม่สิ้นสุด</li><li>ไม่เปลี่ยน CSS และกติกาเกม ชุดทดสอบตรวจการ reconnect, private data, ผลแพ้ชนะ และหน้าจอครบทั้ง 4 เกม</li></ul><details><summary>ข้อมูลดิบทุก sample</summary><pre>{
+  &quot;before&quot;: {
+    &quot;phase&quot;: &quot;before&quot;,
+    &quot;origin&quot;: &quot;http://127.0.0.1:2568&quot;,
+    &quot;commit&quot;: &quot;92b8a23947aa98093b1a734c85af5387cb62b459&quot;,
+    &quot;measuredAt&quot;: &quot;2026-10-17T03:59:19.662Z&quot;,
+    &quot;environment&quot;: {
+      &quot;browser&quot;: &quot;155.0.4283.45&quot;,
+      &quot;node&quot;: &quot;v22.21.1&quot;,
+      &quot;platform&quot;: &quot;darwin&quot;,
+      &quot;viewport&quot;: &quot;1366x768&quot;,
+      &quot;samples&quot;: 3,
+      &quot;idleMs&quot;: 3000,
+      &quot;notes&quot;: &quot;Local compiled production build, fresh browser context per cold sample; warm samples reuse HTTP cache. Heap values follow forced GC and are not proof of a memory leak.&quot;
+    },
+    &quot;cold&quot;: {
+      &quot;menu&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2535204
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2531896
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2531884
+          }
+        ],
+        &quot;medianJsBytes&quot;: 494100,
+        &quot;medianJsRequests&quot;: 1,
+        &quot;medianHeapBytes&quot;: 2531896
+      },
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2635156
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2635160
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2635160
+          }
+        ],
+        &quot;medianJsBytes&quot;: 494100,
+        &quot;medianJsRequests&quot;: 1,
+        &quot;medianHeapBytes&quot;: 2635160
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2875784
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2875784
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2875832
+          }
+        ],
+        &quot;medianJsBytes&quot;: 494100,
+        &quot;medianJsRequests&quot;: 1,
+        &quot;medianHeapBytes&quot;: 2875784
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2665016
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2665016
+          },
+          {
+            &quot;jsBytes&quot;: 494100,
+            &quot;jsRequests&quot;: 1,
+            &quot;heapBytes&quot;: 2665016
+          }
+        ],
+        &quot;medianJsBytes&quot;: 494100,
+        &quot;medianJsRequests&quot;: 1,
+        &quot;medianHeapBytes&quot;: 2665016
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 499470,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2790016
+          },
+          {
+            &quot;jsBytes&quot;: 499470,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2790164
+          },
+          {
+            &quot;jsBytes&quot;: 499470,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2790176
+          }
+        ],
+        &quot;medianJsBytes&quot;: 499470,
+        &quot;medianJsRequests&quot;: 2,
+        &quot;medianHeapBytes&quot;: 2790164
+      }
+    },
+    &quot;warmImages&quot;: {
+      &quot;poker&quot;: [
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        }
+      ],
+      &quot;spyfall&quot;: [
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        }
+      ],
+      &quot;oldmaid&quot;: [
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        },
+        {
+          &quot;networkRequests&quot;: 1,
+          &quot;transferBytes&quot;: 300
+        }
+      ]
+    },
+    &quot;idle&quot;: {
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 12,
+            &quot;scriptMs&quot;: 8.795,
+            &quot;taskMs&quot;: 10.69
+          },
+          {
+            &quot;timerCallbacks&quot;: 12,
+            &quot;scriptMs&quot;: 8.708,
+            &quot;taskMs&quot;: 10.663
+          },
+          {
+            &quot;timerCallbacks&quot;: 12,
+            &quot;scriptMs&quot;: 7.777,
+            &quot;taskMs&quot;: 9.627000000000002
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 12,
+        &quot;medianScriptMs&quot;: 8.708,
+        &quot;medianTaskMs&quot;: 10.663
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 16,
+            &quot;scriptMs&quot;: 11.895000000000001,
+            &quot;taskMs&quot;: 14.003000000000002
+          },
+          {
+            &quot;timerCallbacks&quot;: 15,
+            &quot;scriptMs&quot;: 11.859,
+            &quot;taskMs&quot;: 14.110999999999999
+          },
+          {
+            &quot;timerCallbacks&quot;: 15,
+            &quot;scriptMs&quot;: 12.624,
+            &quot;taskMs&quot;: 14.886
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 15,
+        &quot;medianScriptMs&quot;: 11.895000000000001,
+        &quot;medianTaskMs&quot;: 14.110999999999999
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 15,
+            &quot;scriptMs&quot;: 8.997,
+            &quot;taskMs&quot;: 10.848
+          },
+          {
+            &quot;timerCallbacks&quot;: 15,
+            &quot;scriptMs&quot;: 10.084,
+            &quot;taskMs&quot;: 12.361
+          },
+          {
+            &quot;timerCallbacks&quot;: 15,
+            &quot;scriptMs&quot;: 12.052999999999999,
+            &quot;taskMs&quot;: 14.238
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 15,
+        &quot;medianScriptMs&quot;: 10.084,
+        &quot;medianTaskMs&quot;: 12.361
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 12,
+            &quot;scriptMs&quot;: 5.968999999999999,
+            &quot;taskMs&quot;: 7.515000000000001
+          },
+          {
+            &quot;timerCallbacks&quot;: 12,
+            &quot;scriptMs&quot;: 5.565,
+            &quot;taskMs&quot;: 7.036999999999998
+          },
+          {
+            &quot;timerCallbacks&quot;: 13,
+            &quot;scriptMs&quot;: 9.297,
+            &quot;taskMs&quot;: 11.368000000000002
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 12,
+        &quot;medianScriptMs&quot;: 5.968999999999999,
+        &quot;medianTaskMs&quot;: 7.515000000000001
+      }
+    },
+    &quot;sync&quot;: {
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 10
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 10
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 10
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 5,
+        &quot;medianRequesterSnapshots&quot;: 10
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 5,
+        &quot;medianRequesterSnapshots&quot;: 5
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 5,
+        &quot;medianRequesterSnapshots&quot;: 5
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 5,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 5,
+        &quot;medianRequesterSnapshots&quot;: 5
+      }
+    },
+    &quot;cleanup&quot;: {
+      &quot;samples&quot;: [
+        1,
+        1,
+        1
+      ],
+      &quot;medianPendingClipboardTimeouts&quot;: 1,
+      &quot;note&quot;: &quot;Pending 1800 ms clipboard callbacks shortly after leaving. This measures temporary retained callbacks, not an unbounded heap leak.&quot;
+    }
+  },
+  &quot;after&quot;: {
+    &quot;phase&quot;: &quot;after&quot;,
+    &quot;origin&quot;: &quot;http://127.0.0.1:2569&quot;,
+    &quot;commit&quot;: &quot;4d859836bc56b9839687ac9ba25fb8076393706c&quot;,
+    &quot;measuredAt&quot;: &quot;2026-10-17T04:21:56.145Z&quot;,
+    &quot;environment&quot;: {
+      &quot;browser&quot;: &quot;155.0.4283.45&quot;,
+      &quot;node&quot;: &quot;v22.21.1&quot;,
+      &quot;platform&quot;: &quot;darwin&quot;,
+      &quot;viewport&quot;: &quot;1366x768&quot;,
+      &quot;samples&quot;: 3,
+      &quot;idleMs&quot;: 3000,
+      &quot;notes&quot;: &quot;Local compiled production build, fresh browser context per cold sample; warm samples reuse HTTP cache. Heap values follow forced GC and are not proof of a memory leak.&quot;
+    },
+    &quot;cold&quot;: {
+      &quot;menu&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 238842,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2166664
+          },
+          {
+            &quot;jsBytes&quot;: 238842,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2163448
+          },
+          {
+            &quot;jsBytes&quot;: 238842,
+            &quot;jsRequests&quot;: 2,
+            &quot;heapBytes&quot;: 2163488
+          }
+        ],
+        &quot;medianJsBytes&quot;: 238842,
+        &quot;medianJsRequests&quot;: 2,
+        &quot;medianHeapBytes&quot;: 2163488
+      },
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 252116,
+            &quot;jsRequests&quot;: 6,
+            &quot;heapBytes&quot;: 2404000
+          },
+          {
+            &quot;jsBytes&quot;: 252116,
+            &quot;jsRequests&quot;: 6,
+            &quot;heapBytes&quot;: 2421156
+          },
+          {
+            &quot;jsBytes&quot;: 252116,
+            &quot;jsRequests&quot;: 6,
+            &quot;heapBytes&quot;: 2421160
+          }
+        ],
+        &quot;medianJsBytes&quot;: 252116,
+        &quot;medianJsRequests&quot;: 6,
+        &quot;medianHeapBytes&quot;: 2421156
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 261438,
+            &quot;jsRequests&quot;: 9,
+            &quot;heapBytes&quot;: 2713440
+          },
+          {
+            &quot;jsBytes&quot;: 261438,
+            &quot;jsRequests&quot;: 9,
+            &quot;heapBytes&quot;: 2714204
+          },
+          {
+            &quot;jsBytes&quot;: 261438,
+            &quot;jsRequests&quot;: 9,
+            &quot;heapBytes&quot;: 2714216
+          }
+        ],
+        &quot;medianJsBytes&quot;: 261438,
+        &quot;medianJsRequests&quot;: 9,
+        &quot;medianHeapBytes&quot;: 2714204
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 255545,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2468168
+          },
+          {
+            &quot;jsBytes&quot;: 255545,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2468152
+          },
+          {
+            &quot;jsBytes&quot;: 255545,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2468176
+          }
+        ],
+        &quot;medianJsBytes&quot;: 255545,
+        &quot;medianJsRequests&quot;: 8,
+        &quot;medianHeapBytes&quot;: 2468168
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;jsBytes&quot;: 252418,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2467680
+          },
+          {
+            &quot;jsBytes&quot;: 252418,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2467688
+          },
+          {
+            &quot;jsBytes&quot;: 252418,
+            &quot;jsRequests&quot;: 8,
+            &quot;heapBytes&quot;: 2467692
+          }
+        ],
+        &quot;medianJsBytes&quot;: 252418,
+        &quot;medianJsRequests&quot;: 8,
+        &quot;medianHeapBytes&quot;: 2467688
+      }
+    },
+    &quot;warmImages&quot;: {
+      &quot;poker&quot;: [
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        }
+      ],
+      &quot;spyfall&quot;: [
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        }
+      ],
+      &quot;oldmaid&quot;: [
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        },
+        {
+          &quot;networkRequests&quot;: 0,
+          &quot;transferBytes&quot;: 0
+        }
+      ]
+    },
+    &quot;idle&quot;: {
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.5859999999999997
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.5520000000000004
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.5660000000000005
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 0,
+        &quot;medianScriptMs&quot;: 0,
+        &quot;medianTaskMs&quot;: 0.5660000000000005
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.685999999999999
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.7189999999999992
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.7700000000000016
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 0,
+        &quot;medianScriptMs&quot;: 0,
+        &quot;medianTaskMs&quot;: 0.7189999999999992
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.8259999999999986
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.6659999999999999
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.7889999999999998
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 0,
+        &quot;medianScriptMs&quot;: 0,
+        &quot;medianTaskMs&quot;: 0.7889999999999998
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.784
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.7499999999999989
+          },
+          {
+            &quot;timerCallbacks&quot;: 0,
+            &quot;scriptMs&quot;: 0,
+            &quot;taskMs&quot;: 0.723999999999999
+          }
+        ],
+        &quot;medianTimerCallbacks&quot;: 0,
+        &quot;medianScriptMs&quot;: 0,
+        &quot;medianTaskMs&quot;: 0.7499999999999989
+      }
+    },
+    &quot;sync&quot;: {
+      &quot;pok&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 0,
+        &quot;medianRequesterSnapshots&quot;: 5
+      },
+      &quot;poker&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 0,
+        &quot;medianRequesterSnapshots&quot;: 5
+      },
+      &quot;spyfall&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 0,
+        &quot;medianRequesterSnapshots&quot;: 5
+      },
+      &quot;oldmaid&quot;: {
+        &quot;samples&quot;: [
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          },
+          {
+            &quot;peerSnapshots&quot;: 0,
+            &quot;requesterSnapshots&quot;: 5
+          }
+        ],
+        &quot;medianPeerSnapshots&quot;: 0,
+        &quot;medianRequesterSnapshots&quot;: 5
+      }
+    },
+    &quot;cleanup&quot;: {
+      &quot;samples&quot;: [
+        0,
+        0,
+        0
+      ],
+      &quot;medianPendingClipboardTimeouts&quot;: 0,
+      &quot;note&quot;: &quot;Pending 1800 ms clipboard callbacks shortly after leaving. This measures temporary retained callbacks, not an unbounded heap leak.&quot;
+    }
+  }
+}</pre></details></section></main><script>
+const metrics=[{"id":"js","title":"Cold JavaScript","unit":"kB","note":"Decoded response body; fresh context, before creating a room.","keys":["menu","pok","poker","spyfall","oldmaid"],"rows":[{"key":"menu","label":"Game menu","before":494.1,"after":238.842},{"key":"pok","label":"Pok Deng","before":494.1,"after":252.116},{"key":"poker","label":"Poker","before":494.1,"after":261.438},{"key":"spyfall","label":"Spyfall","before":494.1,"after":255.545},{"key":"oldmaid","label":"Old Maid","before":499.47,"after":252.418}]},{"id":"timers","title":"Idle timer callbacks","unit":"callbacks / 3 seconds","note":"Created lobby, no user input. Lower means fewer idle wakeups.","keys":["pok","poker","spyfall","oldmaid"],"rows":[{"key":"pok","label":"Pok Deng","before":12,"after":0},{"key":"poker","label":"Poker","before":15,"after":0},{"key":"spyfall","label":"Spyfall","before":15,"after":0},{"key":"oldmaid","label":"Old Maid","before":12,"after":0}]},{"id":"sync","title":"Unnecessary peer snapshots","unit":"snapshots / 5 sync requests","note":"Second client requests sync; count snapshots sent to the first client.","keys":["pok","poker","spyfall","oldmaid"],"rows":[{"key":"pok","label":"Pok Deng","before":5,"after":0},{"key":"poker","label":"Poker","before":5,"after":0},{"key":"spyfall","label":"Spyfall","before":5,"after":0},{"key":"oldmaid","label":"Old Maid","before":5,"after":0}]},{"id":"cache","title":"Warm hero image requests","unit":"network requests / reload","note":"Versioned hero image after a warm reload; cache hits transfer zero bytes.","keys":["poker","spyfall","oldmaid"],"rows":[{"key":"poker","label":"Poker","before":1,"after":0},{"key":"spyfall","label":"Spyfall","before":1,"after":0},{"key":"oldmaid","label":"Old Maid","before":1,"after":0}]},{"id":"heap","title":"JavaScript heap after GC","unit":"MiB","note":"Single settled page after forced GC; this is not a long-term memory leak test.","keys":["menu","pok","poker","spyfall","oldmaid"],"rows":[{"key":"menu","label":"Game menu","before":2.4146041870117188,"after":2.063262939453125},{"key":"pok","label":"Pok Deng","before":2.5130844116210938,"after":2.3089942932128906},{"key":"poker","label":"Poker","before":2.7425613403320312,"after":2.5884666442871094},{"key":"spyfall","label":"Spyfall","before":2.5415573120117188,"after":2.3538284301757812},{"key":"oldmaid","label":"Old Maid","before":2.660907745361328,"after":2.3533706665039062}]},{"id":"cpu","title":"Idle script execution","unit":"ms / 3 seconds","note":"CDP ScriptDuration delta. Small local CPU samples are sensitive to noise.","keys":["pok","poker","spyfall","oldmaid"],"rows":[{"key":"pok","label":"Pok Deng","before":8.708,"after":0},{"key":"poker","label":"Poker","before":11.895000000000001,"after":0},{"key":"spyfall","label":"Spyfall","before":10.084,"after":0},{"key":"oldmaid","label":"Old Maid","before":5.968999999999999,"after":0}]},{"id":"requests","title":"Cold JavaScript requests","unit":"requests","note":"Code splitting reduces initial bytes but increases the number of smaller JS requests.","keys":["menu","pok","poker","spyfall","oldmaid"],"rows":[{"key":"menu","label":"Game menu","before":1,"after":2},{"key":"pok","label":"Pok Deng","before":1,"after":6},{"key":"poker","label":"Poker","before":1,"after":9},{"key":"spyfall","label":"Spyfall","before":1,"after":8},{"key":"oldmaid","label":"Old Maid","before":2,"after":8}]},{"id":"cleanup","title":"Pending clipboard callbacks after exit","unit":"callbacks","note":"Pending 1,800 ms timeout 50 ms after exit. Temporary retention, not an unbounded leak.","keys":["pok"],"rows":[{"key":"pok","label":"Pok Deng","before":1,"after":0}]}];
+const charts={"js":[{"key":"menu","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 238.842 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"191.56486541185996\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"310.56486541185996\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">238.84\u003c/text>\u003c/g>\u003c/svg>"},{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 252.116 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"202.21136821905895\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"321.21136821905895\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">252.12\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 261.438 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"209.68814230137843\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"328.68814230137843\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">261.44\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 255.545 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"204.9616212042846\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"323.9616212042846\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">255.55\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 499.47 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">499.47\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 252.418 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"200.2769305834555\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"319.2769305834555\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">252.42\u003c/text>\u003c/g>\u003c/svg>"}],"timers":[{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle timer callbacks\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle timer callbacks\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 12 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">12\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle timer callbacks\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle timer callbacks\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 15 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962962\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962962\" y=\"90\" font-size=\"12\" fill=\"#64748b\">15\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle timer callbacks\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle timer callbacks\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 15 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962962\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962962\" y=\"90\" font-size=\"12\" fill=\"#64748b\">15\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle timer callbacks\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle timer callbacks\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 12 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">12\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"}],"sync":[{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Unnecessary peer snapshots\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Unnecessary peer snapshots\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">snapshots / 5 sync requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Unnecessary peer snapshots\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Unnecessary peer snapshots\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">snapshots / 5 sync requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Unnecessary peer snapshots\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Unnecessary peer snapshots\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">snapshots / 5 sync requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Unnecessary peer snapshots\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Unnecessary peer snapshots\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">snapshots / 5 sync requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"}],"cache":[{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Warm hero image requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Warm hero image requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">network requests / reload · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Warm hero image requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Warm hero image requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">network requests / reload · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Warm hero image requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Warm hero image requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">network requests / reload · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"}],"heap":[{"key":"menu","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 2.415 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.41\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 2.063 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"338.63250365792334\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"457.63250365792334\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.06\u003c/text>\u003c/g>\u003c/svg>"},{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 2.513 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.51\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 2.309 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"364.1126745835378\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"483.1126745835378\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.31\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 2.743 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.74\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 2.588 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"374.0298272028054\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"493.0298272028054\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.59\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 2.542 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.54\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 2.354 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"367.02437697823837\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"486.02437697823837\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.35\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 2.661 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.66\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 2.353 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"350.493954769259\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"469.493954769259\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.35\u003c/text>\u003c/g>\u003c/svg>"}],"cpu":[{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle script execution\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle script execution\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">ms / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 8.708 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">8.71\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle script execution\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle script execution\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">ms / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 11.895 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">11.9\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle script execution\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle script execution\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">ms / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 10.084 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">10.08\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle script execution\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle script execution\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">ms / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 5.969 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.2962962962963\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5.97\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"}],"requests":[{"key":"menu","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"198.14814814814815\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"317.14814814814815\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 2 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2\u003c/text>\u003c/g>\u003c/svg>"},{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"66.04938271604937\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"185.04938271604937\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 6 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">6\u003c/text>\u003c/g>\u003c/svg>"},{"key":"poker","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"44.03292181069958\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"163.03292181069958\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 9 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">9\u003c/text>\u003c/g>\u003c/svg>"},{"key":"spyfall","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"49.53703703703704\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"168.53703703703704\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 8 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">8\u003c/text>\u003c/g>\u003c/svg>"},{"key":"oldmaid","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 2 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"99.07407407407408\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"218.07407407407408\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 8 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">8\u003c/text>\u003c/g>\u003c/svg>"}],"cleanup":[{"key":"pok","svg":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Pending clipboard callbacks after exit\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Pending clipboard callbacks after exit\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 1 callbacks\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 callbacks\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"}]};
+const allCharts={"js":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">kB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"392.0355576911526\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"511.0355576911526\" y=\"90\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 238.842 kB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"189.50527559212765\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"308.50527559212765\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">238.84\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"148.2\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"123.2\" width=\"392.0355576911526\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"511.0355576911526\" y=\"137.2\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 252.116 kB\u003c/title>\u003crect x=\"112\" y=\"144.2\" width=\"200.03731362651814\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"319.03731362651814\" y=\"158.2\" font-size=\"12\" fill=\"#0b8b79\">252.12\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"195.4\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"170.4\" width=\"392.0355576911526\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"511.0355576911526\" y=\"184.4\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 261.438 kB\u003c/title>\u003crect x=\"112\" y=\"191.4\" width=\"207.43370194628528\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"326.4337019462853\" y=\"205.4\" font-size=\"12\" fill=\"#0b8b79\">261.44\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"242.60000000000002\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 494.1 kB\u003c/title>\u003crect x=\"112\" y=\"217.60000000000002\" width=\"392.0355576911526\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"511.0355576911526\" y=\"231.60000000000002\" font-size=\"12\" fill=\"#64748b\">494.1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 255.545 kB\u003c/title>\u003crect x=\"112\" y=\"238.60000000000002\" width=\"202.75799755147858\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"321.7579975514786\" y=\"252.60000000000002\" font-size=\"12\" fill=\"#0b8b79\">255.55\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"289.8\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 499.47 kB\u003c/title>\u003crect x=\"112\" y=\"264.8\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"278.8\" font-size=\"12\" fill=\"#64748b\">499.47\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 252.418 kB\u003c/title>\u003crect x=\"112\" y=\"285.8\" width=\"200.2769305834555\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"319.2769305834555\" y=\"299.8\" font-size=\"12\" fill=\"#0b8b79\">252.42\u003c/text>\u003c/g>\u003c/svg>","timers":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle timer callbacks\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle timer callbacks\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 12 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"317.03703703703695\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"436.03703703703695\" y=\"90\" font-size=\"12\" fill=\"#64748b\">12\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"160\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 15 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"135\" width=\"396.2962962962962\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962962\" y=\"149\" font-size=\"12\" fill=\"#64748b\">15\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"156\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"170\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"219\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 15 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"194\" width=\"396.2962962962962\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962962\" y=\"208\" font-size=\"12\" fill=\"#64748b\">15\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"215\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"229\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"278\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 12 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"253\" width=\"317.03703703703695\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"436.03703703703695\" y=\"267\" font-size=\"12\" fill=\"#64748b\">12\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 callbacks / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"274\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"288\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>","sync":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Unnecessary peer snapshots\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Unnecessary peer snapshots\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">snapshots / 5 sync requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"160\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"135\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"149\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"156\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"170\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"219\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"194\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"208\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"215\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"229\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"278\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 5 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"253\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"267\" font-size=\"12\" fill=\"#64748b\">5\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 snapshots / 5 sync requests\u003c/title>\u003crect x=\"112\" y=\"274\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"288\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>","cache":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Warm hero image requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Warm hero image requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">network requests / reload · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"179.66666666666669\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"154.66666666666669\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"168.66666666666669\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"175.66666666666669\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"189.66666666666669\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"258.33333333333337\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 1 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"233.33333333333334\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"247.33333333333334\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 network requests / reload\u003c/title>\u003crect x=\"112\" y=\"254.33333333333334\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"268.33333333333337\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>","heap":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"JavaScript heap after GC\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">JavaScript heap after GC\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">MiB · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 2.415 MiB\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"348.9069441263347\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"467.9069441263347\" y=\"90\" font-size=\"12\" fill=\"#64748b\">2.41\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 2.063 MiB\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"298.13862288735226\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"417.13862288735226\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2.06\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"148.2\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 2.513 MiB\u003c/title>\u003crect x=\"112\" y=\"123.2\" width=\"363.13719950738584\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"482.13719950738584\" y=\"137.2\" font-size=\"12\" fill=\"#64748b\">2.51\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 2.309 MiB\u003c/title>\u003crect x=\"112\" y=\"144.2\" width=\"333.6464614712216\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"452.6464614712216\" y=\"158.2\" font-size=\"12\" fill=\"#0b8b79\">2.31\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"195.4\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 2.743 MiB\u003c/title>\u003crect x=\"112\" y=\"170.4\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"184.4\" font-size=\"12\" fill=\"#64748b\">2.74\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 2.588 MiB\u003c/title>\u003crect x=\"112\" y=\"191.4\" width=\"374.0298272028054\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"493.0298272028054\" y=\"205.4\" font-size=\"12\" fill=\"#0b8b79\">2.59\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"242.60000000000002\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 2.542 MiB\u003c/title>\u003crect x=\"112\" y=\"217.60000000000002\" width=\"367.25149398229155\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"486.25149398229155\" y=\"231.60000000000002\" font-size=\"12\" fill=\"#64748b\">2.54\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 2.354 MiB\u003c/title>\u003crect x=\"112\" y=\"238.60000000000002\" width=\"340.12493185755153\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"459.12493185755153\" y=\"252.60000000000002\" font-size=\"12\" fill=\"#0b8b79\">2.35\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"289.8\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 2.661 MiB\u003c/title>\u003crect x=\"112\" y=\"264.8\" width=\"384.49746547698265\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"503.49746547698265\" y=\"278.8\" font-size=\"12\" fill=\"#64748b\">2.66\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 2.353 MiB\u003c/title>\u003crect x=\"112\" y=\"285.8\" width=\"340.05878564412865\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"459.05878564412865\" y=\"299.8\" font-size=\"12\" fill=\"#0b8b79\">2.35\u003c/text>\u003c/g>\u003c/svg>","cpu":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Idle script execution\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Idle script execution\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">ms / 3 seconds · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 8.708 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"290.1175408279233\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"409.1175408279233\" y=\"90\" font-size=\"12\" fill=\"#64748b\">8.71\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"160\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 11.895 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"135\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"149\" font-size=\"12\" fill=\"#64748b\">11.9\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"156\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"170\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"219\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 10.084 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"194\" width=\"335.9606432830476\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"454.9606432830476\" y=\"208\" font-size=\"12\" fill=\"#64748b\">10.08\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"215\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"229\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"278\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 5.969 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"253\" width=\"198.86444662400942\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"317.8644466240094\" y=\"267\" font-size=\"12\" fill=\"#64748b\">5.97\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 0 ms / 3 seconds\u003c/title>\u003crect x=\"112\" y=\"274\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"288\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>","requests":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Cold JavaScript requests\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Cold JavaScript requests\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">requests · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Game menu\u003c/text>\u003cg>\u003ctitle>Game menu · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"44.03292181069958\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"163.03292181069958\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Game menu · after: 2 requests\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"88.06584362139915\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"207.06584362139915\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">2\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"148.2\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"123.2\" width=\"44.03292181069958\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"163.03292181069958\" y=\"137.2\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 6 requests\u003c/title>\u003crect x=\"112\" y=\"144.2\" width=\"264.1975308641975\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"383.1975308641975\" y=\"158.2\" font-size=\"12\" fill=\"#0b8b79\">6\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"195.4\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Poker\u003c/text>\u003cg>\u003ctitle>Poker · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"170.4\" width=\"44.03292181069958\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"163.03292181069958\" y=\"184.4\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Poker · after: 9 requests\u003c/title>\u003crect x=\"112\" y=\"191.4\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"515.2962962962963\" y=\"205.4\" font-size=\"12\" fill=\"#0b8b79\">9\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"242.60000000000002\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Spyfall\u003c/text>\u003cg>\u003ctitle>Spyfall · before: 1 requests\u003c/title>\u003crect x=\"112\" y=\"217.60000000000002\" width=\"44.03292181069958\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"163.03292181069958\" y=\"231.60000000000002\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Spyfall · after: 8 requests\u003c/title>\u003crect x=\"112\" y=\"238.60000000000002\" width=\"352.26337448559667\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"471.26337448559667\" y=\"252.60000000000002\" font-size=\"12\" fill=\"#0b8b79\">8\u003c/text>\u003c/g>\u003ctext x=\"100\" y=\"289.8\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Old Maid\u003c/text>\u003cg>\u003ctitle>Old Maid · before: 2 requests\u003c/title>\u003crect x=\"112\" y=\"264.8\" width=\"88.06584362139915\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"207.06584362139915\" y=\"278.8\" font-size=\"12\" fill=\"#64748b\">2\u003c/text>\u003c/g>\u003cg>\u003ctitle>Old Maid · after: 8 requests\u003c/title>\u003crect x=\"112\" y=\"285.8\" width=\"352.26337448559667\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"471.26337448559667\" y=\"299.8\" font-size=\"12\" fill=\"#0b8b79\">8\u003c/text>\u003c/g>\u003c/svg>","cleanup":"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"620\" height=\"340\" role=\"img\" aria-label=\"Pending clipboard callbacks after exit\" viewBox=\"0 0 620 340\" style=\"font-family:Arial,sans-serif\">\u003crect width=\"620\" height=\"340\" rx=\"16\" fill=\"#fff\"/>\u003ctext x=\"24\" y=\"30\" font-size=\"19\" font-weight=\"700\" fill=\"#13283a\">Pending clipboard callbacks after exit\u003c/text>\u003ctext x=\"24\" y=\"52\" font-size=\"12\" fill=\"#64748b\">callbacks · median of 3 runs\u003c/text>\u003cpath d=\"M112 68V315\" stroke=\"#e2e8f0\"/>\u003ctext x=\"100\" y=\"101\" text-anchor=\"end\" font-size=\"13\" fill=\"#334155\">Pok Deng\u003c/text>\u003cg>\u003ctitle>Pok Deng · before: 1 callbacks\u003c/title>\u003crect x=\"112\" y=\"76\" width=\"396.29629629629625\" height=\"16\" rx=\"3\" fill=\"#64748b\"/>\u003ctext x=\"515.2962962962963\" y=\"90\" font-size=\"12\" fill=\"#64748b\">1\u003c/text>\u003c/g>\u003cg>\u003ctitle>Pok Deng · after: 0 callbacks\u003c/title>\u003crect x=\"112\" y=\"97\" width=\"1\" height=\"16\" rx=\"3\" fill=\"#0b8b79\"/>\u003ctext x=\"119\" y=\"111\" font-size=\"12\" fill=\"#0b8b79\">0\u003c/text>\u003c/g>\u003c/svg>"};
+function update(){const metric=metrics.find(item=>item.id===document.getElementById('metric').value),key=document.getElementById('game').value,rows=metric.rows.filter(row=>key==='all'||row.key===key);document.getElementById('description').textContent=metric.note+' Unit: '+metric.unit;document.getElementById('no-data').hidden=rows.length>0;document.getElementById('dynamic-chart').innerHTML=key==='all'?allCharts[metric.id]:(charts[metric.id].find(item=>item.key===key)?.svg||'');document.getElementById('dynamic-table').innerHTML=rows.length?'<table><thead><tr><th>Screen</th><th>Before</th><th>After</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+row.label+'</td><td>'+row.before.toLocaleString('en-US',{maximumFractionDigits:3})+'</td><td>'+row.after.toLocaleString('en-US',{maximumFractionDigits:3})+'</td></tr>').join('')+'</tbody></table>':'';}
+document.getElementById('metric').addEventListener('change',update);document.getElementById('game').addEventListener('change',update);update();
+</script></html>

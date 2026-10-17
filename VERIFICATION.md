@@ -1,10 +1,16 @@
 # Verification — 17 October 2026
 
-ตรวจบน macOS ด้วย Microsoft Edge headless หลังปรับ UI จอคอมทั้งสี่เกมตามภาพตัวอย่าง คงปุ่มเลือกเกมอื่นเฉพาะหน้าสร้าง/เข้าห้อง และปรับ dropdown ตามธีม โดยคงกติกา บอท และข้อมูลส่วนตัว
+ตรวจบน macOS ด้วย Microsoft Edge headless หลัง refactor component, การโหลดหน้าเกม, sync และวงจรจัดการ timer/connection โดยคง UI, กติกา บอท และข้อมูลส่วนตัว รายละเอียด benchmark และข้อจำกัดอยู่ใน [docs/performance.md](docs/performance.md)
 
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Shared components, lazy pages/SDK, unchanged CSS output and all four existing game browser flows | PASS |
+| Read-only sync in all four games returns one requester snapshot/private message and no peer broadcast | PASS |
+| Shared rate limiter, room-code registry and coalesced/disposed snapshot publication | PASS |
+| Deduplicated connections, canceled restore/reconnect races and late connection cleanup | PASS |
+| Idle/hidden/expired clock cleanup, clipboard async cancellation and ten navigation cycles releasing timers/listeners | PASS |
+| Reproducible baseline/optimized production benchmark, three samples, raw JSON and interactive HTML/SVG/PNG report | PASS — menu JS −51.7%; idle callbacks and sync peer broadcasts eliminated in the measured scenarios |
 | Poker/Spyfall/Old Maid desktop create/join: 8 sizes 1000×651–2560×1440, aligned game switch/artwork, inputs/dropdowns/navigation and no horizontal overflow | PASS |
 | Three redesigned entry forms: real create/join, settings retained across mobile/desktop resize, consented exit | PASS |
 | Baseline comparison: Pok Deng create/join and compact entry geometry/colors match production at 5 phone/tablet/desktop sizes | PASS |
@@ -14,7 +20,7 @@
 | Four desktop designs: 8 sizes from 1000×651 to 2560×1440, active/lobby/results, readable ranks/suits, no panel overlap or page scroll | PASS |
 | Poker six pots, High/Normal preferences, 12-card showdown, desktop width cap 1680 and existing compact windows | PASS |
 | Spyfall all 8 players visible, separate role/chat/vote areas, answer draft survives desktop/mobile resize with a single form | PASS |
-| Vitest rules, state machines and real WebSocket integration | PASS — 225 tests, 13 files |
+| Vitest rules, state machines and real WebSocket integration | PASS — 235 tests, 16 files |
 | Old Maid private drawn cards, exact discarded pairs including initial deal, replay protection, deep copies and next-round reset | PASS |
 | Real WebSocket private-history isolation and restoration after reconnect | PASS |
 | Three real browsers: drawn-card/pair details, new-card badges, history popup, refresh and complete round | PASS |

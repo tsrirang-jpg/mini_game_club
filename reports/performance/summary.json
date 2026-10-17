@@ -1,0 +1,299 @@
+[
+  {
+    "id": "js",
+    "title": "Cold JavaScript",
+    "unit": "kB",
+    "note": "Decoded response body; fresh context, before creating a room.",
+    "keys": [
+      "menu",
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "menu",
+        "label": "Game menu",
+        "before": 494.1,
+        "after": 238.842
+      },
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 494.1,
+        "after": 252.116
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 494.1,
+        "after": 261.438
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 494.1,
+        "after": 255.545
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 499.47,
+        "after": 252.418
+      }
+    ]
+  },
+  {
+    "id": "timers",
+    "title": "Idle timer callbacks",
+    "unit": "callbacks / 3 seconds",
+    "note": "Created lobby, no user input. Lower means fewer idle wakeups.",
+    "keys": [
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 12,
+        "after": 0
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 15,
+        "after": 0
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 15,
+        "after": 0
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 12,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "id": "sync",
+    "title": "Unnecessary peer snapshots",
+    "unit": "snapshots / 5 sync requests",
+    "note": "Second client requests sync; count snapshots sent to the first client.",
+    "keys": [
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 5,
+        "after": 0
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 5,
+        "after": 0
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 5,
+        "after": 0
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 5,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "id": "cache",
+    "title": "Warm hero image requests",
+    "unit": "network requests / reload",
+    "note": "Versioned hero image after a warm reload; cache hits transfer zero bytes.",
+    "keys": [
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 1,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "id": "heap",
+    "title": "JavaScript heap after GC",
+    "unit": "MiB",
+    "note": "Single settled page after forced GC; this is not a long-term memory leak test.",
+    "keys": [
+      "menu",
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "menu",
+        "label": "Game menu",
+        "before": 2.4146041870117188,
+        "after": 2.063262939453125
+      },
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 2.5130844116210938,
+        "after": 2.3089942932128906
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 2.7425613403320312,
+        "after": 2.5884666442871094
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 2.5415573120117188,
+        "after": 2.3538284301757812
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 2.660907745361328,
+        "after": 2.3533706665039062
+      }
+    ]
+  },
+  {
+    "id": "cpu",
+    "title": "Idle script execution",
+    "unit": "ms / 3 seconds",
+    "note": "CDP ScriptDuration delta. Small local CPU samples are sensitive to noise.",
+    "keys": [
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 8.708,
+        "after": 0
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 11.895000000000001,
+        "after": 0
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 10.084,
+        "after": 0
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 5.968999999999999,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "id": "requests",
+    "title": "Cold JavaScript requests",
+    "unit": "requests",
+    "note": "Code splitting reduces initial bytes but increases the number of smaller JS requests.",
+    "keys": [
+      "menu",
+      "pok",
+      "poker",
+      "spyfall",
+      "oldmaid"
+    ],
+    "rows": [
+      {
+        "key": "menu",
+        "label": "Game menu",
+        "before": 1,
+        "after": 2
+      },
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 1,
+        "after": 6
+      },
+      {
+        "key": "poker",
+        "label": "Poker",
+        "before": 1,
+        "after": 9
+      },
+      {
+        "key": "spyfall",
+        "label": "Spyfall",
+        "before": 1,
+        "after": 8
+      },
+      {
+        "key": "oldmaid",
+        "label": "Old Maid",
+        "before": 2,
+        "after": 8
+      }
+    ]
+  },
+  {
+    "id": "cleanup",
+    "title": "Pending clipboard callbacks after exit",
+    "unit": "callbacks",
+    "note": "Pending 1,800 ms timeout 50 ms after exit. Temporary retention, not an unbounded leak.",
+    "keys": [
+      "pok"
+    ],
+    "rows": [
+      {
+        "key": "pok",
+        "label": "Pok Deng",
+        "before": 1,
+        "after": 0
+      }
+    ]
+  }
+]
