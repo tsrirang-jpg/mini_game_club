@@ -4,7 +4,7 @@ import { GameSwitch } from './GameSwitch';
 import { useDesktopLayout } from './useDesktopLayout';
 
 const introductions = {
-  poker: { eyebrow: 'TEXAS HOLD’EM · NO-LIMIT', lines: ['อ่านเกมให้ขาด', 'แล้วเลือกตาของคุณ'], title: 'Poker ในวงไพ่', description: ['ไพ่ส่วนตัว 2 ใบ + ไพ่กลาง 5 ใบ', 'เพื่อนและบอทรวม 2–6 คน · แต้มจำลอง'] },
+  poker: { eyebrow: 'TEXAS HOLD’EM · NO-LIMIT', lines: ['อ่านเกมให้ขาด', 'แล้วเลือกตาของคุณ'], title: 'Poker ในวงเซียน', description: ['ไพ่ส่วนตัว 2 ใบ + ไพ่กลาง 5 ใบ', 'เพื่อนและบอทรวม 2–6 คน · แต้มจำลอง'] },
   spyfall: { eyebrow: 'SECRET MISSION', lines: ['ใครคือสายลับ', 'ในวงของคุณ?'], title: 'Spyfall', description: ['ถามให้เนียน จับพิรุธให้ทัน', 'เล่นกับเพื่อน 3–8 คน · บทบาทลับเฉพาะคุณ'] },
   oldmaid: { eyebrow: 'OLD MAID · อีแก่กินน้ำ', lines: ['จับคู่ให้หมดมือ', 'ใครจะเหลือใบสุดท้าย?'], title: 'อีแก่กินน้ำ', description: ['ผลัดกันจั่ว จับคู่ แล้วทิ้งอัตโนมัติ', 'เพื่อนและบอทรวม 3–8 คน'] },
 };

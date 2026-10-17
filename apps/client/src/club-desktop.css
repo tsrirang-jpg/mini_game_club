@@ -7,8 +7,6 @@
   .club-playing .room-bar { min-height:48px; gap:12px; }
   .club-playing .room-bar strong { font-size:18px; letter-spacing:.8px; }
   .club-playing .room-bar button { min-height:38px; padding:7px 12px; font-size:12px; }
-  .club-wordmark,.pok-wordmark,.poker-wordmark { font-size:32px; }
-  .club-wordmark b,.pok-wordmark span,.poker-wordmark span { font-size:22px; }
   .club-room-id,.club-room-tools,.pok-room-id,.pok-navigation,.poker-room-id,.poker-tools { gap:10px; }
   .club-playing .room-bar .connection { font-size:11px; }
   .club-playing .room-bar button.ghost:last-child { border-color:#a94e61; color:#ffb3bd; }

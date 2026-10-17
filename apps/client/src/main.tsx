@@ -6,6 +6,7 @@ import type { GameSession, SessionState } from './session';
 import { navigate, subscribeRoute, getRoute } from './router';
 import { GameSelectPage } from './GameSelectPage';
 import { games } from './games';
+import { BrandLogo } from './components/ui/BrandLogo';
 import type { GameKind } from './games';
 const CreateRoomPage = lazy(() => import('./CreateRoomPage').then(m => ({ default: m.CreateRoomPage })));
 const PlayPage = lazy(() => import('./PlayPage').then(m => ({ default: m.PlayPage })));
@@ -45,7 +46,7 @@ function GameShell({ kind, playing = false, children, state, controls }: {
 }) {
   const metadata = games[kind];
   return <div className={`app club-shell theme-${kind}${playing ? ' club-playing' : ''}${kind === 'oldmaid' ? ' oldmaid-shell' : ''}${kind === 'spyfall' ? ' spy-shell' : ''}${playing && kind === 'poker' ? ' poker-shell' : ''}${playing && kind === 'pok' ? ' pok-shell' : ''}`}>
-    <header className="top"><a className="brand" href="/games" onClick={event => { event.preventDefault(); navigate('/games'); }}>♠ <span>วงไพ่<small>CARD GAME CLUB</small></span></a><span className="tag">{metadata.tag}</span></header>
+    <header className="top"><a className="brand" href="/games" onClick={event => { event.preventDefault(); navigate('/games'); }} aria-label="วงเซียน · Mini Game Club"><BrandLogo/></a><span className="tag">{metadata.tag}</span></header>
     {state?.error && <div className="error" role="alert">{state.error}<button aria-label="ปิดข้อความ" onClick={() => controls?.clearError()}>×</button></div>}
     {state?.status === 'reconnecting' && <div className="notice" role="status">กำลังเชื่อมต่อกลับโต๊ะ… <button onClick={() => controls?.leave()}>กลับหน้าแรก</button></div>}
     <Suspense fallback={<main className="page-message"><p>กำลังโหลดเกม…</p></main>}>{children}</Suspense>

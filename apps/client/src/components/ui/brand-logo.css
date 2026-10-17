@@ -1,0 +1,47 @@
+.club-shell .brand-logo {
+  display:inline-flex; align-items:center; gap:10px; flex:none; vertical-align:middle;
+  color:#fff4de; white-space:nowrap; line-height:1.2;
+}
+.brand-logo .brand-mark { display:block; width:48px; height:48px; flex:none; }
+.club-shell .brand-logo .brand-copy { display:flex; flex-direction:column; gap:4px; color:inherit; }
+.club-shell .brand-logo .brand-name { font-size:27px; font-weight:700; line-height:1.2; letter-spacing:0; }
+.club-shell .brand-logo .brand-descriptor { display:block; font-size:8px; line-height:1.2; letter-spacing:2px; color:#e6c47e; }
+.club-shell .top .brand-logo .brand-descriptor { display:block; }
+.club-shell .brand-logo-compact { gap:7px; }
+.brand-logo-compact .brand-mark { width:34px; height:34px; }
+.club-shell .brand-logo-compact .brand-name { font-size:20px; }
+.club-shell .brand-logo-compact .brand-descriptor { font-size:7px; letter-spacing:1px; }
+.club-shell .brand-logo-compact .brand-copy { gap:2px; }
+
+@media (max-width:720px) {
+  .brand-logo .brand-mark { width:38px; height:38px; }
+  .club-shell .brand-logo .brand-name { font-size:23px; }
+  .club-shell .brand-logo .brand-descriptor { font-size:7px; letter-spacing:1.5px; }
+  .club-shell .room-bar .brand-logo-compact { gap:5px; }
+  .brand-logo-compact .brand-mark { width:24px; height:24px; }
+  .club-shell .room-bar .brand-logo-compact .brand-name { font-size:14px; }
+  .club-shell .room-bar .brand-logo-compact .brand-descriptor { font-size:7px; letter-spacing:.6px; }
+}
+
+/* Keep the full name visible above the code instead of squeezing either text. */
+@media (max-width:720px) and (orientation:portrait) {
+  .club-shell .room-bar :is(.club-room-id,.pok-room-id,.poker-room-id) {
+    display:grid; grid-template-columns:max-content 34px; column-gap:5px; row-gap:1px; flex:none;
+  }
+  .club-shell .room-bar .brand-logo-compact { grid-column:1; grid-row:1; }
+  .club-shell .room-bar :is(.club-room-id,.pok-room-id,.poker-room-id) > strong {
+    grid-column:1; grid-row:2; margin:0; font-size:10px; line-height:1.2; letter-spacing:.5px;
+  }
+  .club-shell .room-bar :is(.club-room-id,.pok-room-id,.poker-room-id) > .copy-room-code { grid-column:2; grid-row:1/3; }
+}
+
+@media (orientation:landscape) and (max-height:500px) {
+  .club-shell .top .tag { font-size:10px; line-height:1.4; padding:5px 8px; }
+  .brand-logo .brand-mark { width:28px; height:28px; }
+  .club-shell .top .brand-logo .brand-name { font-size:18px; }
+  .club-shell .top .brand-logo .brand-copy { gap:2px; }
+  .club-shell .top .brand-logo .brand-descriptor { font-size:7px; letter-spacing:1px; }
+  .brand-logo-compact .brand-mark { width:28px; height:28px; }
+  .club-shell .room-bar .brand-logo-compact .brand-name { font-size:16px; }
+  .club-shell .room-bar .brand-logo-compact .brand-descriptor { font-size:7px; letter-spacing:.7px; }
+}

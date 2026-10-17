@@ -1,6 +1,8 @@
-# วงไพ่ — Browser Multiplayer Card Games
+# วงเซียน — Mini Game Club
 
-เล่นออนไลน์: [วงไพ่](https://wong-pai.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
+เล่นออนไลน์: [วงเซียน](https://wong-pai.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
+
+โลโก้ 03C และชื่อแบรนด์ใช้ component กลางทุกหน้า ดู [โครงสร้างแบรนด์](docs/branding.md)
 
 ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต รวมถึง Old Maid (อีแก่กินน้ำ) สำหรับเพื่อนและบอทรวม 3–8 คน และ Who am I สำหรับผู้เล่นจริง 3–8 คน
 

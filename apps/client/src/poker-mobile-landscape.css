@@ -6,8 +6,6 @@
   .poker-game { gap: 4px; }
   .poker-game .room-bar { min-height: 36px; }
   .poker-room-id, .poker-tools { gap: 7px; }
-  .poker-wordmark { font-size: 25px; }
-  .poker-wordmark span { font-size: 17px; }
   .poker-game .room-bar strong { font-size: clamp(14px, 2vw, 19px); }
   .poker-game .room-bar .small { min-height: 36px; padding: 5px 8px; }
   .poker-game .connection-label { display: none; }

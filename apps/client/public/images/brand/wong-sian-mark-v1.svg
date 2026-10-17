@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <mask id="cutouts" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="128">
+      <rect width="128" height="128" fill="white"/>
+      <g fill="none" stroke="black" stroke-width="3.5">
+        <path id="seam" d="M64 3C84 13 85 40 69 51"/>
+        <use href="#seam" transform="rotate(90 64 64)"/>
+        <use href="#seam" transform="rotate(180 64 64)"/>
+        <use href="#seam" transform="rotate(270 64 64)"/>
+      </g>
+      <g fill="black">
+        <circle cx="64" cy="64" r="13.5"/>
+        <path d="M36 17C30 25 20 30 20 38C20 48 30 50 36 43C42 50 52 48 52 38C52 30 42 25 36 17ZM36 40L29 54H43Z"/>
+        <path d="M88 19H99V30H110V41H99V52H88V41H77V30H88Z"/>
+        <circle cx="30" cy="85" r="6"/>
+        <circle cx="44" cy="100" r="6"/>
+        <circle cx="94" cy="109" r="3.7"/>
+      </g>
+      <path d="M84 85C84 73 106 73 106 85C106 93 94 94 94 100" fill="none" stroke="black" stroke-width="7" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <circle cx="64" cy="64" r="61" fill="#e6c47e" mask="url(#cutouts)"/>
+</svg>

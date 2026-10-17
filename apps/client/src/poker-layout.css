@@ -15,8 +15,6 @@
 .poker-game { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .poker-game .room-bar { flex: none; margin: 0; min-height: 44px; gap: 8px; }
 .poker-room-id, .poker-tools { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.poker-wordmark { color: #eac781; font-size: 24px; white-space: nowrap; }
-.poker-wordmark span { font-size: 16px; font-weight: 700; }
 .poker-game .room-bar strong { margin: 0; font-size: 18px; letter-spacing: 1px; }
 .poker-game .room-bar .small { display: inline-block; margin: 0; min-height: 40px; padding: 6px 10px; }
 .poker-game .connection { padding: 0; margin: 0; white-space: nowrap; font-size: 10px; }
@@ -112,8 +110,7 @@
   .poker-game { gap: 5px; }
   .poker-game .room-bar { gap: 4px; min-height: 38px; }
   .poker-room-id, .poker-tools { gap: 3px; }
-  .poker-wordmark { font-size: 18px; }
-  .poker-wordmark span, .poker-game .connection-label { display: none; }
+  .poker-game .connection-label { display: none; }
   .poker-game .room-bar strong { font-size: 13px; letter-spacing: .5px; }
   .poker-game .room-bar .small { min-height: 36px; padding: 5px; font-size: 10px; }
   .poker-game .connection i { margin-right: 2px; }

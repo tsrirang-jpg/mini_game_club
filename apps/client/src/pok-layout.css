@@ -9,8 +9,6 @@
 .pok-game { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
 .pok-game .room-bar { flex: none; flex-wrap: nowrap; min-height: 40px; margin: 0; gap: 6px; }
 .pok-room-id, .pok-game .pok-navigation { display: flex; align-items: center; flex-wrap: nowrap; gap: 6px; min-width: 0; }
-.pok-wordmark { font-size: 26px; color: #eac781; white-space: nowrap; }
-.pok-wordmark span { font-size: 17px; font-weight: 700; }
 .pok-game .room-bar strong { margin: 0; font-size: 18px; letter-spacing: 1px; }
 .pok-game .room-bar button { flex: none; display: inline-block; margin: 0; min-height: 36px; padding: 5px 9px; font-size: 12px; }
 .pok-game .connection { display: flex; align-items: center; padding: 0; white-space: nowrap; font-size: 10px; }
@@ -74,9 +72,8 @@
 .pok-catch-detail p { font-size: 12px; }
 
 @media (max-width: 700px) and (orientation: portrait) {
-  .pok-game .pok-wordmark span, .pok-game .connection > span, .pok-game .room-bar .pok-home-button { display: none; }
+  .pok-game .connection > span, .pok-game .room-bar .pok-home-button { display: none; }
   .pok-room-id, .pok-game .pok-navigation { gap: 3px; }
-  .pok-wordmark { font-size: 20px; }
   .pok-game .room-bar strong { font-size: 13px; letter-spacing: .5px; }
   .pok-game .room-bar button { padding: 5px; font-size: 10px; }
   .pok-game .connection i { margin-right: 2px; }
@@ -101,7 +98,7 @@
 }
 @media (orientation: landscape) and (max-height: 600px) {
   .pok-game { gap: 4px; }
-  .pok-game .pok-wordmark span, .pok-game .connection > span { display: none; }
+  .pok-game .connection > span { display: none; }
   .pok-game .room-bar { min-height: 36px; }
   .pok-game .table { padding: 6px 8px; border-width: 3px; --pok-card: min(48px, calc((100cqw / var(--pok-columns) - 90px) / 3), max(20px, calc((100cqh / var(--pok-rows) - 26px) / 1.4))); }
   .pok-game .seats { gap: 5px; }

@@ -5,6 +5,8 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| วงเซียน / MINI GAME CLUB: shared 03C SVG/component and favicon; menu plus 10 create/join routes at 11 viewports, full wordmark/descriptor visible, no clipped or overlapping header content | PASS |
+| New room branding across all 5 games: real room creation/copy/exit at 11 sizes; Pok/Poker gameplay at 13 sizes, Who am I at 11 sizes and four-game desktop lobby/play/results at 8 sizes | PASS |
 | Who am I history: all yes/no/unknown counts for split and unanimous-unknown votes, pending state, personal-only side panel/mobile popup, three real clients including reload | PASS |
 | Shared room-code copy button in all 5 games: 11 desktop/tablet/phone viewports, text/icon switch in both orientations, full code copied, feedback/reset/rotation, denied clipboard, no header clipping/overlap | PASS |
 | Who am I: exact settings, 3–8 seats, hidden own identities, one question OR guess per turn, next-turn guessing and cumulative multi-game scoring | PASS |
