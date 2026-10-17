@@ -11,6 +11,7 @@
 | Who am I: 3 browsers complete 3 games, words remain private, same-turn guess disabled, scoreboard tie and deliberate exits | PASS |
 | Who am I CSS/pages/SDK loaded on demand, 142 kB transparent hero via shared image manifest | PASS |
 | Who am I compiled production browser flow: 11 create viewports, three real players, reconnect and three full games | PASS |
+| Who am I personal history panel/popup/counter and empty state, persisted after refresh; text-only roster with readable long words at all 11 viewports | PASS |
 | Shared components, lazy pages/SDK, unchanged CSS output and all four existing game browser flows | PASS |
 | Read-only sync in all four games returns one requester snapshot/private message and no peer broadcast | PASS |
 | Shared rate limiter, room-code registry and coalesced/disposed snapshot publication | PASS |

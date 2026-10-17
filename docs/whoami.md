@@ -27,7 +27,9 @@ Refresh/reconnect within 60 seconds restores the same word visibility, confirmed
 
 ## UI and reuse
 
-- Warm espresso/amber/ivory palette, responsive create/join forms with the four selectors in a 2×2 grid, illustrated identity cards, a separate personal mystery area, roster and question history, accessible guess/rules/history/players dialogs, reveal/score views.
+- Warm espresso/amber/ivory palette, responsive create/join forms with the four selectors in a 2×2 grid, illustrated identity cards, a separate personal mystery area, text-first roster with large identity words (no avatars/emoji), personal question history, accessible guess/rules/history/players dialogs, reveal/score views.
+- Question history in the side panel, popup and counter is filtered by the current player ID; friends' questions remain visible only as the active question to answer. An empty personal history has a dedicated message and filtering survives refresh.
+- Phone portrait rosters use readable-width cards in a horizontal scroll area instead of squeezing words into narrow columns. The players dialog and game-end reveal also emphasize plain words. The viewer's own word stays concealed until the existing reveal phase.
 - `WhoAmICreatePage`, `WhoAmIPlayPage` and their scoped CSS load on demand. Existing `RoomEntryForm`, `RoomEntryTabs`, `EntryFacts`, `SpyfallSelect`, `CopyRoomCodeButton`, `GameSession`, `useDeadlineNow` and room runtime helpers are reused.
 - `components/ui/GameDialog` provides native dialog focus/Escape/cleanup for overlays. The same component instance and form state remain across viewport changes.
 - Existing four games keep their rules/layout. Game switching remains on create/join only. Browser screenshots go to `artifacts/previews/`.

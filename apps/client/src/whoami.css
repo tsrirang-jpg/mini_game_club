@@ -48,11 +48,11 @@
 .who-player.offline { opacity:.6; }
 .who-avatar { flex:none; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; border:1px solid #f2c476; color:var(--club-ink); background:#e9c49a; font-size:16px; font-weight:700; }
 .who-player > div { min-width:0; flex:1; }
-.who-player strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+.who-player strong { display:block; font-size:12px; font-weight:500; color:var(--club-muted); overflow-wrap:anywhere; }
 .who-player strong small,.who-mystery strong small { color:var(--club-accent); font-size:10px; }
-.who-player-word { display:block; color:var(--club-accent); font-size:13px; overflow-wrap:anywhere; }
+.who-player-word { display:block; margin:4px 0; color:#fff4e4; font-size:22px; font-weight:700; line-height:1.45; overflow-wrap:anywhere; }
+.who-player-word.is-placeholder { font-size:12px; font-weight:400; color:var(--club-muted); }
 .who-player-status { display:block; font-size:10px; color:var(--club-muted); }
-.who-player > b { flex:none; font-size:27px; color:var(--club-accent); }
 .who-stage { gap:12px; }
 .who-turn-title { margin:0; font-size:21px; text-align:center; }
 .who-mystery { display:flex; align-items:center; justify-content:space-evenly; gap:12px; padding:12px; background:#21181099; border:1px solid var(--club-edge); border-radius:12px; }
@@ -106,9 +106,8 @@
 .who-reveals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
 .who-reveals article { display:flex; flex-direction:column; align-items:center; padding:12px 6px; border:1px solid var(--club-edge); border-radius:10px; gap:5px; background:var(--club-bg); }
 .who-reveals article.own { border-color:var(--club-accent); }
-.who-reveals article > span { font-size:27px; }
 .who-reveals strong { font-size:12px; overflow-wrap:anywhere; }
-.who-reveals b { color:var(--club-accent); font-size:17px; }
+.who-reveals b { color:#fff4e4; font-size:22px; line-height:1.45; overflow-wrap:anywhere; }
 .who-reveals small { color:var(--club-muted); font-size:10px; }
 .who-result-actions { display:flex; justify-content:center; gap:8px; margin-top:14px; flex-wrap:wrap; }
 .who-scoreboard { padding:0; margin:0; list-style:none; overflow:auto; }
@@ -141,7 +140,6 @@
   .who-roster .who-player.own { display:none; }
   .who-roster .who-player { padding:7px; gap:6px; }
   .who-roster .who-player-status { display:none; }
-  .who-roster .who-player > b { font-size:22px; }
 }
 @media(max-width:600px) {
   .app.club-shell.theme-whoami:not(.club-playing) { padding:0 12px; }
@@ -175,9 +173,9 @@
   .who-dashboard { gap:5px; }
   .who-roster { padding:5px; }
   .who-roster .who-player { padding:5px; gap:4px; }
-  .who-roster .who-avatar { display:none; }
-  .who-roster .who-player strong,.who-roster .who-player-word { font-size:10px; }
-  .who-roster .who-player > b { font-size:18px; }
+  .who-roster .who-player strong { font-size:11px; }
+  .who-roster .who-player-word { font-size:17px; }
+  .who-roster .who-player-word.is-placeholder { font-size:11px; }
   .who-stage { padding:10px; gap:7px; }
   .who-turn-title { font-size:16px; }
   .who-mystery { padding:8px; gap:8px; }
@@ -281,10 +279,10 @@
   .who-panel > h2 { font-size:12px; margin-bottom:6px; }
   .who-roster-list { gap:5px; }
   .who-player { padding:5px; gap:5px; }
-  .who-player .who-avatar { width:24px; height:24px; font-size:12px; }
-  .who-player strong,.who-player-word { font-size:10px; }
+  .who-player strong { font-size:11px; }
+  .who-player-word { font-size:17px; }
+  .who-player-word.is-placeholder { font-size:11px; }
   .who-player-status { display:none; }
-  .who-player > b { font-size:19px; }
   .who-stage { gap:5px; }
   .who-turn-title { font-size:14px; }
   .who-mystery { padding:4px 8px; }
@@ -345,4 +343,27 @@
   .who-lobby p { margin:4px 0; }
   .who-lobby .who-settings { margin-top:8px; gap:6px; }
   .club-shell .who-lobby .spy-select-trigger { min-height:36px; padding:5px 8px; }
+}
+
+@media(max-width:600px) and (orientation:portrait) {
+  .who-dashboard { grid-template-rows:112px minmax(0,1fr); }
+  .who-roster > h2 { display:block; font-size:11px; margin:0 0 5px; color:var(--club-muted); }
+  .who-roster > h2::after { content:' · เลื่อนดูคำ →'; font-size:10px; font-weight:400; }
+  .who-roster .who-roster-list,.who-roster:has(.who-player:nth-child(5)) .who-roster-list {
+    display:grid; grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:minmax(134px,42vw);
+    align-items:stretch; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity;
+  }
+  .who-roster .who-player { padding:6px 9px; scroll-snap-align:start; }
+  .who-roster .who-player strong { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .who-roster .who-player-word { margin:2px 0; line-height:1.3; }
+  .who-roster .who-player.own { display:none; }
+}
+@media(max-width:600px) and (max-height:510px) and (orientation:portrait) {
+  .who-dashboard { grid-template-rows:98px minmax(0,1fr); }
+  .who-stage { gap:4px; padding:6px; }
+  .who-mystery-card { height:42px; width:36px; }
+  .who-mystery-card span { font-size:25px; }
+  .who-mystery-card b { font-size:7px; }
+  .who-question { max-height:74px; }
+  .who-question h2 { font-size:13px; }
 }
