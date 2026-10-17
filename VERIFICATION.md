@@ -1,11 +1,11 @@
 # Verification — 17 October 2026
 
-ตรวจบน macOS ด้วย Microsoft Edge headless หลังปรับ UI จอคอมทั้งสี่เกมตามภาพตัวอย่าง เพิ่มปุ่มเลือกเกมอื่นทุกหน้า และปรับ dropdown ตามธีม โดยคงกติกา บอท และข้อมูลส่วนตัว
+ตรวจบน macOS ด้วย Microsoft Edge headless หลังปรับ UI จอคอมทั้งสี่เกมตามภาพตัวอย่าง คงปุ่มเลือกเกมอื่นเฉพาะหน้าสร้าง/เข้าห้อง และปรับ dropdown ตามธีม โดยคงกติกา บอท และข้อมูลส่วนตัว
 
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
-| Room game switch: all 4 games in lobby/play/results at 7 mobile/desktop sizes, no clipped/blocked header buttons, menu navigation and return to the retained room | PASS |
+| No game switch in room screens: all 4 games in lobby/play/results at 7 mobile/desktop sizes; create/join switches remain available | PASS |
 | Dropdown theme follows all 4 games, including selected/focused choices and native-modal portals; keyboard selection preserved | PASS |
 | Mobile game switch: all 4 create/join pages at 5 phone sizes, visible 44px button above the form, touch navigation, no horizontal overflow; desktop switch unchanged | PASS |
 | Four desktop designs: 8 sizes from 1000×651 to 2560×1440, active/lobby/results, readable ranks/suits, no panel overlap or page scroll | PASS |

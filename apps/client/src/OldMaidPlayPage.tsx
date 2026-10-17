@@ -1,4 +1,3 @@
-import { GameSwitch } from './GameSwitch';
 import { useEffect, useRef, useState } from 'react';
 import { oldMaidSession } from './session';
 import type { SessionState } from './session';
@@ -19,7 +18,7 @@ export function OldMaidPlayPage({state,code}: {state:SessionState<OldMaidSnapsho
   useEffect(() => {if(state.error||state.status!=='connected')setPending(false);},[state.error,state.status]);
   useEffect(() => {if(rules||manage||historyOpen)dialog.current?.showModal();return()=>dialog.current?.close();},[rules,manage,historyOpen]);
   useEffect(() => {setHistoryOpen(false);},[s?.code,s?.roundId,s?.phase==='LOBBY']);
-  if(!s||s.code!==code)return <main className="page-message"><h1>{state.status==='reconnecting'?'กำลังกลับเข้าวง…':'ยังไม่ได้เข้าห้อง Old Maid นี้'}</h1><p>{code}</p><button onClick={()=>navigate('/oldmaid/rooms/join?code='+code)}>เข้าห้องนี้</button><GameSwitch/></main>;
+  if(!s||s.code!==code)return <main className="page-message"><h1>{state.status==='reconnecting'?'กำลังกลับเข้าวง…':'ยังไม่ได้เข้าห้อง Old Maid นี้'}</h1><p>{code}</p><button onClick={()=>navigate('/oldmaid/rooms/join?code='+code)}>เข้าห้องนี้</button></main>;
   const me=s.players.find(p=>p.id===state.playerId),host=s.hostId===state.playerId,active=state.status==='connected';
   const ownTurn=s.phase==='PLAYING'&&s.turnId===state.playerId;
   const target=s.players.find(p=>p.id===s.targetId),turn=s.players.find(p=>p.id===s.turnId);
@@ -34,7 +33,7 @@ export function OldMaidPlayPage({state,code}: {state:SessionState<OldMaidSnapsho
   const lastActivity=s.history?.at(-1);
   const closeDialog=()=>{setRules(false);setManage(false);setHistoryOpen(false);};
   return <main className={'oldmaid-game phase-'+s.phase+(latest&&s.phase==='PLAYING'?' has-draw-feedback':'')}>
-    <div className="room-bar"><GameSwitch inRoom/><div className="club-room-id"><span className="club-wordmark">♠ <b>อีแก่กินน้ำ</b></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async()=>{try{await navigator.clipboard.writeText(s.code);setCopied(true);}catch{setCopied(false);}}}>{copied?'✓':'คัดลอก'}</button></div><div className="club-room-tools"><button className="small" aria-label="จัดการโต๊ะ Old Maid" onClick={()=>setManage(true)}>โต๊ะ</button><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>oldMaidSession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar"><div className="club-room-id"><span className="club-wordmark">♠ <b>อีแก่กินน้ำ</b></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async()=>{try{await navigator.clipboard.writeText(s.code);setCopied(true);}catch{setCopied(false);}}}>{copied?'✓':'คัดลอก'}</button></div><div className="club-room-tools"><button className="small" aria-label="จัดการโต๊ะ Old Maid" onClick={()=>setManage(true)}>โต๊ะ</button><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>oldMaidSession.leave()}>ออกจากห้อง</button></div></div>
     <div className="oldmaid-meta">รอบ {s.roundId||'–'} · {s.players.length}/8 คน<span>{s.phase==='LOBBY'?'รอทุกคนพร้อม':s.phase==='RESULTS'?'จบรอบ':'จับคู่แล้วทิ้งอัตโนมัติ'}</span></div>
     <section className="oldmaid-table">
       <div className="oldmaid-opponents">{s.players.filter(p=>p.id!==state.playerId).map(p=><article key={p.id} className={'oldmaid-seat'+(s.phase==='PLAYING'&&p.id===s.targetId?' target':'')+(p.finished?' finished':'')} aria-label={'ผู้เล่น '+p.name}><span className="club-avatar">{p.isBot?'🤖':p.name.slice(0,1)}</span><strong title={p.name}>{p.name}</strong><div className="mini-card-stack" aria-hidden="true">{!p.finished&&Array.from({length:Math.min(p.cardCount,3)},(_,i)=><i key={i}/>)}</div><small>{p.isBot&&'บอท · '}{!p.connected?'เชื่อมต่อใหม่':s.phase==='LOBBY'?p.ready||p.id===s.hostId?'พร้อม':'รอพร้อม':p.finished?'✓ ไพ่หมดแล้ว':`เหลือ ${p.cardCount} ใบ`}</small>{s.phase==='RESULTS'&&<em>{s.result?.loserId===p.id?'เหลือไพ่ใบสุดท้าย':'รอดแล้ว'}</em>}</article>)}</div>
