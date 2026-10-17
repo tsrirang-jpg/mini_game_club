@@ -12,5 +12,5 @@ function CardFan({cards,backs=0}:{cards:CardData[];backs?:number}) {
 }
 export const GameArtwork = memo(function GameArtwork({game}: {game: GameKind}) {
   const cards:CardData[]=game==='oldmaid'?[{rank:12,suit:'spades'},{rank:12,suit:'hearts'}]:game==='liar'?[{rank:1,suit:'clubs'}]:[{rank:game==='pok'?9:1,suit:'spades'},{rank:13,suit:'hearts'}];
-  return <div className={'game-artwork artwork-' + game} aria-hidden="true"><span className="art-leaf leaf-left">❦</span><span className="art-leaf leaf-right">❦</span>{game==='whoami'?<WhoAmIArtwork/>:game==='spyfall'?<SpyArtwork/>:<CardFan cards={cards} backs={game==='oldmaid'?1:game==='liar'?2:0}/>}</div>;
+  return <div className={'game-artwork artwork-' + game} aria-hidden="true"><span className="art-leaf leaf-left">❦</span><span className="art-leaf leaf-right">❦</span>{game==='whoami'?<WhoAmIArtwork/>:game==='spyfall'||game==='undercover'?<SpyArtwork/>:<CardFan cards={cards} backs={game==='oldmaid'?1:game==='liar'?2:0}/>}</div>;
 });

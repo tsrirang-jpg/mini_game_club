@@ -1,4 +1,18 @@
-# Verification — 17 October 2026
+# Verification — 18 October 2026
+
+## Undercover
+
+- Full Vitest suite: **321 tests in 22 files**, including private-word boundaries, 3–8-person composition, both selected deadlines, single-turn clues, vote locks/runoff, White guess/surrender/timeout, departed targets, reconnect and timer cleanup: PASS.
+- Real 4/8-client WebSocket games: private words and ballots, unauthorized answer rejection, locked-vote reconnect, White-only answer window, correct-answer win, replay and exits: PASS.
+- Eleven desktop/tablet/phone viewports: Create/Join and all six phases, eight-player roster, word secrecy/no role badges, vote dropdown and last-chance/waiting popup, no active-page scroll: PASS.
+- Four real browsers: custom 2-minute typing/voting settings, private words, sequential hints, suspected-type votes, answer popup restricted to the caught person, reload without answer leakage, correct win, host migration, replay and exit: PASS.
+- UI retry after an unacknowledged vote/disconnect, and re-voting when its target expires: PASS.
+- Shared branding on menu + fourteen entry routes and clipboard controls across seven real rooms, each at eleven sizes: PASS.
+- Strict TypeScript, unused-local/parameter checks, client/server build, compiled production health/routes/cache/404/create/join/consented leave across seven games: PASS locally.
+
+This verifies behavior and layout, not production concurrency or load capacity. Detailed rules and reusable components are documented in [docs/undercover.md](docs/undercover.md).
+
+# Earlier verification — 17 October 2026
 
 ## Liar’s Card addition
 

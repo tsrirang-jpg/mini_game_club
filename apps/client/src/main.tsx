@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { session, pokerSession, spySession, oldMaidSession, whoAmISession, liarSession } from './session';
+import { session, pokerSession, spySession, oldMaidSession, whoAmISession, liarSession, underSession } from './session';
 import type { GameSession, SessionState } from './session';
 import { navigate, subscribeRoute, getRoute } from './router';
 import { GameSelectPage } from './GameSelectPage';
@@ -20,6 +20,8 @@ const WhoAmICreatePage = lazy(() => import('./WhoAmICreatePage').then(m => ({ de
 const WhoAmIPlayPage = lazy(() => import('./WhoAmIPlayPage').then(m => ({ default: m.WhoAmIPlayPage })));
 const LiarCreatePage = lazy(() => import('./LiarCreatePage').then(m => ({ default: m.LiarCreatePage })));
 const LiarPlayPage = lazy(() => import('./LiarPlayPage').then(m => ({ default: m.LiarPlayPage })));
+const UndercoverCreatePage = lazy(() => import('./UndercoverCreatePage').then(m => ({ default: m.UndercoverCreatePage })));
+const UndercoverPlayPage = lazy(() => import('./UndercoverPlayPage').then(m => ({ default: m.UndercoverPlayPage })));
 import './style.css';
 import './pok-rules.css';
 import './pok-layout.css';
@@ -70,6 +72,7 @@ function App() {
   useEffect(() => { if (path === '/') navigate('/games', true); }, [path]);
   if (path === '/games' || path === '/') return <GameShell kind="pok"><GameSelectPage/></GameShell>;
   const code = /\/play\/([A-F0-9]{10})$/.exec(path)?.[1];
+  if (path.startsWith('/undercover')) return <GameScreen key="undercover" store={underSession} kind="undercover" code={code}>{state => code ? <UndercoverPlayPage state={state} code={code}/> : <UndercoverCreatePage key={path} state={state} join={path === '/undercover/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/liar')) return <GameScreen key="liar" store={liarSession} kind="liar" code={code}>{state => code ? <LiarPlayPage state={state} code={code}/> : <LiarCreatePage key={path} state={state} join={path === '/liar/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/whoami')) return <GameScreen key="whoami" store={whoAmISession} kind="whoami" code={code}>{state => code ? <WhoAmIPlayPage state={state} code={code}/> : <WhoAmICreatePage key={path} state={state} join={path === '/whoami/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/oldmaid')) return <GameScreen key="oldmaid" store={oldMaidSession} kind="oldmaid" code={code}>{state => code ? <OldMaidPlayPage state={state} code={code}/> : <OldMaidCreatePage key={path} state={state} join={path === '/oldmaid/rooms/join'}/>}</GameScreen>;

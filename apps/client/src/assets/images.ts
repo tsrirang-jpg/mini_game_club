@@ -4,6 +4,7 @@ export const brandImage = {
 } as const;
 
 export const entryImages = {
+  undercover: { src: '/images/entry/undercover-hero-v1.jpg', width: 1000, height: 667 },
   liar: { src: '/images/entry/liar-hero-v1.jpg', width: 1000, height: 667 },
   whoami: { src: '/images/entry/whoami-hero-v1.webp', width: 1680, height: 936 },
   poker: { src: '/images/entry/poker-hero-v1.webp', width: 1535, height: 658 },

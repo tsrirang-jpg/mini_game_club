@@ -1,4 +1,7 @@
 /* Shared visual system. Theme colors follow the game-selection cards. */
+.theme-undercover { --club-bg:#0c1917; --club-panel:#142e29; --club-felt:#21473e; --club-edge:#527b68; --club-accent:#91d7b6; --club-primary:#387e64; --club-muted:#bbcec2; --club-ink:#102a23; }
+body:has(.club-shell.theme-undercover) { background:radial-gradient(ellipse at 15% 5%,#26483a,#091512 85%); }
+.artwork-undercover .spy-artwork { filter:sepia(.65) hue-rotate(325deg) saturate(.65); }
 .theme-liar { --club-bg:#141024; --club-panel:#241d38; --club-felt:#322448; --club-edge:#786197; --club-accent:#d2b5f4; --club-primary:#7250aa; --club-muted:#c8bcd9; --club-ink:#221633; }
 body:has(.club-shell.theme-liar) { background:radial-gradient(ellipse at 15% 5%,#35224f,#100d1d 85%); }
 .theme-pok { --club-bg:#071f18; --club-panel:#103a2a; --club-felt:#164632; --club-edge:#386d50; --club-accent:#78bf81; --club-primary:#246943; --club-muted:#b1c9b9; --club-ink:#102e21; }
