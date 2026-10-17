@@ -45,7 +45,17 @@ body:has(.club-shell.theme-oldmaid) { background:radial-gradient(ellipse at 20% 
 .club-shell .spy-select .spy-select-trigger:disabled { background:var(--club-panel); color:var(--club-muted); opacity:.6; }
 .club-shell .spy-select.compact .spy-select-trigger { min-height:64px; padding:10px; background:var(--club-panel); color:#fff; }
 .club-shell .spy-player-summary { background:var(--club-panel); color:#fff; border:1px solid var(--club-edge); }
-.spy-select-menu { border-color:#7d9ab0; }
+.spy-select-menu {
+  background:linear-gradient(135deg,var(--club-panel,#19486a),var(--club-bg,#0d2e47));
+  border-color:var(--club-edge,#588cb1); color:#f7f6ef; color-scheme:dark;
+  scrollbar-color:var(--club-edge,#588cb1) var(--club-bg,#0d2e47);
+  box-shadow:0 12px 32px #0006,inset 0 1px 0 #ffffff12;
+}
+.spy-select-menu [role="option"] + [role="option"] { border-color:color-mix(in srgb,var(--club-edge,#588cb1),transparent 65%); }
+.spy-select-menu [role="option"].is-selected { background:var(--club-felt,#225d80); color:var(--club-accent,#8ed3fa); }
+.spy-select-menu [role="option"].is-active { background:var(--club-panel,#19486a); box-shadow:inset 0 0 0 1px var(--club-accent,#8ed3fa); }
+.spy-select-menu [role="option"].is-selected.is-active { background:var(--club-felt,#225d80); }
+.spy-select-menu [aria-disabled="true"] { color:var(--club-muted,#c6deef); opacity:.5; }
 .game-artwork { position:relative; display:flex; align-items:center; justify-content:center; width:170px; height:140px; color:var(--club-accent); pointer-events:none; }
 .art-leaf { position:absolute; z-index:0; font-size:132px; line-height:1; opacity:.12; color:var(--club-accent); }
 .leaf-left { left:-12px; bottom:-3px; transform:rotate(-25deg); }

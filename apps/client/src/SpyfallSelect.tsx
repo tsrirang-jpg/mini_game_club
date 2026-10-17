@@ -10,6 +10,7 @@ export function SpyfallSelect<T extends string | number>({ label, value, options
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState('');
   const [active, setActive] = useState(0);
   const [position, setPosition] = useState<Position | null>(null);
   const selected = options.findIndex(option => option.value === value);
@@ -62,6 +63,8 @@ export function SpyfallSelect<T extends string | number>({ label, value, options
         top: above ? Math.max(topEdge, rect.top - 8 - Math.min(desired, maxHeight)) : rect.bottom + 8 };
       setPosition(old => old && Object.keys(next).every(key => old[key as keyof Position] === next[key as keyof Position]) ? old : next);
     };
+    // The portal can live outside the game shell, so carry its theme with it.
+    setTheme([...(triggerRef.current!.closest('.club-shell')?.classList ?? [])].find(name => name.startsWith('theme-')) ?? '');
     place(); window.addEventListener('resize', place); window.addEventListener('scroll', place, true);
     window.visualViewport?.addEventListener('resize', place); window.visualViewport?.addEventListener('scroll', place);
     return () => { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true);
@@ -96,7 +99,7 @@ export function SpyfallSelect<T extends string | number>({ label, value, options
       <span className="spy-select-value">{compact && <span className="spy-select-caption">{label}</span>}<strong>{options[selected]?.label ?? value}</strong></span>
       <svg className={open ? 'expanded' : ''} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
     </button>
-    {open && createPortal(<ul ref={menuRef} id={`${id}-menu`} role="listbox" aria-label={label} className="spy-select-menu" data-placement={position?.above ? 'above' : 'below'}
+    {open && createPortal(<ul ref={menuRef} id={`${id}-menu`} role="listbox" aria-label={label} className={`spy-select-menu ${theme}`} data-placement={position?.above ? 'above' : 'below'}
       style={position ? { top: position.top, left: position.left, width: position.width, maxHeight: position.maxHeight } : { visibility: 'hidden' }}
       onMouseDown={event => event.preventDefault()}>
       {options.map((option, index) => <li key={option.value} id={`${id}-option-${index}`} role="option" aria-selected={option.value === value} aria-disabled={!!option.disabled}

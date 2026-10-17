@@ -1,3 +1,4 @@
+import { GameSwitch } from './GameSwitch';
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { useDesktopLayout } from './useDesktopLayout';
 import { useEffect, useRef, useState } from 'react';
@@ -60,7 +61,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
     return () => clearTimeout(timer);
   }, [s?.hostId]);
   useEffect(() => { if (s) setRaiseTo(s.currentBet + s.minRaise); }, [s?.roundId, s?.phase, s?.currentBet, s?.minRaise]);
-  if (!s || s.code !== code) return <main className="page-message"><h1>{state.status === 'reconnecting' ? 'กำลังกลับเข้าโต๊ะ Poker…' : 'ยังไม่ได้เข้าห้อง Poker นี้'}</h1><p>{code}</p>{state.status === 'idle' && <button className="primary" onClick={() => navigate('/poker/rooms/join?code=' + code)}>เข้าห้องนี้</button>}<button onClick={() => navigate('/games')}>เลือกเกม</button></main>;
+  if (!s || s.code !== code) return <main className="page-message"><h1>{state.status === 'reconnecting' ? 'กำลังกลับเข้าโต๊ะ Poker…' : 'ยังไม่ได้เข้าห้อง Poker นี้'}</h1><p>{code}</p>{state.status === 'idle' && <button className="primary" onClick={() => navigate('/poker/rooms/join?code=' + code)}>เข้าห้องนี้</button>}<GameSwitch/></main>;
   const me = s.players.find(p => p.id === state.playerId), host = s.hostId === state.playerId;
   const active = state.status === 'connected', canAct = active && s.turnId === state.playerId && now < s.deadline;
   const call = me ? Math.max(0, s.currentBet - me.streetBet) : 0;
@@ -83,7 +84,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const playing = !['LOBBY', 'ROUND_END'].includes(s.phase);
   const canStart = active && !s.roomClosing && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
   return <main className={'game poker-game card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
-    <div className="room-bar">
+    <div className="room-bar"><GameSwitch inRoom/>
       <div className="poker-room-id"><span className="poker-wordmark">♠ <span>Poker</span></span><strong>{s.code}</strong><button className="small" aria-label="คัดลอกรหัสห้อง" onClick={async () => { try { await navigator.clipboard.writeText(s.code); setCopied(true); } catch { setCopied(false); } }}>{copied ? '✓' : 'คัดลอก'}</button></div>
       <div className="poker-tools"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}>ออกจากห้อง</button></div>
     </div>

@@ -193,7 +193,7 @@
 .oldmaid-history-cards .card > span:not(.bottom) { font-size:15px; }
 .oldmaid-history-cards .card small { font-size:12px; }
 .oldmaid-history-cards .card > b { font-size:20px; }
-@media(orientation:landscape) and (max-height:650px), (orientation:portrait) and (max-height:740px) {
+@media(orientation:landscape) and (max-height:650px), (orientation:portrait) and (max-height:900px) {
   .oldmaid-feedback:not(.paired) .oldmaid-drawn > div:not(.card) { display:grid; grid-template-columns:auto auto; gap:2px 8px; align-items:center; }
   .oldmaid-feedback:not(.paired) .oldmaid-drawn h2 { grid-column:1; grid-row:1; margin:0; }
   .oldmaid-feedback:not(.paired) .oldmaid-no-pair { grid-column:2; grid-row:1; margin:0; }
@@ -218,7 +218,7 @@
   .oldmaid-discard small { flex:1; min-width:0; }
   .club-shell .oldmaid-history-button { font-size:10px; }
 }
-@media(max-height:740px) and (orientation:portrait) {
+@media(max-height:900px) and (orientation:portrait) {
   .oldmaid-game.has-draw-feedback .oldmaid-table { gap:5px; }
   .oldmaid-feedback { padding:7px 8px; }
   .oldmaid-feedback header { margin-bottom:5px; }
@@ -230,11 +230,11 @@
   .oldmaid-feedback .card > span:not(.bottom) { font-size:15px; }
   .oldmaid-feedback .card small { font-size:11px; }
   .oldmaid-feedback .card > b { font-size:20px; inset:auto 3px 3px auto; }
-  .oldmaid-paired { padding:0 0 0 7px; border-top:0; border-left:1px solid var(--club-edge); }
+  .oldmaid-paired { padding:0 0 0 7px; border-top:0; border-left:1px solid var(--club-edge); font-size:10px; line-height:1.3; }
   .oldmaid-paired > strong { font-size:10px; }
-  .oldmaid-paired > div { gap:5px; margin-top:4px; }
+  .oldmaid-paired > div { gap:5px; margin-top:2px; }
   .oldmaid-pair-cards { gap:4px; }
-  .oldmaid-pair-cards .card { width:25px; height:35px; }
+  .oldmaid-pair-cards .card { width:23px; height:32px; }
   .oldmaid-pair-cards .card > span:not(.bottom) { font-size:12px; }
   .oldmaid-pair-cards .card small { font-size:9px; }
   .oldmaid-pair-cards .card > b { font-size:15px; }
@@ -247,14 +247,45 @@
   .oldmaid-hand .card > span:not(.bottom) { font-size:clamp(16px,5.1vw,20px); text-align:center; }
   .oldmaid-hand .card > span small { font-size:clamp(12px,4vw,16px); }
 }
+/* Reserve room for navigation and keep the draw controls clear of feedback. */
+@media(max-width:720px) and (max-height:900px) and (orientation:portrait) {
+  .oldmaid-game.has-draw-feedback .oldmaid-opponents { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { gap:5px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn h1 { font-size:19px; }
+  .club-shell .oldmaid-game.has-draw-feedback .oldmaid-draw-card { flex:0 1 43px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-card .card { width:100%; height:auto; aspect-ratio:5/7; }
+}
+@media(max-width:720px) and (max-height:740px) and (orientation:portrait) {
+  .oldmaid-game.has-draw-feedback .oldmaid-turn h1 { font-size:17px; line-height:1.2; margin:0; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn p { font-size:9px; line-height:1.2; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-cards { flex-wrap:nowrap; }
+}
 @media(max-height:570px) and (orientation:portrait) {
+  .oldmaid-game.has-draw-feedback .oldmaid-table { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto auto; }
+  .oldmaid-game.has-draw-feedback .oldmaid-opponents { grid-column:1/-1; grid-row:1; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { grid-column:1; grid-row:2; }
+  .oldmaid-game.has-draw-feedback .oldmaid-feedback { grid-column:2; grid-row:2; align-self:center; }
+  .oldmaid-game.has-draw-feedback .oldmaid-discard { grid-column:1/-1; grid-row:3; }
+  .oldmaid-game.has-draw-feedback .oldmaid-self { grid-column:1/-1; grid-row:4; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-cards { flex-wrap:wrap; gap:2px; padding:0; }
+  .club-shell .oldmaid-game.has-draw-feedback .oldmaid-draw-card { flex:none; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn { padding:0; width:100%; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn h1 { text-align:left; font-size:13px; line-height:1.2; margin:0; }
+  .oldmaid-game.has-draw-feedback .oldmaid-turn p { font-size:8px; line-height:1.2; }
+  .oldmaid-game.has-draw-feedback .oldmaid-clock { top:0; font-size:9px; padding:1px 4px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-feedback-body { grid-template-columns:1fr; gap:4px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-drawn { gap:4px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-drawn > div:not(.card) { display:block; }
+  .oldmaid-game.has-draw-feedback .oldmaid-drawn h2 { font-size:11px; white-space:nowrap; }
+  .oldmaid-game.has-draw-feedback .oldmaid-no-pair { font-size:8px; padding:0 3px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-paired { padding:4px 0 0; border-left:0; border-top:1px solid var(--club-edge); }
   .oldmaid-game.has-draw-feedback .oldmaid-seat { min-height:30px; padding:3px; }
   .oldmaid-game.has-draw-feedback .oldmaid-seat .club-avatar { display:none; }
   .oldmaid-game.has-draw-feedback .oldmaid-seat { grid-template-columns:minmax(0,1fr); gap:0; }
   .oldmaid-game.has-draw-feedback .oldmaid-seat small { grid-column:1; }
-  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { gap:3px; }
-  .oldmaid-game.has-draw-feedback .oldmaid-turn h1 { font-size:15px; }
-  .oldmaid-game.has-draw-feedback .oldmaid-draw-card .card { width:24px; height:34px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-area { gap:2px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-card .card { width:16px; height:22px; }
+  .oldmaid-game.has-draw-feedback .oldmaid-draw-card .card > b { font-size:13px; }
   .oldmaid-game.has-draw-feedback .oldmaid-confirm { min-height:30px; padding:4px; }
   .oldmaid-feedback { padding:4px 6px; }
   .oldmaid-feedback header { margin-bottom:3px; }
