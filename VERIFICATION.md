@@ -5,6 +5,8 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Who am I history: all yes/no/unknown counts for split and unanimous-unknown votes, pending state, personal-only side panel/mobile popup, three real clients including reload | PASS |
+| Shared room-code copy button in all 5 games: 11 desktop/tablet/phone viewports, text/icon switch in both orientations, full code copied, feedback/reset/rotation, denied clipboard, no header clipping/overlap | PASS |
 | Who am I: exact settings, 3–8 seats, hidden own identities, one question OR guess per turn, next-turn guessing and cumulative multi-game scoring | PASS |
 | Who am I: 3 real WebSocket clients, locked answers, refresh/reconnect, stale/replayed actions, deep copies, host transfer and timer disposal | PASS |
 | Who am I: create/lobby/play/answer/results at 11 desktop/tablet/phone sizes including 320×480 and 568×320; guess dialog and resize preserve input | PASS |

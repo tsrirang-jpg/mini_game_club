@@ -31,7 +31,8 @@
     "test:client-resources": "node tests/client-resources-browser.mjs",
     "benchmark:performance": "node scripts/benchmark-performance.mjs",
     "report:performance": "node scripts/render-performance-report.mjs",
-    "test:whoami": "node tests/whoami-browser.mjs"
+    "test:whoami": "node tests/whoami-browser.mjs",
+    "test:copy-room-code": "node tests/copy-room-code-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

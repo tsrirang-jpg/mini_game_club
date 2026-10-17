@@ -86,11 +86,16 @@
 .club-shell .who-guess-button { background:transparent; border-color:var(--club-accent); color:var(--club-accent); }
 .who-next-turn-hint { margin:5px 0 0; text-align:center; font-size:10px; color:var(--club-muted); }
 .who-history-list { flex:1; min-height:0; overflow:auto; scrollbar-width:thin; }
-.who-history-item { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:10px; margin-bottom:8px; border:1px solid var(--club-edge); border-radius:10px; background:var(--club-bg); }
+.who-history-item { padding:10px; margin-bottom:8px; border:1px solid var(--club-edge); border-radius:10px; background:var(--club-bg); }
+.who-history-question { display:flex; align-items:center; gap:8px; justify-content:space-between; }
+.who-history-question > div { min-width:0; }
 .who-history-item > div { min-width:0; }
 .who-history-item small { color:var(--club-muted); font-size:10px; }
 .who-history-item p { margin:4px 0 0; font-size:12px; overflow-wrap:anywhere; }
 .who-history-item .who-answer-badge { font-size:10px; padding:2px 7px; }
+.who-history-answers { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+.who-history-answer { display:inline-flex; gap:5px; align-items:center; padding:3px 6px; border:1px solid var(--club-edge); border-radius:6px; color:var(--club-muted); font-size:11px; }
+.who-history-answer b { color:#fff4dd; font-variant-numeric:tabular-nums; }
 .who-empty { color:var(--club-muted); text-align:center; font-size:12px; padding:20px 0; }
 .who-history-shortcut { display:none; }
 .who-lobby { width:100%; max-width:490px; margin:auto; text-align:center; overflow:auto; min-height:0; }

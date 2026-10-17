@@ -66,7 +66,7 @@ try{
    Object.defineProperty(navigator,'clipboard',{value:{writeText:()=>Promise.resolve()},configurable:true});
   });
   const page=await context.newPage();await page.goto(origin+'/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Cleanup Test');await page.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click();await page.locator('.room-bar').waitFor();
-  await page.getByRole('button',{name:'คัดลอกรหัสห้อง',exact:true}).click();await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await page.locator('.entry form').waitFor();await page.waitForTimeout(50);
+  await page.getByRole('button',{name:/^คัดลอกรหัส(?:ห้อง)?$/,exact:true}).click();await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await page.locator('.entry form').waitFor();await page.waitForTimeout(50);
   cleanupRuns.push(await page.evaluate(()=>[...window.__cleanup.values()].filter(delay=>delay===1800).length));await context.close();
  }
  result.cleanup={samples:cleanupRuns,medianPendingClipboardTimeouts:median(cleanupRuns),note:'Pending 1800 ms clipboard callbacks shortly after leaving. This measures temporary retained callbacks, not an unbounded heap leak.'};
