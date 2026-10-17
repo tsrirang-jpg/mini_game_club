@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
@@ -16,7 +17,7 @@ try{
   await a.getByLabel('ชื่อของคุณ').fill('Settings A');
   const expected={'เวลาถามตอบ':['5 นาที','7 นาที','10 นาที'],'โหวต':['1 นาที','2 นาที','3 นาที'],'สายลับตอบ':['1 นาที','2 นาที','3 นาที']};
   for(const[label,options]of Object.entries(expected))assert.match(await combo(a,label).textContent(),new RegExp(options[0]));
-  await a.screenshot({path:'preview-spyfall-settings-default.png',fullPage:true});
+  await a.screenshot({path:previewPath('preview-spyfall-settings-default.png'),fullPage:true});
   for(const[width,height]of[[320,480],[375,667],[568,320],[844,390],[1366,1000]]){
     await a.setViewportSize({width,height});
     for(const[label,options]of Object.entries(expected)){
@@ -25,7 +26,7 @@ try{
       const report=await menu.evaluate(e=>{const r=e.getBoundingClientRect();return{outside:r.left<0||r.top<0||r.right>innerWidth+1||r.bottom>innerHeight+1,overflow:e.scrollWidth>e.clientWidth+1};});
       assert.deepEqual(report,{outside:false,overflow:false},`${label} ${width}x${height}`);
       await menu.getByRole('option').last().scrollIntoViewIfNeeded();
-      if(width===375)await a.screenshot({path:`preview-spyfall-settings-${Object.keys(expected).indexOf(label)}.png`});
+      if(width===375)await a.screenshot({path:previewPath(`preview-spyfall-settings-${Object.keys(expected).indexOf(label)}.png`)});
       await a.keyboard.press('Escape');assert.equal(await a.getByRole('listbox').count(),0);
       assert.match(await combo(a,label).textContent(),new RegExp(options[0]));
     }

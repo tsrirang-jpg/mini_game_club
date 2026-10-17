@@ -1,7 +1,7 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption, countOptions } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 const browser = await chromium.launch({channel:process.env.BROWSER_CHANNEL || 'msedge',headless:true});
 const viewports=process.env.DESKTOP_UI?[[1366,768],[1280,700],[1000,651]]:[[375,667],[844,390],[320,568]];
 const contexts = await Promise.all(viewports.map(([width,height]) => browser.newContext({viewport:{width,height},isMobile:!process.env.DESKTOP_UI,hasTouch:!process.env.DESKTOP_UI})));
@@ -70,7 +70,7 @@ try {
   assert.equal((await snapshot(a)).deadline,resetDeadline);
   assert.deepEqual(await a.locator('.seat.own .card').evaluateAll(cards => cards.map(e => e.getAttribute('aria-label'))),dealerCards);
   await a.waitForTimeout(650);
-  await a.screenshot({path:fileURLToPath(new URL('../preview-pok-catch.png',import.meta.url)),scale:'css'});
+  await a.screenshot({path:previewPath('preview-pok-catch.png'),scale:'css'});
   await a.getByRole('button',{name:'จั่วอีกใบ',exact:true}).click();
   await wait(async () => (await snapshot(a)).phase === 'ROUND_END');
   const ended = await snapshot(a);
@@ -91,5 +91,5 @@ try {
   for (const page of [c,b,a]) await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
   assert.deepEqual(errors,[]);
   console.log('PASS: three real browsers, eligible catch target, Pok/catch reveal, refresh, dealer draw, final catch comparison, conserved balances and no page scroll');
-} catch (error) { await a.screenshot({path:fileURLToPath(new URL('../preview-pok-catch-debug.png',import.meta.url))}); throw error; }
+} catch (error) { await a.screenshot({path:previewPath('preview-pok-catch-debug.png')}); throw error; }
 finally { await browser.close(); }

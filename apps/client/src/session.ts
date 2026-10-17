@@ -6,12 +6,15 @@ import { POKER_RECONNECT_SECONDS } from '../../../packages/shared/src/poker';
 import type { SpySnapshot, SpyAction, SpySecret } from '../../../packages/shared/src/spyfall';
 import type { OldMaidSnapshot, OldMaidAction, OldMaidPrivateState } from '../../../packages/shared/src/oldmaid';
 
+import type { WhoSnapshot, WhoAction, WhoPrivate, WhoSettings } from '../../../packages/shared/src/whoami';
+
 type Status = 'idle' | 'connecting' | 'connected' | 'reconnecting';
 export interface SessionState<S = Snapshot> {
   status: Status; snapshot: S | null; hand: Card[]; handRound: number;
   playerId: string; error: string;
   secret: SpySecret | null;
   oldMaid?: OldMaidPrivateState | null;
+  whoAmI?: WhoPrivate | null;
 }
 const endpoint = import.meta.env.VITE_GAME_URL?.trim()
   || `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${import.meta.env.DEV ? '/game' : ''}`;
@@ -78,6 +81,9 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     room.onMessage('secret', (message: SpySecret) => {
       if (generation === this.generation && message.roundId >= this.snapshotRound) this.update({ secret: message });
     });
+    room.onMessage('identities', (message: WhoPrivate) => {
+      if (generation === this.generation && message.roundId >= this.snapshotRound) this.update({ whoAmI: message });
+    });
     room.onMessage('error', (error: { message: string }) => {
       if (generation === this.generation) this.update({ error: error.message });
     });
@@ -119,7 +125,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       this.clearTimers();
       this.room = undefined; this.snapshotRound = -1;
       sessionStorage.removeItem(this.key);
-      this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', secret: null, oldMaid:null,
+      this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', secret: null, oldMaid:null, whoAmI:null,
         error: closedMessage || (code === 4028 ? 'ส่งคำสั่งมากเกินไป กรุณาเข้าห้องใหม่' : code === 4000 || code === 1000 ? '' : 'การเชื่อมต่อสิ้นสุด กรุณาเข้าห้องอีกครั้ง') });
       navigate(this.entryPath, true);
     });
@@ -130,7 +136,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     const generation = ++this.generation;
     this.clearTimers();
     this.snapshotRound = -1;
-    this.update({ status: 'connecting', error: '', hand: [], snapshot: null, secret: null, oldMaid:null });
+    this.update({ status: 'connecting', error: '', hand: [], snapshot: null, secret: null, oldMaid:null, whoAmI:null });
     try {
       const client = await getClient();
       if (generation !== this.generation) return;
@@ -161,15 +167,16 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
         if (generation !== this.generation) return;
         if (Date.now() >= until) {
           sessionStorage.removeItem(this.key);
-          this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', secret: null, oldMaid:null, error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
+          this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', secret: null, oldMaid:null, whoAmI:null, error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
         } else this.retryTimer = setTimeout(() => { void attempt(); }, 1500);
       }
     };
     await attempt();
   }
-  send(type: A, value?: boolean | number | string) {
+  send(type: A, value?: boolean | number | string | WhoSettings) {
     if (!this.room || this.state.status !== 'connected' || !this.state.snapshot) return;
     this.room.send('action', { type, value, roundId: this.state.snapshot.roundId,
+      ...(this.roomName === 'whoami' && 'turnNumber' in this.state.snapshot ? { turnNumber: this.state.snapshot.turnNumber } : {}),
       actionId: Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('') });
   }
   leave(destination = this.entryPath) {
@@ -195,7 +202,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       }
     }
     this.room = undefined; this.snapshotRound = -1;
-    this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null, oldMaid:null });
+    this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', error: '', secret: null, oldMaid:null, whoAmI:null });
     navigate(destination);
   }
 }
@@ -203,3 +210,5 @@ export const session = new GameSession();
 export const pokerSession = new GameSession<PokerSnapshot, PokerAction>('poker', '/poker/play', '/poker/rooms/create');
 export const spySession = new GameSession<SpySnapshot, SpyAction>('spyfall', '/spyfall/play', '/spyfall/rooms/create');
 export const oldMaidSession = new GameSession<OldMaidSnapshot, OldMaidAction>('oldmaid', '/oldmaid/play', '/oldmaid/rooms/create');
+
+export const whoAmISession = new GameSession<WhoSnapshot, WhoAction>('whoami', '/whoami/play', '/whoami/rooms/create');

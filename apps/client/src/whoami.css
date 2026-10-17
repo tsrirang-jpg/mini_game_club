@@ -1,0 +1,348 @@
+/* Who am I: isolated theme and responsive layouts, sharing entry/session controls. */
+.club-shell.theme-whoami { color:#fff4e4; }
+.club-shell.theme-whoami button.primary { background:linear-gradient(#f4b75f,#d9943f); border-color:#edb666; color:#291b0c; }
+.club-shell.theme-whoami .tabs button.selected { background:#d9943f!important; border-color:#edb666!important; color:#291b0c!important; }
+.who-artwork { display:block; width:100%; height:auto; object-fit:contain; pointer-events:none; }
+.app.club-shell.theme-whoami:not(.club-playing) { max-width:1480px; min-height:100dvh; display:flex; flex-direction:column; }
+.theme-whoami:not(.club-playing) > footer { margin-top:0; padding:16px 0; }
+.who-welcome { flex:1; display:grid; grid-template-columns:1fr minmax(340px,.95fr); grid-template-areas:"nav nav" "intro entry"; grid-template-rows:44px auto; align-items:center; gap:24px 56px; padding:24px 0; }
+.who-entry-navigation { grid-area:nav; }
+.who-entry-navigation .entry-game-switch { min-height:44px; }
+.who-intro { grid-area:intro; min-width:0; }
+.who-intro h1 { margin:10px 0; font-size:clamp(40px,4.5vw,72px); line-height:1.25; }
+.who-intro h2 { margin:12px 0; font-size:clamp(17px,1.9vw,26px); line-height:1.5; }
+.who-intro p { color:var(--club-muted); font-size:14px; }
+.who-intro .who-artwork { max-width:580px; margin:16px auto 0; }
+.club-shell .who-entry { grid-area:entry; min-width:0; padding:22px; border-radius:18px; }
+.club-shell .who-entry > h2 { text-align:left; font-size:24px; margin:0 0 14px; }
+.who-entry .tabs { margin-bottom:14px; }
+.who-entry .tabs button { padding:9px 10px; }
+.who-entry form > label { margin:0 0 12px; }
+.who-entry input { min-height:44px; padding:9px 12px; margin-top:4px; }
+.who-settings { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 12px; margin-bottom:12px; }
+.who-settings .spy-select,.who-settings label { margin:0; min-width:0; }
+.who-settings label { margin-bottom:4px; font-size:12px; }
+.club-shell .who-settings .spy-select-trigger { min-height:44px; padding:9px 11px; }
+.who-settings .spy-select-value { min-width:0; }
+.who-settings .spy-select-value strong { font-size:14px; overflow-wrap:anywhere; }
+.who-entry .entry-facts { margin-bottom:12px; }
+.who-entry .entry-facts > span { display:flex; justify-content:center; align-items:center; gap:8px; padding:7px; }
+.who-entry .entry-facts strong { margin:0; }
+.who-entry .full { margin-bottom:0; }
+.who-entry .who-rules { margin-top:12px; padding-top:10px; }
+.who-rules ol { padding-left:20px; }
+.who-rules li + li { margin-top:6px; }
+.who-rules summary { min-height:28px; }
+.who-game { flex:1; min-height:0; display:flex; flex-direction:column; gap:10px; }
+.who-game .club-room-tools .ghost { color:#f6a293; border-color:#894338; background:#3b211a; }
+.who-status { flex:none; min-height:38px; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 14px; background:var(--club-panel); border:1px solid var(--club-edge); border-radius:10px; font-size:13px; }
+.who-status small { color:var(--club-muted); }
+.who-status > strong { color:var(--club-accent); font-size:22px; font-variant-numeric:tabular-nums; }
+.who-dashboard { flex:1; min-height:0; display:grid; grid-template-columns:minmax(190px,.75fr) minmax(0,1.7fr) minmax(200px,.85fr); gap:12px; }
+.who-panel { min-width:0; min-height:0; display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--club-edge); border-radius:14px; padding:14px; background:linear-gradient(140deg,var(--club-panel),var(--club-bg)); }
+.who-panel > h2 { flex:none; margin:0 0 12px; font-size:17px; }
+.who-roster-list { overflow:auto; min-height:0; display:flex; flex-direction:column; gap:8px; scrollbar-width:thin; scrollbar-color:var(--club-edge) transparent; }
+.who-player { display:flex; flex:none; align-items:center; gap:9px; min-width:0; padding:10px; border-radius:12px; border:1px solid var(--club-edge); background:var(--club-bg); }
+.who-player.own { border-color:var(--club-accent); }
+.who-player.current { background:var(--club-felt); }
+.who-player.offline { opacity:.6; }
+.who-avatar { flex:none; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; border:1px solid #f2c476; color:var(--club-ink); background:#e9c49a; font-size:16px; font-weight:700; }
+.who-player > div { min-width:0; flex:1; }
+.who-player strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+.who-player strong small,.who-mystery strong small { color:var(--club-accent); font-size:10px; }
+.who-player-word { display:block; color:var(--club-accent); font-size:13px; overflow-wrap:anywhere; }
+.who-player-status { display:block; font-size:10px; color:var(--club-muted); }
+.who-player > b { flex:none; font-size:27px; color:var(--club-accent); }
+.who-stage { gap:12px; }
+.who-turn-title { margin:0; font-size:21px; text-align:center; }
+.who-mystery { display:flex; align-items:center; justify-content:space-evenly; gap:12px; padding:12px; background:#21181099; border:1px solid var(--club-edge); border-radius:12px; }
+.who-mystery > div:first-child { display:grid; grid-template-columns:34px minmax(0,1fr); gap:4px 8px; align-items:center; }
+.who-mystery .who-avatar { grid-row:1/3; }
+.who-mystery p { grid-column:2; margin:0; font-size:11px; color:var(--club-muted); }
+.who-mystery strong { overflow-wrap:anywhere; font-size:15px; }
+.who-mystery-card { flex:none; width:90px; height:114px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:10px; border:2px solid #f8ddb1; background:linear-gradient(135deg,#fff8e9,#e8cd9e); color:#493120; transform:rotate(-5deg); box-shadow:0 3px 14px #0004; }
+.who-mystery-card span { font-size:64px; font-weight:700; line-height:1; }
+.who-mystery-card b { font-size:11px; margin-top:4px; }
+.who-question { flex:none; border:1px solid var(--club-edge); background:#21181088; border-radius:10px; padding:12px; text-align:center; max-height:155px; overflow:auto; }
+.who-question h2 { margin:0 0 8px; font-size:clamp(17px,1.8vw,24px); line-height:1.5; overflow-wrap:anywhere; }
+.who-question > small { display:block; color:var(--club-muted); font-size:11px; margin-top:5px; }
+.who-answer-badge { display:inline-block; padding:3px 12px; border-radius:20px; border:1px solid #93724a; color:#f8e1b2; background:#5e4328; font-size:12px; white-space:nowrap; }
+.who-answer-badge.yes { border-color:#6b9c4e; background:#285322; color:#e1f8d7; }
+.who-answer-badge.no { border-color:#b46257; background:#672d26; color:#ffe0db; }
+.who-vote-area p { margin:0 0 8px; text-align:center; font-size:12px; color:var(--club-muted); }
+.who-answer-actions { display:flex; gap:8px; }
+.who-answer-actions > button { flex:1; min-width:0; padding:8px 6px; }
+.club-shell .who-answer-choice.yes { background:#285322; border-color:#6b9c4e; }
+.club-shell .who-answer-choice.no { background:#672d26; border-color:#b46257; }
+.club-shell .who-answer-choice.chosen { box-shadow:inset 0 0 0 2px #edc27b; }
+.who-last-guess { font-size:12px; line-height:1.5; color:#f2b29f; margin:0; max-height:40px; overflow:auto; overflow-wrap:anywhere; }
+.who-last-guess.correct { color:#bedfa7; }
+.who-compose { margin-top:auto; flex:none; }
+.who-compose form { display:flex; gap:8px; }
+.who-compose input { min-width:0; flex:1; min-height:44px; margin:0; font-size:14px; padding:9px 12px; }
+.who-compose form button { flex:none; padding:8px 14px; }
+.who-turn-actions { display:flex; gap:8px; margin-top:8px; }
+.who-turn-actions button { flex:1; min-width:0; padding:8px 10px; }
+.club-shell .who-guess-button { background:transparent; border-color:var(--club-accent); color:var(--club-accent); }
+.who-next-turn-hint { margin:5px 0 0; text-align:center; font-size:10px; color:var(--club-muted); }
+.who-history-list { flex:1; min-height:0; overflow:auto; scrollbar-width:thin; }
+.who-history-item { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:10px; margin-bottom:8px; border:1px solid var(--club-edge); border-radius:10px; background:var(--club-bg); }
+.who-history-item > div { min-width:0; }
+.who-history-item small { color:var(--club-muted); font-size:10px; }
+.who-history-item p { margin:4px 0 0; font-size:12px; overflow-wrap:anywhere; }
+.who-history-item .who-answer-badge { font-size:10px; padding:2px 7px; }
+.who-empty { color:var(--club-muted); text-align:center; font-size:12px; padding:20px 0; }
+.who-history-shortcut { display:none; }
+.who-lobby { width:100%; max-width:490px; margin:auto; text-align:center; overflow:auto; min-height:0; }
+.who-lobby > .who-artwork { height:clamp(70px,16dvh,150px); margin:auto; }
+.who-lobby h1 { font-size:24px; margin:8px 0; }
+.who-lobby p,.who-lobby > small { color:var(--club-muted); font-size:12px; }
+.who-lobby .who-settings { text-align:left; margin-top:18px; }
+.who-lobby .full { margin-bottom:8px; }
+.who-results { overflow:auto; min-height:0; text-align:center; }
+.who-results h1 { font-size:26px; margin:8px 0; }
+.who-results > h2 { font-size:19px; color:var(--club-accent); overflow-wrap:anywhere; }
+.who-results > p { font-size:13px; color:var(--club-muted); }
+.who-reveals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+.who-reveals article { display:flex; flex-direction:column; align-items:center; padding:12px 6px; border:1px solid var(--club-edge); border-radius:10px; gap:5px; background:var(--club-bg); }
+.who-reveals article.own { border-color:var(--club-accent); }
+.who-reveals article > span { font-size:27px; }
+.who-reveals strong { font-size:12px; overflow-wrap:anywhere; }
+.who-reveals b { color:var(--club-accent); font-size:17px; }
+.who-reveals small { color:var(--club-muted); font-size:10px; }
+.who-result-actions { display:flex; justify-content:center; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.who-scoreboard { padding:0; margin:0; list-style:none; overflow:auto; }
+.who-scoreboard li { display:flex; gap:12px; justify-content:space-between; padding:12px 8px; border-bottom:1px solid var(--club-edge); font-size:14px; }
+.who-scoreboard li span { overflow-wrap:anywhere; }
+.who-scoreboard small { color:var(--club-muted); font-weight:400; }
+.who-dialog { width:min(520px,calc(100% - 20px)); }
+.who-dialog .who-rules { border:0; margin:0; padding:0; }
+.who-dialog .who-rules > :not(summary) { display:block; }
+.who-dialog .who-rules summary { display:none; }
+.who-dialog .who-history-list { max-height:65dvh; }
+.who-dialog .who-roster-list { max-height:65dvh; }
+@media(max-width:1050px) {
+  .who-dashboard { grid-template-columns:200px minmax(0,1fr); }
+  .who-history { display:none; }
+  .who-history-shortcut { display:flex; flex:none; justify-content:space-between; align-items:center; min-height:38px; padding:6px 12px; font-size:12px; }
+}
+@media(max-width:999px) and (orientation:portrait) {
+  .who-welcome { width:min(620px,100%); margin:auto; grid-template-columns:1fr; grid-template-areas:"nav" "intro" "entry"; gap:14px; padding:16px 0; }
+  .who-intro { display:flex; flex-direction:column-reverse; text-align:center; }
+  .who-intro .who-artwork { height:180px; margin:0 auto 8px; }
+  .who-intro h1 { font-size:40px; margin:6px 0; }
+  .who-intro h2 { font-size:18px; margin:6px 0; }
+  .who-intro p { margin:4px 0; font-size:12px; }
+  .who-dashboard { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(65px,19%) minmax(0,1fr); gap:8px; }
+  .who-roster { padding:8px; }
+  .who-roster > h2 { display:none; }
+  .who-roster .who-roster-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+  .who-roster:has(.who-player:nth-child(5)) .who-roster-list { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .who-roster .who-player.own { display:none; }
+  .who-roster .who-player { padding:7px; gap:6px; }
+  .who-roster .who-player-status { display:none; }
+  .who-roster .who-player > b { font-size:22px; }
+}
+@media(max-width:600px) {
+  .app.club-shell.theme-whoami:not(.club-playing) { padding:0 12px; }
+  .who-welcome { gap:10px; padding:10px 0; grid-template-rows:36px auto auto; }
+  .who-entry-navigation .entry-game-switch { min-height:36px; padding:6px 12px; font-size:12px; }
+  .who-intro .who-artwork { height:125px; margin:0 auto 4px; }
+  .who-intro h1 { font-size:32px; }
+  .who-intro h2 { font-size:15px; }
+  .who-intro p { font-size:11px; }
+  .club-shell .who-entry { padding:14px; }
+  .club-shell .who-entry > h2 { font-size:21px; margin-bottom:10px; }
+  .who-entry .tabs { margin-bottom:10px; }
+  .who-entry label { font-size:12px; }
+  .who-settings { gap:9px; }
+  .who-settings label { font-size:11px; }
+  .who-settings .spy-select-value strong { font-size:13px; }
+  .app.club-shell.club-playing.theme-whoami { padding:6px 8px; gap:4px; }
+  .who-game { gap:5px; }
+  .who-game .room-bar { gap:5px; min-height:42px; }
+  .who-game .club-room-id { display:grid; grid-template-columns:auto 32px; column-gap:5px; row-gap:0; }
+  .who-game .club-wordmark { grid-column:1; grid-row:1; font-size:16px; gap:5px; }
+  .who-game .club-wordmark b { font-size:14px; }
+  .who-game .room-bar .who-room-code { grid-column:1; grid-row:2; font-size:9px; letter-spacing:.5px; }
+  .who-game .club-room-id .small { grid-column:2; grid-row:1/3; font-size:9px; padding:4px; min-width:30px; }
+  .who-game .room-bar button { min-height:34px; padding:5px 7px; font-size:10px; }
+  .who-game .who-players-button { display:none; }
+  .who-game .club-room-tools { gap:4px; }
+  .who-status { min-height:28px; font-size:10px; padding:3px 8px; }
+  .who-status strong { font-size:17px; }
+  .who-status small { font-size:9px; }
+  .who-dashboard { gap:5px; }
+  .who-roster { padding:5px; }
+  .who-roster .who-player { padding:5px; gap:4px; }
+  .who-roster .who-avatar { display:none; }
+  .who-roster .who-player strong,.who-roster .who-player-word { font-size:10px; }
+  .who-roster .who-player > b { font-size:18px; }
+  .who-stage { padding:10px; gap:7px; }
+  .who-turn-title { font-size:16px; }
+  .who-mystery { padding:8px; gap:8px; }
+  .who-mystery-card { width:65px; height:78px; }
+  .who-mystery-card span { font-size:42px; }
+  .who-mystery strong { font-size:13px; }
+  .who-mystery p { font-size:10px; }
+  .who-question { padding:8px; max-height:110px; }
+  .who-question h2 { font-size:16px; margin-bottom:5px; }
+  .who-question > small { font-size:10px; margin-top:4px; }
+  .who-answer-badge { font-size:11px; padding:2px 10px; }
+  .who-compose input { min-height:40px; font-size:13px; padding:8px; }
+  .who-compose form button { min-height:40px; font-size:12px; padding:7px; }
+  .who-turn-actions { gap:6px; margin-top:6px; }
+  .who-turn-actions button { min-height:38px; font-size:12px; padding:6px; }
+  .who-next-turn-hint { font-size:9px; margin-top:3px; }
+  .who-history-shortcut { min-height:32px; padding:5px 10px; font-size:11px; }
+  .who-last-guess { font-size:10px; max-height:28px; }
+  .who-lobby > .who-artwork { height:80px; }
+  .who-lobby h1 { font-size:19px; }
+  .who-lobby p,.who-lobby > small { font-size:10px; }
+  .who-lobby .who-settings { margin-top:12px; }
+  .who-results h1 { font-size:22px; }
+  .who-results > h2 { font-size:15px; }
+}
+@media(max-width:600px) and (max-height:740px) and (orientation:portrait) {
+  .theme-whoami:not(.club-playing) > footer { display:none; }
+  .who-intro { flex-direction:row-reverse; gap:10px; align-items:center; justify-content:center; }
+  .who-intro .who-artwork { width:100px; height:65px; margin:0; }
+  .who-intro h1 { font-size:27px; }
+  .who-intro h2,.who-intro p { display:none; }
+  .who-welcome { gap:8px; padding:8px 0; }
+  .club-shell .who-entry { padding:12px; }
+  .who-entry .who-rules { margin-top:8px; padding-top:6px; }
+}
+@media(max-width:600px) and (max-height:600px) and (orientation:portrait) {
+  .theme-whoami:not(.club-playing) > .top { height:44px; }
+  .who-intro .who-artwork { height:40px; width:75px; }
+  .who-intro h1 { font-size:24px; margin:0; }
+  .who-intro .eyebrow { font-size:8px; }
+  .who-welcome { padding:6px 0; gap:6px; }
+  .club-shell .who-entry { padding:10px; }
+  .club-shell .who-entry > h2 { font-size:18px; margin-bottom:7px; }
+  .who-entry .tabs { margin-bottom:7px; }
+  .who-entry .tabs button { min-height:36px; padding:5px; font-size:12px; }
+  .who-entry form > label { margin-bottom:8px; }
+  .who-entry input { min-height:38px; margin-top:3px; padding:6px 9px; font-size:14px; }
+  .who-settings { gap:6px; margin-bottom:8px; }
+  .club-shell .who-settings .spy-select-trigger { min-height:38px; padding:6px 8px; }
+  .who-entry .entry-facts { margin-bottom:7px; }
+  .who-entry .entry-facts > span { padding:4px; }
+  .who-entry .primary { min-height:40px; padding:7px; font-size:13px; }
+  .who-entry .who-rules { margin-top:6px; padding-top:5px; }
+  .who-entry .who-rules summary { min-height:24px; }
+  .who-dashboard { grid-template-rows:62px minmax(0,1fr); }
+  .who-stage { gap:5px; padding:8px; }
+  .who-mystery { padding:6px; }
+  .who-mystery-card { width:44px; height:52px; }
+  .who-mystery-card span { font-size:31px; }
+  .who-mystery-card b { font-size:8px; margin-top:0; }
+  .who-question { max-height:90px; padding:6px; }
+  .who-question h2 { font-size:14px; }
+}
+@media(max-height:500px) and (min-width:500px) {
+  .app.club-shell.theme-whoami:not(.club-playing) { height:100dvh; min-height:0; padding:0 12px; }
+  .theme-whoami:not(.club-playing) > .top { height:36px; flex:none; }
+  .theme-whoami:not(.club-playing) .brand { font-size:23px; }
+  .theme-whoami:not(.club-playing) .brand span { font-size:17px; }
+  .theme-whoami:not(.club-playing) .brand small { display:none; }
+  .theme-whoami:not(.club-playing) > footer { display:none; }
+  .who-welcome { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); grid-template-areas:"nav entry" "intro entry"; grid-template-rows:32px minmax(0,1fr); gap:6px 12px; padding:7px 0; min-height:0; }
+  .who-entry-navigation .entry-game-switch { min-height:32px; padding:4px 10px; font-size:11px; }
+  .who-intro { align-self:center; text-align:center; display:flex; flex-direction:column-reverse; }
+  .who-intro .who-artwork { height:clamp(55px,28dvh,110px); margin:0; }
+  .who-intro h1 { font-size:28px; margin:4px 0; }
+  .who-intro h2 { font-size:12px; margin:4px 0; }
+  .who-intro p { display:none; }
+  .club-shell .who-entry { padding:10px; max-height:100%; overflow:auto; }
+  .club-shell .who-entry > h2 { font-size:18px; margin-bottom:6px; }
+  .who-entry .tabs { margin-bottom:6px; }
+  .who-entry .tabs button { min-height:32px; padding:4px; font-size:11px; }
+  .who-entry form > label { font-size:10px; margin-bottom:6px; }
+  .who-entry input { min-height:32px; margin-top:2px; padding:5px 8px; font-size:12px; }
+  .who-settings { gap:5px 8px; margin-bottom:6px; }
+  .who-settings label { font-size:10px; margin-bottom:2px; }
+  .club-shell .who-settings .spy-select-trigger { min-height:32px; padding:5px 8px; }
+  .who-settings .spy-select-value strong { font-size:11px; }
+  .who-entry .entry-facts { margin-bottom:6px; }
+  .who-entry .entry-facts > span { padding:3px; font-size:10px; }
+  .who-entry .primary { min-height:34px; padding:5px; font-size:12px; }
+  .who-entry .who-rules { margin-top:5px; padding-top:4px; }
+  .who-entry .who-rules summary { min-height:24px; font-size:10px; }
+  .who-dashboard { grid-template-columns:minmax(125px,.55fr) minmax(0,1.5fr); gap:6px; }
+  .who-history { display:none; }
+  .who-history-shortcut { display:flex; min-height:28px; padding:3px 9px; font-size:10px; }
+  .who-game { gap:4px; }
+  .who-game .room-bar { min-height:34px; }
+  .who-status { min-height:26px; font-size:10px; padding:3px 8px; }
+  .who-status strong { font-size:16px; }
+  .who-panel { padding:7px; }
+  .who-panel > h2 { font-size:12px; margin-bottom:6px; }
+  .who-roster-list { gap:5px; }
+  .who-player { padding:5px; gap:5px; }
+  .who-player .who-avatar { width:24px; height:24px; font-size:12px; }
+  .who-player strong,.who-player-word { font-size:10px; }
+  .who-player-status { display:none; }
+  .who-player > b { font-size:19px; }
+  .who-stage { gap:5px; }
+  .who-turn-title { font-size:14px; }
+  .who-mystery { padding:4px 8px; }
+  .who-mystery-card { width:33px; height:36px; border-width:1px; }
+  .who-mystery-card span { font-size:28px; }
+  .who-mystery-card b,.who-mystery p { display:none; }
+  .who-mystery strong { font-size:12px; }
+  .who-question { max-height:72px; padding:5px; }
+  .who-question h2 { font-size:14px; margin-bottom:4px; }
+  .who-question > small { display:none; }
+  .who-answer-badge { font-size:10px; padding:1px 8px; }
+  .who-compose { display:flex; flex-wrap:wrap; gap:4px; }
+  .who-compose form { flex:1 1 55%; gap:4px; }
+  .who-compose input { min-height:32px; padding:5px 8px; font-size:11px; }
+  .who-compose form button { min-height:32px; padding:4px 8px; font-size:10px; }
+  .who-turn-actions { margin:0; flex:1 1 40%; gap:4px; }
+  .who-turn-actions button { min-height:32px; padding:4px 6px; font-size:10px; }
+  .who-next-turn-hint { flex-basis:100%; margin:0; font-size:9px; }
+  .who-last-guess { font-size:10px; max-height:22px; }
+  .who-vote-area p { font-size:10px; margin-bottom:4px; }
+  .who-answer-actions button { min-height:32px; font-size:11px; }
+  .who-lobby > .who-artwork { display:none; }
+  .who-lobby h1 { font-size:17px; margin:0 0 4px; }
+  .who-lobby p { margin:4px 0; font-size:10px; }
+  .who-lobby .who-settings { margin-top:6px; }
+  .who-lobby .full { min-height:32px; padding:5px; font-size:12px; }
+}
+@media(max-height:340px) and (min-width:500px) {
+  .who-entry form { display:grid; grid-template-columns:80px minmax(0,1fr); gap:4px 6px; }
+  .who-entry form > label,.who-entry .who-settings { grid-column:1/-1; margin-bottom:0; }
+  .who-entry .entry-facts { grid-column:1; margin:0; }
+  .who-entry .entry-facts > span { gap:3px; flex-direction:column; padding:2px; font-size:8px; }
+  .who-entry .entry-facts strong { font-size:10px; }
+  .who-entry form > button { grid-column:2; }
+  .who-entry .who-rules { font-size:10px; }
+  .who-intro h2 { display:none; }
+}
+@media(max-width:600px) and (max-height:510px) and (orientation:portrait) {
+  .who-welcome { grid-template-areas:"nav" "entry"; grid-template-rows:32px auto; gap:5px; }
+  .who-welcome .who-intro { display:none; }
+  .who-entry-navigation .entry-game-switch { min-height:32px; }
+  .who-entry .who-rules summary { min-height:22px; }
+}
+/* Match the shared entry selector's specificity when compacting form spacing. */
+.club-shell .who-entry .tabs { margin-bottom:12px; }
+@media(max-width:600px) { .club-shell .who-entry .tabs { margin-bottom:8px; } }
+@media(max-height:500px) and (min-width:500px) {
+  .club-shell .who-entry { padding:7px; }
+  .club-shell .who-entry .tabs { margin-bottom:4px; }
+  .club-shell .who-entry > h2 { font-size:17px; line-height:1.2; margin-bottom:4px; }
+  .who-entry form > label { line-height:1.2; }
+  .who-entry .who-settings { gap:4px 8px; }
+  .who-entry .who-settings label { line-height:1.2; }
+}
+@media(max-width:600px) and (max-height:600px) and (orientation:portrait) {
+  .who-lobby > .who-artwork { display:none; }
+  .who-lobby h1 { font-size:17px; margin:3px 0; }
+  .who-lobby p { margin:4px 0; }
+  .who-lobby .who-settings { margin-top:8px; gap:6px; }
+  .club-shell .who-lobby .spy-select-trigger { min-height:36px; padding:5px 8px; }
+}

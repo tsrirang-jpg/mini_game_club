@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {selectOption} from './select-option.mjs';
@@ -42,4 +43,4 @@ try{
  await page.getByRole('button',{name:'จัดการโต๊ะ Old Maid',exact:true}).click();for(let i=1;i<7;i++){await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).click();await until(async()=>await page.locator('.bot-row').count()===i+1);}assert.equal(await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).isDisabled(),true);await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();assert.equal(await page.locator('.oldmaid-seat').count(),7);
  await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();assert.deepEqual(errors,[]);
  console.log('PASS: shared popovers across 3 creation pages at 5 sizes, touch/keyboard/Escape/outside, dealer/string choices, modal-safe card-size persistence, Old Maid 1 human + 2 bots full round and 7-bot capacity/management');
-}catch(e){console.error('Browser errors:',errors);await page.screenshot({path:'preview-dropdown-bots-debug.png',fullPage:true});throw e;}finally{await browser.close();}
+}catch(e){console.error('Browser errors:',errors);await page.screenshot({path:previewPath('preview-dropdown-bots-debug.png'),fullPage:true});throw e;}finally{await browser.close();}

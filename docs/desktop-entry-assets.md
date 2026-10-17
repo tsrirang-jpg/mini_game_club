@@ -23,3 +23,13 @@ Spyfall illustration: textured midnight-blue fedora hat to the left, stylish bla
 ## Old Maid prompt addition
 
 Old Maid illustration: premium tilted ivory cards in a staggered fan, a matched pair 7♥ and 7♠ toward the left, one K♣ face card raised slightly in front center, two patterned purple and lavender card backs fanned behind toward the right. Clear nonoverlapping card rank and suit labels. Tasteful classic king court illustration. Lavender edge highlights, soft dimensional depth, no gold outer frame or gold ground. Match the lower-left card cluster from the supplied approved design.
+
+## Who am I production illustration — 17 October 2026
+
+- `apps/client/public/images/entry/whoami-hero-v1.webp` (1680×936, alpha, approximately 142 kB).
+- Generated with the built-in `image_gen` tool using the approved Who am I mockup as a style reference; encoded to WebP at quality .88 with dimensions/alpha preserved. Referenced through `src/assets/images.ts`, used on the game menu and Who am I entry/lobby only.
+- Source PNG stays in the image-generation library. No existing game's artwork was replaced.
+
+Final generation prompt:
+
+> Use case: compositing. Create ONLY the standalone fanned identity-card illustration from the supplied Who am I website reference, as a production website hero asset. Reference is style/composition only; remove ALL website, typography, background and forms. Transparent background with real alpha. Five softly dimensional ivory identity/name cards in a gently fanned horizontal cluster, rounded corners, warm amber edges and restrained contact shadows. The front central card is largest: a dark brown anonymous head-and-shoulders silhouette and a large crisp amber question mark. Two cards each side behind it display friendly stylized avatar portraits, e.g. woman, man, pilot and chef. Premium cheerful family party-game look, soft realistic 3D paper/material shading matching the reference. No words, no card ranks, no suits, no watermark, no casino chips, no solid backdrop or floor. Center composition with margin on every side and no clipped corners. Wide standalone object cluster, roughly 1.8:1 aspect, high detail, suitable on a dark espresso-brown UI. Preserve transparent negative space outside the objects.

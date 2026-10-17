@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { session, pokerSession, spySession, oldMaidSession } from './session';
+import { session, pokerSession, spySession, oldMaidSession, whoAmISession } from './session';
 import type { GameSession, SessionState } from './session';
 import { navigate, subscribeRoute, getRoute } from './router';
 import { GameSelectPage } from './GameSelectPage';
@@ -15,6 +15,8 @@ const SpyfallCreatePage = lazy(() => import('./SpyfallCreatePage').then(m => ({ 
 const SpyfallPlayPage = lazy(() => import('./SpyfallPlayPage').then(m => ({ default: m.SpyfallPlayPage })));
 const OldMaidCreatePage = lazy(() => import('./OldMaidCreatePage').then(m => ({ default: m.OldMaidCreatePage })));
 const OldMaidPlayPage = lazy(() => import('./OldMaidPlayPage').then(m => ({ default: m.OldMaidPlayPage })));
+const WhoAmICreatePage = lazy(() => import('./WhoAmICreatePage').then(m => ({ default: m.WhoAmICreatePage })));
+const WhoAmIPlayPage = lazy(() => import('./WhoAmIPlayPage').then(m => ({ default: m.WhoAmIPlayPage })));
 import './style.css';
 import './pok-rules.css';
 import './pok-layout.css';
@@ -65,6 +67,7 @@ function App() {
   useEffect(() => { if (path === '/') navigate('/games', true); }, [path]);
   if (path === '/games' || path === '/') return <GameShell kind="pok"><GameSelectPage/></GameShell>;
   const code = /\/play\/([A-F0-9]{10})$/.exec(path)?.[1];
+  if (path.startsWith('/whoami')) return <GameScreen key="whoami" store={whoAmISession} kind="whoami" code={code}>{state => code ? <WhoAmIPlayPage state={state} code={code}/> : <WhoAmICreatePage key={path} state={state} join={path === '/whoami/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/oldmaid')) return <GameScreen key="oldmaid" store={oldMaidSession} kind="oldmaid" code={code}>{state => code ? <OldMaidPlayPage state={state} code={code}/> : <OldMaidCreatePage key={path} state={state} join={path === '/oldmaid/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/spyfall')) return <GameScreen key="spyfall" store={spySession} kind="spyfall" code={code}>{state => code ? <SpyfallPlayPage state={state} code={code}/> : <SpyfallCreatePage key={path} state={state} join={path === '/spyfall/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/poker')) return <GameScreen key="poker" store={pokerSession} kind="poker" code={code}>{state => code ? <PokerPlayPage state={state} code={code}/> : <PokerCreatePage key={path} state={state} join={path === '/poker/rooms/join'}/>}</GameScreen>;

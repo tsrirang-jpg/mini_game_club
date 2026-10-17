@@ -1,7 +1,7 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import { checkPokerViewport } from './poker-viewport-check.mjs';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const contexts = await Promise.all([0,1].map(() => browser.newContext({ viewport: { width: 360, height: 640 } })));
@@ -60,7 +60,7 @@ try {
   await b.reload(); await b.locator('.poker-self .card:not(.back)').nth(1).waitFor();
   assert.equal(await b.locator('.show-cards-button').count(),0,'Reveal persists on reconnect');
   await a.setViewportSize({width:360,height:640});
-  await a.screenshot({path:fileURLToPath(new URL('../preview-poker-show-cards.png',import.meta.url))});
+  await a.screenshot({path:previewPath('preview-poker-show-cards.png')});
   await a.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).click();
   await wait(async()=>await a.locator('.poker-seat .card').count()===0);
   await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();

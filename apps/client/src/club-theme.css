@@ -136,3 +136,9 @@ body:has(.club-shell) { min-height:100vh; min-height:100dvh; }
   .club-shell .entry > .entry-game-switch:hover { color:#fff; background:var(--club-panel); border-color:var(--club-accent); }
   .club-shell .welcome > .pok-home,.club-shell .welcome .intro > button { display:none; }
 }
+
+/* Who am I menu theme; detailed page CSS is loaded with the game. */
+.theme-whoami { --club-bg:#211810; --club-panel:#35271d; --club-felt:#493224; --club-edge:#715039; --club-accent:#f0b75f; --club-primary:#d9943f; --club-muted:#d1bca4; --club-ink:#2d1c0e; }
+body:has(.club-shell.theme-whoami) { background:radial-gradient(ellipse at 20% 5%,#49301c,#211810 80%); }
+.club-shell .artwork-whoami .who-artwork { width:100%; height:100%; object-fit:contain; }
+.artwork-whoami .art-leaf { display:none; }

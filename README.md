@@ -2,13 +2,27 @@
 
 เล่นออนไลน์: [วงไพ่](https://wong-pai.onrender.com/games) · [GitHub](https://github.com/tsrirang-jpg/mini_game_club)
 
-ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต รวมถึง Old Maid (อีแก่กินน้ำ) สำหรับเพื่อนและบอทรวม 3–8 คน
+ป๊อกเด้งและ Poker Texas Hold’em No-Limit สำหรับเล่นกับเพื่อนหรือบอทรวม 2–6 คน ใช้แต้มจำลอง และ Spyfall สำหรับผู้เล่นจริง 3–8 คน พร้อมบทบาทลับและแชต รวมถึง Old Maid (อีแก่กินน้ำ) สำหรับเพื่อนและบอทรวม 3–8 คน และ Who am I สำหรับผู้เล่นจริง 3–8 คน
 
 ## โครงสร้างและประสิทธิภาพ
+
+ภาพหน้าจอสำหรับตรวจ UI และ debug รวมไว้ใน `artifacts/previews/` browser tests ใช้ `tests/helpers/preview-path.mjs` เพื่อสร้างโฟลเดอร์และบันทึกภาพที่เดียวกัน ไฟล์ PNG เหล่านี้ถูกยกเว้นจาก Git และไม่ถูก deploy
 
 รูปประกอบอยู่ใน `apps/client/public/images/entry/` และอ้างผ่าน manifest `src/assets/images.ts`; component ร่วมอยู่ใน `src/components/entry/`, `src/components/ui/` และ hook จับเวลาใน `src/hooks/` แต่ละหน้าเกมและ SDK โหลดเมื่อต้องใช้ การ sync ส่งกลับเฉพาะผู้ร้องขอ และ timer หยุดเมื่อไม่มี deadline หรือซ่อนแท็บ
 
 ดู [กราฟก่อน/หลังแบบเลือกตัวชี้วัดได้](reports/performance/index.html), [กราฟ PNG](reports/performance/comparison.png) และ [วิธีวัด/ข้อจำกัด/โครงสร้างที่ปรับ](docs/performance.md) ผลเป็นค่าที่วัดจาก production build บนเครื่องเดียวกัน มีข้อมูลดิบครบ ไม่ใช่การประมาณความเร็วหรือผล load test ของ production
+
+## Who am I · ฉันคือใคร?
+
+เกมที่ห้าสำหรับเพื่อนจริง 3–8 คน สร้างห้องที่ `/whoami/rooms/create` แล้วส่งรหัสให้เพื่อน ทุกคนเห็นคำของเพื่อน แต่ไม่เห็นคำของตัวเอง เลือกหมวดรวม / สัตว์ / อาชีพ / สิ่งของได้
+
+- ตั้งเวลา 1/2/3 นาทีต่อคน, รอบการถาม 4/6/8/10 รอบ และรอบการเล่นเกม 3/5/7/10 เกม ค่าเริ่มต้น **1 นาที / 4 รอบถาม / 3 เกม** เปลี่ยนการตั้งค่าในห้องรอแล้วทุกคนต้องกดพร้อมใหม่
+- แต่ละตาเลือกถาม 1 คำถามหรือทาย 1 ครั้ง เมื่อถามไปแล้ว **ต้องรอทายในตาของตัวเองครั้งถัดไป** เพื่อนตอบ ใช่/ไม่ใช่/ไม่แน่ใจ ได้คนละ 1 ครั้ง คำตอบต้องได้เสียงเกินครึ่ง ไม่มีเสียงชัดเจนแสดงไม่แน่ใจ
+- ทายถูกได้ 1 คะแนนแล้วช่วยตอบเพื่อนต่อ คนที่เหลือเล่นจนครบทุกรอบหรือทุกคนทายถูก ผู้สร้างห้องเริ่มเกมถัดไปด้วยคำใหม่ คะแนนสะสมจนครบชุด ผู้คะแนนสูงสุดชนะร่วมกันได้
+- Server เก็บคำเฉลยและ aliases เอง ส่ง private identities เฉพาะคำของคนอื่นให้แต่ละคน เฉลยคำของตัวเองตอนจบเกมเท่านั้น Refresh/reconnect ได้ภายใน 60 วินาทีโดยไม่รีเซ็ตเวลาและคำตอบที่ยืนยันแล้ว
+- UI น้ำตาลเข้ม–ส้มอำพัน ทั้งคอม/แท็บเล็ต/มือถือสองแนว รวม SE มีหน้าสร้าง/เข้าห้อง ห้องรอ หน้าเล่น popup ทาย ประวัติ เฉลย และคะแนน โหลดหน้าเกม/SDK/CSS เมื่อต้องใช้
+
+รายละเอียดกติกา state machine โครงสร้างข้อมูล และข้อจำกัดอยู่ใน [docs/whoami.md](docs/whoami.md) รัน `npm run test:whoami` เพื่อตรวจ 11 ขนาดจอพร้อมเกมจริง 3 คนจนครบ 3 เกม ภาพทดสอบเก็บใน `artifacts/previews/` เช่นเดียวกับเกมเดิม
 
 ## Old Maid · อีแก่กินน้ำ
 
@@ -235,7 +249,7 @@ Reconnect ภายใน 60 วินาทีได้ด้วย Colyseus re
 
 Deploy ด้วย Node web service เดียว: server เสิร์ฟ React build ที่ `apps/client/dist`, HTTP matchmaking และ WebSocket บนโดเมนเดียวกัน Client production เลือก WSS อัตโนมัติเมื่อเปิดผ่าน HTTPS ไม่ต้องใส่ `VITE_GAME_URL` หากใช้บริการเดียว
 
-Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` , `/spyfall/*` และ `/oldmaid/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
+Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` , `/spyfall/*`, `/oldmaid/*` และ `/whoami/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
 
 บริการจริงชื่อ `wong-pai` ใน Render My Workspace ใช้ Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` เปิด auto-deploy จาก branch `main` ของ `tsrirang-jpg/mini_game_club`
 

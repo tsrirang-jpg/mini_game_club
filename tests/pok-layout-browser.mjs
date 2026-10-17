@@ -1,7 +1,7 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { countOptions } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 
 const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
 const context = await browser.newContext({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
@@ -111,7 +111,7 @@ try {
     for (const [width, height] of sizes) {
       await page.setViewportSize({ width, height });
       await fits(phase + ' ' + width + 'x' + height);
-      if (phase === 'ROUND_END' && [375,844,1366].includes(width)) await page.screenshot({ path: fileURLToPath(new URL('../preview-pok-fit-' + width + 'x' + height + '.png', import.meta.url)), scale: 'css' });
+      if (phase === 'ROUND_END' && [375,844,1366].includes(width)) await page.screenshot({ path: previewPath('preview-pok-fit-' + width + 'x' + height + '.png'), scale: 'css' });
     }
     console.log('PASS: ' + phase + ' at 13 viewports');
   }
@@ -134,7 +134,7 @@ try {
       assert.match(await page.locator('.pok-catch-detail').textContent(),/เสมอ/);
       await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
       await page.setViewportSize({width:844,height:390});
-      await page.screenshot({path:fileURLToPath(new URL('../preview-pok-recompared.png',import.meta.url)),scale:'css'});
+      await page.screenshot({path:previewPath('preview-pok-recompared.png'),scale:'css'});
     }
   }
   console.log('PASS: immediate Pok8/9 faces, private other hands and reported re-compared catch at 13 viewports');
@@ -168,6 +168,6 @@ try {
   assert.deepEqual(errors, []);
   console.log('PASS: 2–6 players, all phases, three cards, no page scrolling or overlapping ranks/suits, settings/rules dialogs and exit');
 } catch (error) {
-  await page.screenshot({ path: fileURLToPath(new URL('../preview-pok-debug.png', import.meta.url)), fullPage: true });
+  await page.screenshot({ path: previewPath('preview-pok-debug.png'), fullPage: true });
   throw error;
 } finally { await browser.close(); }

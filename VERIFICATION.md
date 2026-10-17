@@ -5,6 +5,12 @@
 | Check | Result |
 | --- | --- |
 | Strict TypeScript, client/server production build | PASS |
+| Who am I: exact settings, 3–8 seats, hidden own identities, one question OR guess per turn, next-turn guessing and cumulative multi-game scoring | PASS |
+| Who am I: 3 real WebSocket clients, locked answers, refresh/reconnect, stale/replayed actions, deep copies, host transfer and timer disposal | PASS |
+| Who am I: create/lobby/play/answer/results at 11 desktop/tablet/phone sizes including 320×480 and 568×320; guess dialog and resize preserve input | PASS |
+| Who am I: 3 browsers complete 3 games, words remain private, same-turn guess disabled, scoreboard tie and deliberate exits | PASS |
+| Who am I CSS/pages/SDK loaded on demand, 142 kB transparent hero via shared image manifest | PASS |
+| Who am I compiled production browser flow: 11 create viewports, three real players, reconnect and three full games | PASS |
 | Shared components, lazy pages/SDK, unchanged CSS output and all four existing game browser flows | PASS |
 | Read-only sync in all four games returns one requester snapshot/private message and no peer broadcast | PASS |
 | Shared rate limiter, room-code registry and coalesced/disposed snapshot publication | PASS |
@@ -20,7 +26,7 @@
 | Four desktop designs: 8 sizes from 1000×651 to 2560×1440, active/lobby/results, readable ranks/suits, no panel overlap or page scroll | PASS |
 | Poker six pots, High/Normal preferences, 12-card showdown, desktop width cap 1680 and existing compact windows | PASS |
 | Spyfall all 8 players visible, separate role/chat/vote areas, answer draft survives desktop/mobile resize with a single form | PASS |
-| Vitest rules, state machines and real WebSocket integration | PASS — 235 tests, 16 files |
+| Vitest rules, state machines and real WebSocket integration | PASS — 262 tests, 18 files |
 | Old Maid private drawn cards, exact discarded pairs including initial deal, replay protection, deep copies and next-round reset | PASS |
 | Real WebSocket private-history isolation and restoration after reconnect | PASS |
 | Three real browsers: drawn-card/pair details, new-card badges, history popup, refresh and complete round | PASS |
@@ -42,7 +48,7 @@
 | Spyfall selected 7/2/3-minute timers, static 3–8-player range, settings sync/reload and readiness reset | PASS |
 | Spyfall voting/answer popups, 3/8 players, 11 desktop/mobile/keyboard viewports, expiry and focus | PASS |
 | Compiled production health, SPA deep links including Old Maid, immutable assets and 404s | PASS |
-| Compiled production create/join and deliberate exit, all four games | PASS |
+| Compiled production create/join and deliberate exit, all five games | PASS |
 
 รอบตรวจนี้ใช้กริดใหม่: มือของเราอยู่ด้านล่างบนมือถือแนวตั้ง และอยู่ข้างพื้นที่เล่นบนแนวนอน/จอแนวตั้งที่เตี้ยมาก ผลของตารางเก่าด้านล่างเป็นประวัติของเวอร์ชันก่อนหน้าเท่านั้น โดยกติกาป๊อกเด้งล่าสุดอ้างอิง README และชุดทดสอบปัจจุบัน
 
@@ -119,7 +125,7 @@ Tests cover score/pok/multipliers/ties, distinct shuffle/dealing, full round,
 deadline auto-stand, private snapshot boundaries, reconnection, expired-player
 settlement, collateral, host transfer and malformed actions.
 
-Screenshots include the Poker/Pok Deng previews and `preview-spyfall-create.png`, `preview-spyfall-question.png`, `preview-spyfall-mobile.png`, `preview-spyfall-vote-result.png`, `preview-spyfall-result.png`.
+Local screenshots are stored under `artifacts/previews/` (ignored by Git), including the Poker/Pok Deng previews and `preview-spyfall-create.png`, `preview-spyfall-question.png`, `preview-spyfall-mobile.png`, `preview-spyfall-vote-result.png`, `preview-spyfall-result.png`.
 
 ## Repeat checks
 

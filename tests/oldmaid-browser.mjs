@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import {selectOption} from './select-option.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
@@ -34,11 +35,11 @@ try{
   }
  }
  for(const p of pages){await p.locator('.oldmaid-result').waitFor();assert.equal(await p.locator('.oldmaid-final-cards .card').count(),2);assert.equal(await p.locator('.oldmaid-final-cards .card').first().getAttribute('aria-label').then(s=>s.split(' ')[0]),await p.locator('.oldmaid-final-cards .card').last().getAttribute('aria-label').then(s=>s.split(' ')[0]));}
- assert.ok(n<250);await a.screenshot({path:'preview-club-oldmaid-real-result.png'});
+ assert.ok(n<250);await a.screenshot({path:previewPath('preview-club-oldmaid-real-result.png')});
  assert.ok(feedbackChecked>0);await a.getByRole('button',{name:'ดูประวัติ ›',exact:true}).click();assert.ok(await a.locator('.oldmaid-history-cards .card').count()>0);await a.keyboard.press('Escape');
  // Refresh may transfer host to another connected human; use the current host.
  const hosts=await Promise.all(pages.map(p=>p.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).count()));const hostPage=pages[hosts.findIndex(Boolean)];assert.ok(hostPage);
  await hostPage.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).click();await hostPage.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).waitFor();assert.equal(await a.locator('.oldmaid-self .card').count(),0);assert.equal(await a.locator('.oldmaid-feedback').count(),0);assert.equal(await hostPage.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isDisabled(),true);
  await a.getByRole('button',{name:'กติกา',exact:true}).click();await a.getByRole('dialog',{name:'กติกา Old Maid'}).waitFor();await a.keyboard.press('Escape');assert.equal(await a.getByRole('dialog').count(),0);
  for(const p of [...pages].reverse())await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();assert.deepEqual(errors,[]);console.log('PASS: Old Maid 3 browser players, private drawn-card feedback, exact discarded pairs/new badges, history/refresh, full round, next-round reset, rules/exit');
-}catch(e){console.error('Old Maid browser errors:',errors);await a.screenshot({path:'preview-oldmaid-real-debug.png',fullPage:true});console.error(await a.locator('.error,.notice').allTextContents());throw e;}finally{await browser.close();}
+}catch(e){console.error('Old Maid browser errors:',errors);await a.screenshot({path:previewPath('preview-oldmaid-real-debug.png'),fullPage:true});console.error(await a.locator('.error,.notice').allTextContents());throw e;}finally{await browser.close();}

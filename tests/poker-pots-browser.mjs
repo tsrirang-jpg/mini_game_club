@@ -1,7 +1,7 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import { checkPokerViewport } from './poker-viewport-check.mjs';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const contexts = await Promise.all(Array.from({ length: 6 }, () => browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true })));
@@ -64,7 +64,7 @@ try {
   assert.equal((await numbers()).reduce((sum,number) => sum + number,0), 6000);
   for (const [width,height] of sizes) {
     await a.setViewportSize({width,height}); await pause(80); await checkPokerViewport(a,'settled pots ' + width + 'x' + height);
-    if (width === 1903 || width === 844 || width === 360) await a.screenshot({path:fileURLToPath(new URL('../preview-poker-pots-' + width + 'x' + height + '.png',import.meta.url))});
+    if (width === 1903 || width === 844 || width === 360) await a.screenshot({path:previewPath('preview-poker-pots-' + width + 'x' + height + '.png')});
   }
   await a.getByRole('button',{name:'Side Pot 4 40 ชิป',exact:true}).click();
   const details = a.locator('.pot-detail'); assert.equal(await details.count(),6);
@@ -82,5 +82,5 @@ try {
   assert.deepEqual(errors,[]);
   console.log('PASS: 6 real players, unequal all-ins, live eligibility, 5 pots + refund, exact per-player awards, 15 viewport sizes including SE phones and 1280px width cap');
 } catch(error) {
-  await a.screenshot({path:fileURLToPath(new URL('../preview-debug.png',import.meta.url))}); throw error;
+  await a.screenshot({path:previewPath('preview-debug.png')}); throw error;
 } finally { await browser.close(); }

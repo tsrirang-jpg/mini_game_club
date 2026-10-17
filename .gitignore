@@ -7,3 +7,6 @@ dist/
 coverage/
 *.log
 preview*.png
+
+# Local UI captures; keep artifacts/previews/README.md in Git.
+/artifacts/previews/*.png

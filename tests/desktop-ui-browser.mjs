@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {checkPokerViewport} from './poker-viewport-check.mjs';
@@ -72,7 +73,7 @@ try{
   if(process.env.ONLY_GAME&&process.env.ONLY_GAME!==game)continue;
   await fixture(game,variant);
   if(game==='spyfall'&&['play','citizen'].includes(variant))await page.getByRole('button',{name:'เปิดบทบาทลับ',exact:true}).click();
-  for(const[width,height]of sizes){await page.setViewportSize({width,height});await page.waitForTimeout(50);await fit(game,`${game}/${variant} ${width}x${height}`);if(width===1366)await page.screenshot({path:`preview-desktop-${game}-${variant}.png`});}
+  for(const[width,height]of sizes){await page.setViewportSize({width,height});await page.waitForTimeout(50);await fit(game,`${game}/${variant} ${width}x${height}`);if(width===1366)await page.screenshot({path:previewPath(`preview-desktop-${game}-${variant}.png`)});}
   if(game==='spyfall'&&variant==='play'){
    await page.setViewportSize({width:1366,height:768});await page.getByRole('button',{name:'ตอบสถานที่',exact:true}).click();await page.getByLabel('เฉลยสถานที่').fill('บางแสน');await fit(game,'Spy answer form');
    await page.setViewportSize({width:844,height:390});assert.equal(await page.getByLabel('เฉลยสถานที่').inputValue(),'บางแสน');assert.equal(await page.locator('#spy-guess-form').count(),1);
@@ -82,4 +83,4 @@ try{
   if(game==='oldmaid'&&variant==='pair'){await page.getByRole('button',{name:'ดูประวัติ ›',exact:true}).click();await page.getByRole('dialog',{name:'ประวัติ Old Maid'}).waitFor();await page.keyboard.press('Escape');}
  }
  assert.deepEqual(errors,[]);console.log(`PASS: ${process.env.ONLY_GAME||'four desktop designs'} at 8 window sizes, active/lobby/results, rank/suit visibility, no clipped content or page scroll`);
-}catch(e){console.error(errors);await page.screenshot({path:'preview-desktop-debug.png',fullPage:true});throw e;}finally{await browser.close();}
+}catch(e){console.error(errors);await page.screenshot({path:previewPath('preview-desktop-debug.png'),fullPage:true});throw e;}finally{await browser.close();}

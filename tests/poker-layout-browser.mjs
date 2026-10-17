@@ -1,8 +1,8 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { checkPokerViewport } from './poker-viewport-check.mjs';
-import { fileURLToPath } from 'node:url';
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const context = await browser.newContext({ viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true });
 const page = await context.newPage();
@@ -48,7 +48,7 @@ try {
     const legal = page.locator('.chip-choice:not(:disabled)').first();
     await legal.click(); await fits('chip click ' + width + 'x' + height, true);
     if ((width === 844 && height === 390) || width === 360 || width === 1366) {
-      await page.screenshot({ path: fileURLToPath(new URL('../preview-poker-fit-' + width + 'x' + height + '.png', import.meta.url)) });
+      await page.screenshot({ path: previewPath('preview-poker-fit-' + width + 'x' + height + '.png') });
     }
   }
   await page.setViewportSize({ width: 844, height: 390 });
@@ -76,6 +76,6 @@ try {
   assert.deepEqual(errors, []);
   console.log('PASS: six players, lobby/raise/results, 13 portrait/landscape/tablet/desktop sizes including SE phones, no scroll or clipped controls, dialogs and exit');
 } catch (error) {
-  await page.screenshot({ path: fileURLToPath(new URL('../preview-debug.png', import.meta.url)) });
+  await page.screenshot({ path: previewPath('preview-debug.png') });
   throw error;
 } finally { await browser.close(); }

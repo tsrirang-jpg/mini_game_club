@@ -1,8 +1,8 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import { Client } from '@colyseus/sdk';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import { checkPokerViewport } from './poker-viewport-check.mjs';
 const browser = await chromium.launch({channel:'msedge',headless:true});
 const context = await browser.newContext({viewport:{width:952,height:442},deviceScaleFactor:2});
@@ -70,12 +70,12 @@ try{
   assert.equal(await page.locator('.poker-seat .card:not(.back)').count(),12);
   for(const [width,height] of [[952,442],[800,400],[1268,590],[1280,700],[1366,768],[1903,885],[2560,1080],[1024,600]]){
     await page.setViewportSize({width,height});await pause(100);await fits('Shown cards '+width+'x'+height);
-    if(width===952||width===1903) await page.screenshot({path:fileURLToPath(new URL('../preview-poker-high-'+width+'x'+height+'.png',import.meta.url)),...(width===1903?{scale:'css'}:{})});
+    if(width===952||width===1903) await page.screenshot({path:previewPath('preview-poker-high-'+width+'x'+height+'.png'),...(width===1903?{scale:'css'}:{})});
   }
   await page.reload();await page.locator('.poker-self .card:not(.back)').nth(1).waitFor();
   assert.equal(await page.locator('.card-size-high').count(),1,'High preference survives refresh');
   assert.deepEqual(errors,[]);
   await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
   console.log('PASS: High cards, separate board and own hand, scaled Windows DPR 2 and eight desktop viewports during Raise/showdown, Normal/High preference, 12 shown ranks');
-}catch(error){await page.screenshot({path:fileURLToPath(new URL('../preview-debug.png',import.meta.url))});throw error;}
+}catch(error){await page.screenshot({path:previewPath('preview-debug.png')});throw error;}
 finally{for(const room of rooms)await room.leave().catch(()=>{});await browser.close();}

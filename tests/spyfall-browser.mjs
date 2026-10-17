@@ -1,13 +1,13 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import {fileURLToPath} from 'node:url';
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const contexts=await Promise.all([{width:1366,height:1050},{width:360,height:850},{width:1024,height:900}].map(viewport=>browser.newContext({viewport})));
 const pages=await Promise.all(contexts.map(context=>context.newPage()));const[a,b,c]=pages;const errors=[];
 for(const p of pages)p.on('pageerror',e=>errors.push(e.message));
 const url=process.env.GAME_URL||'http://127.0.0.1:5188';const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(fn,ms=15000){const end=Date.now()+ms;while(!await fn()){if(Date.now()>end)throw new Error('Spyfall browser timeout');await pause(100);}}
-const shot=(page,name)=>page.screenshot({path:fileURLToPath(new URL(`../${name}.png`,import.meta.url)),fullPage:true});
+const shot=(page,name)=>page.screenshot({path:previewPath(`${name}.png`),fullPage:true});
 async function select(page,label,text){await page.getByRole('combobox',{name:label,exact:true}).click();await page.getByRole('option',{name:text,exact:true}).click();}
 async function start(){await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();await c.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();await wait(()=>a.getByRole('button',{name:'เริ่มภารกิจ',exact:true}).isEnabled());await a.getByRole('button',{name:'เริ่มภารกิจ',exact:true}).click();await wait(()=>a.getByRole('button',{name:'เปิดบทบาทลับ',exact:true}).isVisible());for(const p of pages)await p.getByRole('button',{name:'เปิดบทบาทลับ',exact:true}).click();}
 async function identities(){const spyIndex=(await Promise.all(pages.map(p=>p.locator('.secret-card.revealed.spy').count()))).findIndex(n=>n===1);assert.notEqual(spyIndex,-1);const citizen=pages.find((_,i)=>i!==spyIndex);return{spy:pages[spyIndex],spyName:['Agent A','Agent B','Agent C'][spyIndex],location:await citizen.locator('.secret-location').textContent()};}

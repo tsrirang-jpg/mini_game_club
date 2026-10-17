@@ -1,7 +1,7 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { selectOption } from './select-option.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 
 // Run against npm run dev. Uses installed Edge, no browser download required.
 const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
@@ -27,7 +27,7 @@ try {
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
   await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
-  await a.screenshot({ path: fileURLToPath(new URL('../preview-home.png', import.meta.url)), fullPage: true });
+  await a.screenshot({ path: previewPath('preview-home.png'), fullPage: true });
   await a.getByRole('button', { name: 'สร้างโต๊ะใหม่' }).click();
   await a.locator('.room-bar strong').waitFor();
   assert.match(new URL(a.url()).pathname, /^\/play\/[A-F0-9]{10}$/);
@@ -60,8 +60,8 @@ try {
         const original = await b.locator('.seat.own .card').allTextContents();
         assert.equal(await b.locator('.seat:not(.own) .card.back').count(), 2);
         assert.equal(await b.locator('.pok-own-value').isVisible(), true);
-        await a.screenshot({ path: fileURLToPath(new URL('../preview-table.png', import.meta.url)), fullPage: true });
-        await b.screenshot({ path: fileURLToPath(new URL('../preview-mobile.png', import.meta.url)), fullPage: true });
+        await a.screenshot({ path: previewPath('preview-table.png'), fullPage: true });
+        await b.screenshot({ path: previewPath('preview-mobile.png'), fullPage: true });
         await b.reload();
         await wait(async () => await b.locator('.seat.own .card:not(.back)').count() === 2 && await b.locator('.connection').textContent() === 'เชื่อมต่อแล้ว');
         assert.deepEqual(await b.locator('.seat.own .card').allTextContents(), original);
@@ -112,7 +112,7 @@ try {
   assert.match(await a.locator('.phase').textContent(), /จบรอบ/);
   assert.equal(await a.locator('.result').count(), 3);
   assert.equal((await a.locator('.points').allTextContents()).reduce((sum, text) => sum + Number(text.replace(/[^\d]/g, '')), 0), 3000);
-  await a.screenshot({ path: fileURLToPath(new URL('../preview-bots.png', import.meta.url)), fullPage: true });
+  await a.screenshot({ path: previewPath('preview-bots.png'), fullPage: true });
   await a.getByRole('button', { name: 'เตรียมรอบใหม่', exact: true }).click();
   await wait(() => a.getByRole('button', { name: 'เริ่มรอบ', exact: true }).isEnabled());
   await a.getByRole('button', { name: 'จัดการโต๊ะป๊อกเด้ง', exact: true }).click();
@@ -133,6 +133,6 @@ try {
 } catch (error) {
   console.error('Browser exceptions:', errors);
   console.error('Page body:', (await a.locator('body').textContent()).slice(0, 2000));
-  await a.screenshot({ path: fileURLToPath(new URL('../preview-debug.png', import.meta.url)), fullPage: true });
+  await a.screenshot({ path: previewPath('preview-debug.png'), fullPage: true });
   throw error;
 } finally { await browser.close(); }

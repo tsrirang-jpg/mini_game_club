@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -28,9 +29,9 @@ try{
     return{bad,clippedRanks,scroll:document.documentElement.scrollHeight>innerHeight+1||document.documentElement.scrollWidth>innerWidth+1,overlap:overlaps(feedback,self)||overlaps(feedback,draw)};
    });
    assert.deepEqual(report,{bad:[],clippedRanks:[],scroll:false,overlap:false},`${count} players ${total} cards paired=${paired} ${width}x${height}: ${JSON.stringify(report)}`);
-   if(count===3&&total===5&&[390,844].includes(width))await page.screenshot({path:`preview-oldmaid-feedback-${paired?'pair':'keep'}-${width}x${height}.png`});
+   if(count===3&&total===5&&[390,844].includes(width))await page.screenshot({path:previewPath(`preview-oldmaid-feedback-${paired?'pair':'keep'}-${width}x${height}.png`)});
   }
   await page.getByRole('button',{name:'ดูประวัติ ›',exact:true}).click();await page.getByRole('dialog',{name:'ประวัติ Old Maid'}).waitFor();assert.equal(await page.locator('.oldmaid-history li').count(),2);assert.match(await page.locator('.oldmaid-history').textContent(),/จั่วได้/);await page.keyboard.press('Escape');
  }
  assert.deepEqual(errors,[]);console.log('PASS: Old Maid private draw/pair feedback, new-card badges and history at 7 portrait/landscape/desktop sizes, 3/8 players and 5/13 cards');
-}catch(e){await page.screenshot({path:'preview-oldmaid-feedback-debug.png',fullPage:true});console.error(await page.locator('.oldmaid-feedback,.oldmaid-feedback header,.oldmaid-drawn,.oldmaid-drawn h2,.oldmaid-drawn p,.oldmaid-self,.oldmaid-hand .card,.oldmaid-hand .card > span:not(.bottom),.oldmaid-draw-area,.oldmaid-table').evaluateAll(es=>es.map(e=>({c:e.className,text:e.textContent,r:e.getBoundingClientRect().toJSON(),rows:getComputedStyle(e).gridTemplateRows,font:getComputedStyle(e).fontSize,display:getComputedStyle(e).display,position:getComputedStyle(e).position}))));throw e;}finally{await browser.close();}
+}catch(e){await page.screenshot({path:previewPath('preview-oldmaid-feedback-debug.png'),fullPage:true});console.error(await page.locator('.oldmaid-feedback,.oldmaid-feedback header,.oldmaid-drawn,.oldmaid-drawn h2,.oldmaid-drawn p,.oldmaid-self,.oldmaid-hand .card,.oldmaid-hand .card > span:not(.bottom),.oldmaid-draw-area,.oldmaid-table').evaluateAll(es=>es.map(e=>({c:e.className,text:e.textContent,r:e.getBoundingClientRect().toJSON(),rows:getComputedStyle(e).gridTemplateRows,font:getComputedStyle(e).fontSize,display:getComputedStyle(e).display,position:getComputedStyle(e).position}))));throw e;}finally{await browser.close();}

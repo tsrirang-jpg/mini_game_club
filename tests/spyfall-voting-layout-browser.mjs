@@ -1,3 +1,4 @@
+import { previewPath } from './helpers/preview-path.mjs';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
@@ -83,7 +84,7 @@ try {
     assert.deepEqual(await page.evaluate(() => window.confirmedVotes), ['p1']);
     assert.equal(await page.locator('.spy-vote-stamp.done').count(), count - 1);
     if (count === 8 && (width === 375 || width === 1366)) assert.equal(await page.locator('.spy-voting-list').evaluate(e => e.scrollHeight <= e.clientHeight + 1), true, 'all eight players fit at ' + width + 'x' + height);
-    if (count === 8 && (width === 375 || width === 568 || width === 1366)) await page.screenshot({ path: `preview-spyfall-voting-${width}x${height}.png` });
+    if (count === 8 && (width === 375 || width === 568 || width === 1366)) await page.screenshot({ path: previewPath(`preview-spyfall-voting-${width}x${height}.png`) });
   }
   await fixture('VOTING', 8, 500);
   await page.locator('.spy-vote-option').nth(1).click();
@@ -107,7 +108,7 @@ try {
     await page.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();
     assert.deepEqual(await page.evaluate(()=>window.spyAnswers),[{type:'guess',value:'โรงเรียน'}]);
     assert.equal(await page.getByRole('button',{name:'ยอมแพ้',exact:true}).isDisabled(),true);
-    if(width===375||width===568||width===1366)await page.screenshot({path:`preview-spyfall-guess-${width}x${height}.png`});
+    if(width===375||width===568||width===1366)await page.screenshot({path:previewPath(`preview-spyfall-guess-${width}x${height}.png`)});
   }
   await fixture('GUESS');await page.getByRole('button',{name:'ยอมแพ้',exact:true}).click();
   assert.deepEqual(await page.evaluate(()=>window.spyAnswers),[{type:'surrender',value:undefined}]);
