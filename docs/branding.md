@@ -4,7 +4,7 @@ The approved 03C mark is a gold circular game emblem with four curved sectors,
 a central round opening, spade, controller D-pad, two dots and a question mark.
 The Thai name sits to its right; the English descriptor sits below the name.
 
-- `apps/client/public/images/brand/wong-sian-mark-v1.svg` is the transparent,
+- `apps/client/public/images/brand/wong-sian-mark-v2.svg` is the transparent,
   scalable source shared by all headers and the browser favicon. Its cutouts
   expose each game's background. Versioned image URLs receive the existing
   immutable cache headers in production.

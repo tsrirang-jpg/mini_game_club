@@ -9,9 +9,9 @@ page.on('pageerror',error=>errors.push(error.message));
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[932,430],[844,390],[568,320]];
 const paths=['/games',...['','/poker','/spyfall','/oldmaid','/whoami'].flatMap(base=>[base+'/rooms/create',base+'/rooms/join'])];
 try{
- const icon=await page.request.get(url+'/images/brand/wong-sian-mark-v1.svg');assert.equal(icon.status(),200);assert.match(icon.headers()['content-type'],/image\/svg\+xml/);
+ const icon=await page.request.get(url+'/images/brand/wong-sian-mark-v2.svg');assert.equal(icon.status(),200);assert.match(icon.headers()['content-type'],/image\/svg\+xml/);
  for(const path of paths){
-  await page.goto(url+path);await page.locator('.top .brand-logo').waitFor();await page.locator('.game-options,.entry').waitFor();assert.equal(await page.title(),'วงเซียน · Mini Game Club');assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'/images/brand/wong-sian-mark-v1.svg');
+  await page.goto(url+path);await page.locator('.top .brand-logo').waitFor();await page.locator('.game-options,.entry').waitFor();assert.equal(await page.title(),'วงเซียน · Mini Game Club');assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'/images/brand/wong-sian-mark-v2.svg');
   await page.waitForFunction(()=>document.querySelector('.brand-mark')?.naturalWidth>0);
   for(const[width,height]of sizes){
    await page.setViewportSize({width,height});const logo=page.locator('.top .brand-logo');assert.equal(await logo.locator('.brand-name').textContent(),'วงเซียน');assert.equal(await logo.locator('.brand-descriptor').textContent(),'MINI GAME CLUB');assert.equal(await logo.locator('.brand-descriptor').isVisible(),true,'descriptor remains visible '+path+' '+width+'x'+height);
