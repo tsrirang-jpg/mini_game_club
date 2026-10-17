@@ -11,7 +11,7 @@ const health = await fetch(`${httpUrl}/health`);
 assert.equal(health.status, 200);
 assert.deepEqual(await health.json(), { status: 'ok' });
 let html;
-for (const path of ['/', '/games', '/rooms/create', '/play/ABC123', '/poker/rooms/create', '/poker/play/ABC123', '/spyfall/rooms/create', '/spyfall/play/ABC123', '/oldmaid/rooms/create', '/oldmaid/play/ABC123', '/whoami/rooms/create', '/whoami/play/ABC123']) {
+for (const path of ['/', '/games', '/rooms/create', '/play/ABC123', '/poker/rooms/create', '/poker/play/ABC123', '/spyfall/rooms/create', '/spyfall/play/ABC123', '/oldmaid/rooms/create', '/oldmaid/play/ABC123', '/whoami/rooms/create', '/whoami/play/ABC123', '/liar/rooms/create', '/liar/rooms/join', '/liar/play/ABC123']) {
   const response = await fetch(`${httpUrl}${path}`);
   assert.equal(response.status, 200, `SPA route ${path}`);
   assert.match(response.headers.get('content-type'), /text\/html/);
@@ -27,7 +27,7 @@ for (const path of ['/assets/missing.js', '/.env', '/package.json', '/unknown-ap
   assert.equal((await fetch(`${httpUrl}${path}`)).status, 404, `Missing path ${path}`);
 }
 console.log('PASS: production health, deep links, cached assets, and missing-file responses');
-for (const game of ['pok', 'poker', 'spyfall', 'oldmaid', 'whoami']) {
+for (const game of ['pok', 'poker', 'spyfall', 'oldmaid', 'whoami', 'liar']) {
   let snapshot;
   const a = await new Client(endpoint).create(game, { name: 'Production Host' });
   a.onMessage('snapshot', message => { snapshot = message; }); a.onMessage('hand', () => {});

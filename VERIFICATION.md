@@ -1,5 +1,16 @@
 # Verification — 17 October 2026
 
+## Liar’s Card addition
+
+- Strict TypeScript including unused locals/parameters, client/server production build: PASS.
+- Vitest: **292 tests in 20 files**, including custom Liar rules, card conservation, last-card challenges, rank-preserving skips, capped history, timer disposal, real 2/3/6-client challenge/reconnect/scoring and unchanged Old Maid transport: PASS.
+- Liar Create/Join, five game phases, Emergency popup and 26-card hand strip at 11 desktop/tablet/mobile sizes (down to 320×480 and 568×320), no active-game page scroll or table-content collisions: PASS.
+- Three real browsers: deal 52 cards, mandatory A♣ opening, consecutive skips keep rank, all-skip scoring, replay and leave: PASS.
+- Shared copy controls across six real rooms and branding across menu + twelve entry routes, each at 11 sizes: PASS.
+- Compiled production server: `/health`, SPA routes including `/liar/*`, immutable assets, missing-file 404s and create/join/consented exit for all six games: PASS locally.
+
+The preceding checks measure correctness and layout, not production concurrency or load capacity. Earlier checks below retain their original scope.
+
 ตรวจบน macOS ด้วย Microsoft Edge headless หลัง refactor component, การโหลดหน้าเกม, sync และวงจรจัดการ timer/connection โดยคง UI, กติกา บอท และข้อมูลส่วนตัว รายละเอียด benchmark และข้อจำกัดอยู่ใน [docs/performance.md](docs/performance.md)
 
 | Check | Result |

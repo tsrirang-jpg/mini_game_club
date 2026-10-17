@@ -7,6 +7,7 @@ import type { SpySnapshot, SpyAction, SpySecret } from '../../../packages/shared
 import type { OldMaidSnapshot, OldMaidAction, OldMaidPrivateState } from '../../../packages/shared/src/oldmaid';
 
 import type { WhoSnapshot, WhoAction, WhoPrivate, WhoSettings } from '../../../packages/shared/src/whoami';
+import type { LiarSnapshot, LiarAction } from '../../../packages/shared/src/liar';
 
 type Status = 'idle' | 'connecting' | 'connected' | 'reconnecting';
 export interface SessionState<S = Snapshot> {
@@ -212,3 +213,4 @@ export const spySession = new GameSession<SpySnapshot, SpyAction>('spyfall', '/s
 export const oldMaidSession = new GameSession<OldMaidSnapshot, OldMaidAction>('oldmaid', '/oldmaid/play', '/oldmaid/rooms/create');
 
 export const whoAmISession = new GameSession<WhoSnapshot, WhoAction>('whoami', '/whoami/play', '/whoami/rooms/create');
+export const liarSession = new GameSession<LiarSnapshot, LiarAction>('liar', '/liar/play', '/liar/rooms/create');

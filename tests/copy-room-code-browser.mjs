@@ -8,7 +8,7 @@ const page=await browser.newPage({viewport:{width:1366,height:768},reducedMotion
 page.on('pageerror',error=>errors.push(error.message));
 await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async code=>{if(window.__rejectCopy)throw new Error('clipboard denied');window.__copiedCode=code;}}}));
 const sizes=[[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[932,430],[844,390],[667,375],[568,320]];
-const games=[['pok','/rooms/create','สร้างโต๊ะใหม่ →'],['poker','/poker/rooms/create','สร้างโต๊ะ Poker →'],['spyfall','/spyfall/rooms/create','สร้างห้อง Spyfall →'],['oldmaid','/oldmaid/rooms/create','สร้างห้อง Old Maid →'],['whoami','/whoami/rooms/create','สร้างห้อง Who am I →']];
+const games=[['pok','/rooms/create','สร้างโต๊ะใหม่ →'],['poker','/poker/rooms/create','สร้างโต๊ะ Poker →'],['spyfall','/spyfall/rooms/create','สร้างห้อง Spyfall →'],['oldmaid','/oldmaid/rooms/create','สร้างห้อง Old Maid →'],['whoami','/whoami/rooms/create','สร้างห้อง Who am I →'],['liar','/liar/rooms/create','สร้างห้อง Liar’s Card →']];
 try{
  for(const[game,route,create]of games){
   await page.setViewportSize({width:1366,height:768});await page.goto(url+route);await page.getByLabel('ชื่อของคุณ').fill('Copy Test');await page.getByRole('button',{name:create,exact:true}).click();await page.locator('.room-bar').waitFor();
@@ -27,5 +27,5 @@ try{
   await page.evaluate(()=>window.__rejectCopy=true);await button.click();assert.equal(await label.textContent(),'คัดลอกรหัส','denied clipboard never reports success');await page.evaluate(()=>window.__rejectCopy=false);
   await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await page.getByLabel('ชื่อของคุณ').waitFor();
  }
- assert.deepEqual(errors,[]);console.log('PASS: shared copy UI in five real rooms at 11 viewports, desktop text/mobile icons, complete clipboard values, success/reset/rotation, denied clipboard, no header clipping or overlap');
+ assert.deepEqual(errors,[]);console.log('PASS: shared copy UI in six real rooms at 11 viewports, desktop text/mobile icons, complete clipboard values, success/reset/rotation, denied clipboard, no header clipping or overlap');
 }finally{await browser.close();}

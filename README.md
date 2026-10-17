@@ -8,6 +8,8 @@
 
 ## โครงสร้างและประสิทธิภาพ
 
+เพิ่ม **Liar’s Card · ไพ่ตอแหล** สำหรับเพื่อนและบอทรวม 2–6 คน ที่ `/liar/rooms/create` หน้า Create/Join โทนม่วง–ทอง พร้อมลงไพ่ทีละใบ, Skip คงเลขเดิม, Emergency จับเฉพาะใบล่าสุด และนับแต้มเมื่อทุกคนข้าม ดู [กติกาและโครงสร้าง](docs/liar.md) · ทดสอบหน้าจอด้วย `npm run test:liar`
+
 ภาพหน้าจอสำหรับตรวจ UI และ debug รวมไว้ใน `artifacts/previews/` browser tests ใช้ `tests/helpers/preview-path.mjs` เพื่อสร้างโฟลเดอร์และบันทึกภาพที่เดียวกัน ไฟล์ PNG เหล่านี้ถูกยกเว้นจาก Git และไม่ถูก deploy
 
 รูปประกอบอยู่ใน `apps/client/public/images/entry/` และอ้างผ่าน manifest `src/assets/images.ts`; component ร่วมอยู่ใน `src/components/entry/`, `src/components/ui/` และ hook จับเวลาใน `src/hooks/` แต่ละหน้าเกมและ SDK โหลดเมื่อต้องใช้ การ sync ส่งกลับเฉพาะผู้ร้องขอ และ timer หยุดเมื่อไม่มี deadline หรือซ่อนแท็บ
@@ -252,7 +254,7 @@ Reconnect ภายใน 60 วินาทีได้ด้วย Colyseus re
 
 Deploy ด้วย Node web service เดียว: server เสิร์ฟ React build ที่ `apps/client/dist`, HTTP matchmaking และ WebSocket บนโดเมนเดียวกัน Client production เลือก WSS อัตโนมัติเมื่อเปิดผ่าน HTTPS ไม่ต้องใส่ `VITE_GAME_URL` หากใช้บริการเดียว
 
-Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` , `/spyfall/*`, `/oldmaid/*` และ `/whoami/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
+Server มี SPA fallback ให้ `/games`, `/rooms/*`, `/play/*`, `/poker/*` , `/spyfall/*`, `/oldmaid/*` และ `/whoami/*`, `/liar/*` เพื่อเปิดลิงก์ตรงและ refresh ได้ และ `/health` ตอบ `{ "status": "ok" }` สำหรับตรวจบริการ ไฟล์ assets ที่ Vite ใส่ hash ใช้ cache 1 ปี ส่วน index.html ใช้ no-cache
 
 บริการจริงชื่อ `wong-sian` ใน Render My Workspace ใช้ Node 24, region Singapore, แผน Free, single instance, build `npm ci --include=dev && npm run build`, start `npm start` และ `NODE_ENV=production` Server รับพอร์ตจาก `PORT` ของ Render และ bind `0.0.0.0` เปิด auto-deploy จาก branch `main` ของ `tsrirang-jpg/mini_game_club`
 

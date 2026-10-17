@@ -7,7 +7,7 @@ const browser=await chromium.launch({channel:'msedge',headless:true});
 const page=await browser.newPage({viewport:{width:1366,height:768},reducedMotion:'reduce'}),errors=[];
 page.on('pageerror',error=>errors.push(error.message));
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[932,430],[844,390],[568,320]];
-const paths=['/games',...['','/poker','/spyfall','/oldmaid','/whoami'].flatMap(base=>[base+'/rooms/create',base+'/rooms/join'])];
+const paths=['/games',...['','/poker','/spyfall','/oldmaid','/whoami','/liar'].flatMap(base=>[base+'/rooms/create',base+'/rooms/join'])];
 try{
  const icon=await page.request.get(url+'/images/brand/wong-sian-yinyang-04-v1.png');assert.equal(icon.status(),200);assert.match(icon.headers()['content-type'],/image\/png/);
  for(const path of paths){
@@ -20,5 +20,5 @@ try{
   }
  }
  await page.getByRole('link',{name:'วงเซียน · Mini Game Club',exact:true}).click();await page.locator('.game-options').waitFor();assert.deepEqual(errors,[]);
- console.log('PASS: Wong Sian yin-yang 04 logo/name/descriptor/favicon, menu plus ten create/join routes at 11 viewports, unclipped right-side wordmark, no header overlap or horizontal overflow, home navigation');
+ console.log('PASS: Wong Sian yin-yang 04 logo/name/descriptor/favicon, menu plus twelve create/join routes at 11 viewports, unclipped right-side wordmark, no header overlap or horizontal overflow, home navigation');
 }catch(error){await page.screenshot({path:previewPath('preview-wong-sian-brand-debug.png'),fullPage:true});throw error;}finally{await browser.close();}

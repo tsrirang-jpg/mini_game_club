@@ -33,7 +33,7 @@ export function RoomEntryForm({ join, status, createText, joinText, connect, def
   }}>
     <label>ชื่อของคุณ<input required maxLength={20} value={name} onChange={event => setName(event.target.value)} placeholder={namePlaceholder} autoComplete="nickname"/></label>
     {join ? <><label>รหัสห้อง<input required maxLength={10} value={code} onChange={event => setCode(event.target.value.toUpperCase())} placeholder={codePlaceholder} autoCapitalize="characters"/></label>{joinHint}</>
-      : botLimit ? <SpyfallSelect<number> label="จำนวนบอท" value={botCount} disabled={status !== 'idle'} onChange={setBotCount} options={botOptions.get(botLimit)!}/> : createSettings}
+      : <>{botLimit && <SpyfallSelect<number> label="จำนวนบอท" value={botCount} disabled={status !== 'idle'} onChange={setBotCount} options={botOptions.get(botLimit)!}/>}{createSettings}</>}
     {(!join || factsOnJoin) && facts}
     <button className="primary full" disabled={disabled}>{status === 'connecting' ? 'กำลังเข้าห้อง…' : join ? joinText : createText}</button>
   </form>;

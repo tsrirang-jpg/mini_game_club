@@ -32,6 +32,7 @@
     "benchmark:performance": "node scripts/benchmark-performance.mjs",
     "report:performance": "node scripts/render-performance-report.mjs",
     "test:whoami": "node tests/whoami-browser.mjs",
+    "test:liar": "node tests/liar-browser.mjs",
     "test:copy-room-code": "node tests/copy-room-code-browser.mjs",
     "test:brand": "node tests/brand-browser.mjs"
   },
