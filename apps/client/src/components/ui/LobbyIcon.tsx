@@ -9,6 +9,9 @@ const paths={
   clock:'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0ZM12 6v6l4 2',
   check:'m5 12 4 4L19 6',
   play:'m7 3 14 9-14 9Z',
+  send:'m22 2-7 20-4-9-9-4ZM22 2 11 13',
+  pencil:'m16 3 5 5M3 21l5-1L22 6l-4-4L4 16ZM3 21l1-5 4 4',
+  grid:'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z',
 } as const;
 
 export function LobbyIcon({name}:{name:keyof typeof paths}) {

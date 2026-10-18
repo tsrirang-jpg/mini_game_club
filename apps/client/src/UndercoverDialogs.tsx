@@ -1,4 +1,6 @@
 import {useEffect,useState} from 'react';
+import {LobbyIcon} from './components/ui/LobbyIcon';
+import './undercover-voting.css';
 import {GameDialog} from './components/ui/GameDialog';
 import {PlayerVotingContent} from './components/ui/PlayerVotingContent';
 import {UnderRolePortrait,underRoleNames} from './UndercoverRolePortrait';
@@ -10,11 +12,12 @@ export function UnderVoteDialog({s,playerId,secret,connected,seconds,onVote}:{s:
   useEffect(()=>{if(!submitted||!connected)setPending(false);},[submitted,connected]);
   useEffect(()=>{if(targetId&&!s.eligibleIds.includes(targetId))setTargetId('');},[s.eligibleIds,targetId]);
   const selected=submitted?secret?.vote?.targetId??targetId:targetId;
+  const clues=new Map(s.hints.filter(h=>h.cycle===s.cycle).map(h=>[h.playerId,h.text]));
   const canVote=connected&&!submitted&&!pending&&alive&&seconds>0;
   return <GameDialog title="ใครคือผู้ต้องสงสัย?" onClose={()=>{}} dismissible={false} className="spy-voting-dialog under-dialog under-vote-dialog">
     <PlayerVotingContent title={s.runoff?'คะแนนเสมอ · โหวตอีกครั้ง':'ใครคือผู้ต้องสงสัย?'} eyebrow={`UNDERCOVER · รอบ ${s.cycle}`}
-      description={s.runoff?'เลือกจากผู้ที่เสมอ แล้วกดยืนยันโหวต':'เลือกผู้เล่น 1 คน แล้วกดยืนยันโหวต'}
-      players={s.players.filter(p=>p.alive).map(p=>({...p,confirmed:s.submittedIds.includes(p.id),eligible:s.eligibleIds.includes(p.id)}))}
+      description={s.runoff?'อ่านคำใบ้ เลือกจากผู้ที่เสมอ แล้วกดยืนยัน':'อ่านคำใบ้ เลือกผู้เล่น 1 คน แล้วกดยืนยัน'} showClues emblem={<LobbyIcon name="people"/>} confirmIcon={<LobbyIcon name="send"/>}
+      players={s.players.filter(p=>p.alive).map(p=>({...p,clue:clues.get(p.id),confirmed:s.submittedIds.includes(p.id),eligible:s.eligibleIds.includes(p.id)}))}
       playerId={playerId} selected={selected||null} canVote={canVote} confirmed={submitted} submitting={pending} active={connected}
       seconds={seconds} progress={seconds/(s.voteMinutes*60)*100} select={setTargetId}
       note={alive?'ยืนยันครบทุกคนจะแสดงผลพร้อมกัน':'คุณออกจากรอบแล้ว · รอติดตามผลโหวต'}

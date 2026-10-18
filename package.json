@@ -37,7 +37,9 @@
     "test:undercover-results": "node tests/undercover-results-browser.mjs",
     "test:undercover-lobby": "node tests/undercover-lobby-browser.mjs",
     "test:copy-room-code": "node tests/copy-room-code-browser.mjs",
-    "test:brand": "node tests/brand-browser.mjs"
+    "test:brand": "node tests/brand-browser.mjs",
+    "test:undercover-discussion": "node tests/undercover-discussion-browser.mjs",
+    "test:undercover-voting": "node tests/undercover-voting-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

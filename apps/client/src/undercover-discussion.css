@@ -1,0 +1,368 @@
+/* Concept 01: private composer above the public clue grid, room chat beside it. */
+.under-discussion {display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,25vw,340px);gap:16px;flex:1;min-height:0;min-width:0;padding:16px;border:1px solid #48505a;border-radius:16px;background:linear-gradient(130deg,#16191c,#101315);}
+.under-discussion .lobby-icon {width:23px;height:23px;flex:none;}
+.under-discussion-main {display:flex;flex-direction:column;gap:14px;min-width:0;min-height:0;overflow:auto;scrollbar-width:thin;overscroll-behavior:contain;}
+.under-writing {display:grid;grid-template-columns:minmax(0,1fr) 165px;gap:12px 18px;padding:18px;border:1px solid #555d66;border-radius:12px;background:linear-gradient(135deg,#222529,#191c1e);flex:none;}
+.under-writing.own-turn {border:2px solid var(--club-accent);padding:17px;box-shadow:inset 0 1px #ffe4a226;}
+.under-writing>header {display:flex;align-items:center;gap:12px;grid-column:1/-1;min-width:0;}
+.under-writing>header>.lobby-icon {width:36px;height:36px;color:var(--club-accent);}
+.under-writing>header>div:first-of-type {min-width:0;flex:1;}
+.under-game .under-writing h1 {margin:0;font-size:clamp(18px,2vw,28px);line-height:1.4;overflow-wrap:anywhere;}
+.under-writing header p {margin:4px 0 0;font-size:12px;color:var(--club-muted);}
+.under-writing-clock {display:flex;align-items:center;gap:8px;flex:none;font-size:23px;font-variant-numeric:tabular-nums;}
+.under-writing-clock i {display:block;width:38px;height:38px;border-radius:50%;position:relative;}
+.under-writing-clock i::after {content:'';position:absolute;inset:5px;border-radius:50%;background:#222529;}
+.under-writing .under-compose {display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin:0;min-width:0;}
+.under-compose label {position:relative;display:block;width:100%;margin:0;}
+.under-compose textarea {display:block;width:100%;height:106px;min-height:72px;resize:none;padding:14px 14px 25px;margin:0;background:#141719;color:#fff;border:1px solid var(--club-accent);border-radius:9px;font:inherit;font-size:20px;line-height:1.5;}
+.under-compose label>small {position:absolute;bottom:7px;right:12px;color:var(--club-muted);font-size:11px;pointer-events:none;}
+.under-compose textarea::placeholder {color:var(--club-muted);font-size:14px;}
+.under-compose textarea:focus-visible {outline:2px solid var(--club-accent);outline-offset:2px;}
+.under-compose>button {display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;font-size:18px;padding:8px 23px;}
+.under-writing-private {display:flex;flex-direction:column;gap:7px;justify-content:center;min-width:0;text-align:center;}
+.under-writing-private>.under-word {min-height:0;height:100%;padding:9px;gap:6px;background:#17191c;border-color:#505c6a;}
+.under-writing-private .under-word>span {font-size:11px;}
+.under-writing-private .under-word>strong {font-size:27px;color:#fff;line-height:1.25;}
+.under-writing-private .under-word button {min-height:34px;font-size:10px;padding:5px 9px;}
+.under-writing-private .under-word>small {display:none;}
+.under-writing-private>small {font-size:10px;color:var(--club-muted);}
+.under-writing-status {align-self:center;color:var(--club-muted);font-size:14px;margin:0;overflow-wrap:anywhere;}
+.under-clue-board {display:flex;flex-direction:column;flex:1;min-height:240px;min-width:0;gap:12px;}
+.under-board-heading {display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid #414b57;border-radius:11px;background:linear-gradient(125deg,#24292e,#171b1e);flex:none;flex-wrap:wrap;}
+.under-board-heading>.lobby-icon {width:29px;height:29px;color:var(--club-accent);}
+.under-board-heading>div:first-of-type {min-width:0;flex:1;}
+.under-game .under-board-heading h2 {margin:0;font-size:20px;line-height:1.4;}
+.under-board-heading p {margin:4px 0 0;color:var(--club-muted);font-size:11px;}
+.under-board-progress {display:flex;align-items:center;gap:12px;flex:none;font-size:13px;}
+.under-board-progress progress {appearance:none;border:1px solid #46515e;border-radius:20px;background:#252e35;width:clamp(60px,10vw,160px);height:12px;overflow:hidden;}
+.under-board-progress progress::-webkit-progress-bar {background:#252e35;}
+.under-board-progress progress::-webkit-progress-value {background:linear-gradient(90deg,#f6d998,#dba956);border-radius:20px;}
+.under-board-progress progress::-moz-progress-bar {background:#e6c582;border-radius:20px;}
+.under-board-heading .spy-select {max-width:155px;}
+.under-board-heading .spy-select-trigger {min-height:44px;}
+.under-clue-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(142px,1fr);gap:12px;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px;}
+.under-clue-card {display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0;overflow:auto;padding:13px;border:1px solid #414b56;border-radius:11px;background:linear-gradient(140deg,#232a30,#181d20);scrollbar-width:thin;}
+.under-clue-card.current {border:2px solid var(--club-accent);padding:12px;box-shadow:0 0 12px #e6c58215;}
+.under-clue-card.eliminated:not(.submitted) {opacity:.55;}
+.under-clue-card>header {display:flex;gap:8px;align-items:center;min-width:0;position:relative;}
+.under-seat-number {align-self:start;font-size:11px;color:#f0eadb;}
+.under-clue-avatar,.under-chat-avatar {display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,#596777,#394654);color:#fff;font-size:21px;flex:none;}
+.under-clue-card strong {font-size:14px;overflow-wrap:anywhere;min-width:0;flex:1;line-height:1.4;}
+.under-clue-card strong small {font-size:11px;font-weight:400;}
+.under-clue-done {display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:var(--club-accent);color:#17181b;flex:none;}
+.under-clue-done .lobby-icon {width:17px;height:17px;}
+.under-clue-text {font-size:clamp(17px,1.7vw,25px);text-align:center;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin:auto 0;padding:9px;border:1px solid #4b5866;border-radius:10px;background:linear-gradient(130deg,#303a44,#232b33);}
+.under-clue-placeholder {display:flex;align-items:center;justify-content:center;gap:7px;font-size:15px;line-height:1.5;text-align:center;color:var(--club-muted);margin:auto 0;overflow-wrap:anywhere;}
+.current .under-clue-placeholder {color:var(--club-accent);}
+.under-clue-card>small {font-size:10px;color:var(--club-muted);text-align:center;overflow-wrap:anywhere;}
+.under-board-note {display:flex;align-items:center;justify-content:center;gap:10px;padding-top:12px;border-top:1px solid #39434d;margin:0;font-size:13px;color:var(--club-muted);flex:none;}
+.under-chat-sidebar {display:flex;min-width:0;min-height:0;}
+.under-chat-panel {display:flex;flex-direction:column;gap:14px;width:100%;min-width:0;min-height:0;padding:16px 13px;border:1px solid #46515e;border-radius:12px;background:linear-gradient(125deg,#232930,#171c20);}
+.under-chat-panel>header {display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:14px;border-bottom:1px solid #39434d;flex:none;flex-wrap:wrap;}
+.under-chat-panel>header h2 {display:flex;align-items:center;gap:8px;font-size:19px;margin:0;}
+.under-chat-panel>header small {display:flex;align-items:center;gap:5px;font-size:10px;color:var(--club-muted);}
+.under-chat-panel>header small .lobby-icon {width:16px;height:16px;}
+.under-chat-log {flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px;}
+.under-chat-empty {display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--club-muted);text-align:center;}
+.under-chat-empty>.lobby-icon {width:40px;height:40px;color:var(--club-accent);}
+.under-chat-empty p {font-size:13px;margin:0;}
+.under-chat-empty small {font-size:11px;}
+.under-chat-message {display:flex;gap:8px;align-items:start;min-width:0;margin:0 0 18px;}
+.under-chat-avatar {width:32px;height:32px;font-size:16px;}
+.under-chat-message>div {min-width:0;max-width:calc(100% - 40px);}
+.under-chat-message header {display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.under-chat-message strong {font-size:12px;font-weight:600;overflow-wrap:anywhere;}
+.under-chat-message time {font-size:10px;color:#b8c2cf;}
+.under-chat-message p {margin:6px 0 0;background:#303943;border-radius:0 11px 11px 11px;padding:10px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+.under-chat-message.mine {flex-direction:row-reverse;}
+.under-chat-message.mine header {justify-content:flex-end;color:var(--club-accent);}
+.under-chat-message.mine .under-chat-avatar {display:none;}
+.under-chat-message.mine>div {max-width:94%;}
+.under-chat-message.mine p {background:linear-gradient(#f7d994,#dbae5b);color:#20190e;border-radius:11px 0 11px 11px;}
+.under-chat-compose {display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:7px;flex:none;margin:0;}
+.under-chat-compose textarea {margin:0;width:100%;height:50px;min-height:50px;max-height:90px;padding:12px;resize:none;border:1px solid #546273;border-radius:9px;color:#fff;background:#222b35;font:inherit;font-size:14px;line-height:1.5;}
+.under-chat-compose textarea::placeholder {color:#bec8d5;}
+.under-chat-compose button {display:grid;place-items:center;min-height:44px;padding:8px;}
+.under-chat-compose>small {grid-column:1/-1;color:var(--club-muted);font-size:9px;line-height:1.5;}
+.under-chat-toggle {display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;border:1px solid var(--club-accent);border-radius:10px;background:#1b1e21;color:#faf8f2;flex:none;}
+.under-chat-unread {display:grid;place-items:center;background:#c0444b;color:#fff;border-radius:30px;min-width:23px;padding:2px 6px;font-size:11px;}
+.club-shell .under-chat-sheet {position:fixed;inset:auto 8px max(8px,env(safe-area-inset-bottom));margin:0 auto;width:min(600px,calc(100vw - 16px));max-width:none;height:min(580px,75dvh);max-height:calc(100dvh - 20px);padding:20px 0 0;border-radius:18px 18px 12px 12px;overflow:hidden;}
+.under-chat-sheet[open] {display:flex;flex-direction:column;}
+.under-chat-sheet::before {content:'';position:absolute;top:7px;left:calc(50% - 20px);width:40px;height:4px;border-radius:10px;background:#747b83;}
+.under-chat-sheet>h2 {display:none;}
+.under-chat-sheet>.dialog-close {position:absolute;right:8px;top:18px;min-width:44px;min-height:44px;z-index:1;}
+.under-chat-sheet .under-chat-panel {flex:1;overflow:hidden;border:0;border-radius:0;padding:0 12px 12px;}
+.under-chat-sheet .under-chat-panel>header {min-height:44px;padding:0 46px 10px 0;}
+.under-chat-sheet .lobby-icon {width:23px;height:23px;flex:none;}
+@media(min-width:1600px) and (min-height:900px) {
+ .under-discussion {padding:22px;gap:20px;}
+ .under-writing {padding:24px;grid-template-columns:minmax(0,1fr) 190px;}
+ .under-writing.own-turn {padding:23px;}
+ .under-compose textarea {height:130px;}
+ .under-clue-grid {grid-auto-rows:minmax(170px,1fr);gap:16px;}
+ .under-clue-card {padding:18px;}
+ .under-clue-card.current {padding:17px;}
+}
+@media(max-width:999px),(max-height:650px) {
+ .under-discussion {display:flex;flex-direction:column;gap:8px;padding:10px;}
+ .under-discussion-main {flex:1;gap:10px;}
+ .under-writing {grid-template-columns:minmax(0,1fr) 140px;padding:12px;gap:10px;}
+ .under-writing.own-turn {padding:11px;}
+ .under-writing-clock {font-size:18px;gap:6px;}
+ .under-writing-clock i {width:28px;height:28px;}
+ .under-writing-clock i::after {inset:4px;}
+ .under-clue-board {min-height:230px;}
+ .under-clue-grid {grid-auto-rows:minmax(118px,1fr);gap:8px;}
+ .under-chat-sheet .under-chat-panel h2 {font-size:18px;}
+ .under-chat-sheet .under-chat-compose button {min-height:44px;margin:0;}
+}
+@media(max-width:600px) {
+ .under-discussion {padding:6px;gap:6px;border-radius:12px;}
+ .under-discussion-main {gap:8px;}
+ .under-writing,.under-writing.own-turn {position:relative;display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;padding:9px;}
+ .under-writing>header {gap:6px;}
+ .under-writing>header>.lobby-icon {width:22px;height:22px;}
+ .under-game .under-writing h1 {font-size:14px;}
+ .under-writing header p {display:none;}
+ .under-writing-clock {gap:4px;font-size:15px;}
+ .under-writing-clock>.lobby-icon,.under-writing-clock i {display:none;}
+ .under-writing .under-compose {display:contents;}
+ .under-compose>label {grid-column:1/-1;}
+ .under-compose textarea {height:62px;min-height:62px;font-size:16px;padding:8px 10px 22px;}
+ .under-compose>button {grid-column:2;grid-row:3;align-self:center;padding:7px;font-size:14px;min-height:44px;}
+ .under-compose>button .lobby-icon {width:18px;height:18px;}
+ .under-writing-private {grid-column:1;grid-row:3;}
+ .under-writing-private>.under-word {position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 5px;padding:5px;}
+ .under-writing-private .under-word>span {font-size:8px;grid-column:1;}
+ .under-writing-private .under-word>strong {font-size:18px;grid-column:1;}
+ .under-writing-private .under-word>button {grid-column:2;grid-row:1/3;min-height:44px;padding:3px 5px;font-size:9px;}
+ .under-writing-private>small {display:none;}
+ .under-writing:not(.own-turn) .under-writing-private {grid-row:2;grid-column:1/-1;}
+ .under-writing-status {grid-column:1/-1;font-size:11px;order:3;}
+ .under-board-heading {gap:7px;padding:9px;}
+ .under-board-heading>.lobby-icon {width:20px;height:20px;}
+ .under-game .under-board-heading h2 {font-size:14px;}
+ .under-board-heading p {display:none;}
+ .under-board-progress {gap:5px;font-size:10px;}
+ .under-board-progress progress {width:45px;height:7px;}
+ .under-board-heading .spy-select {max-width:100%;flex-basis:100%;}
+ .under-clue-board {gap:6px;min-height:220px;}
+ .under-clue-grid {grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(105px,1fr);gap:7px;}
+ .under-clue-card {padding:9px;gap:7px;}
+ .under-clue-card.current {padding:8px;}
+ .under-clue-card>header {gap:5px;}
+ .under-seat-number {font-size:9px;}
+ .under-clue-avatar {width:26px;height:26px;font-size:14px;}
+ .under-clue-card strong {font-size:11px;}
+ .under-clue-card strong small {font-size:9px;}
+ .under-clue-done {width:17px;height:17px;}
+ .under-clue-done .lobby-icon {width:13px;height:13px;}
+ .under-clue-placeholder {font-size:11px;gap:4px;}
+ .under-clue-placeholder .lobby-icon {width:16px;height:16px;}
+ .under-clue-text {font-size:15px;padding:6px;}
+ .under-clue-card>small {font-size:9px;}
+ .under-board-note {font-size:10px;padding-top:7px;gap:6px;}
+ .under-board-note .lobby-icon {width:18px;height:18px;}
+}
+@media(orientation:landscape) and (max-height:650px) {
+ .under-discussion {padding:5px;gap:5px;}
+ .under-discussion-main {display:grid;grid-template-columns:minmax(210px,.85fr) minmax(0,1.5fr);gap:8px;overflow:hidden;}
+ .under-writing,.under-writing.own-turn {display:flex;flex-direction:column;padding:9px;gap:7px;min-height:0;overflow:auto;}
+ .under-writing>header {gap:6px;flex-wrap:wrap;}
+ .under-game .under-writing h1 {font-size:14px;}
+ .under-writing>header>.lobby-icon,.under-writing header p {display:none;}
+ .under-writing-clock {font-size:14px;}
+ .under-writing-clock i {display:none;}
+ .under-writing .under-compose {display:flex;gap:6px;}
+ .under-compose textarea {height:65px;min-height:65px;padding:7px 8px 23px;font-size:16px;}
+ .under-compose>button {min-height:44px;font-size:13px;padding:6px 10px;width:100%;}
+ .under-writing-private {flex:none;}
+ .under-writing-private>.under-word {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px;padding:5px;}
+ .under-writing-private .under-word>span {grid-column:1;font-size:9px;}
+ .under-writing-private .under-word>strong {grid-column:1;font-size:20px;}
+ .under-writing-private .under-word>button {grid-column:2;grid-row:1/3;min-height:44px;}
+ .under-writing-private>small {display:none;}
+ .under-writing-status {font-size:11px;}
+ .under-clue-board {min-height:0;gap:5px;}
+ .under-board-heading {padding:6px;gap:5px;}
+ .under-game .under-board-heading h2 {font-size:12px;}
+ .under-board-heading>.lobby-icon,.under-board-heading p {display:none;}
+ .under-board-progress {gap:4px;font-size:10px;}
+ .under-board-progress progress {width:40px;height:7px;}
+ .under-clue-grid {grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(95px,1fr);gap:5px;}
+ .under-clue-card {padding:7px;gap:5px;}
+ .under-clue-card.current {padding:6px;}
+ .under-clue-avatar {width:24px;height:24px;font-size:13px;}
+ .under-clue-card strong {font-size:11px;}
+ .under-clue-card strong small {font-size:9px;}
+ .under-clue-placeholder {font-size:11px;}
+ .under-clue-text {font-size:14px;padding:5px;}
+ .under-board-note {font-size:9px;padding-top:5px;}
+ .under-chat-sheet {height:calc(100dvh - 20px)!important;}
+}
+/* Keep history selection compact so it does not displace the player board. */
+.under-board-heading .spy-select-caption {display:none;}
+.club-shell .under-board-heading .spy-select.compact .spy-select-trigger {min-height:44px;padding:7px 10px;}
+@media(min-width:1000px) and (min-height:651px) and (max-height:900px) {
+ .under-discussion {padding:12px;gap:12px;}
+ .under-discussion-main {gap:12px;}
+ .under-writing,.under-writing.own-turn {padding:12px;gap:10px 14px;}
+ .under-writing.own-turn {padding:11px;}
+ .under-game .under-writing h1 {font-size:23px;}
+ .under-writing header p {font-size:11px;}
+ .under-writing .under-compose {gap:8px;}
+ .under-compose textarea {height:76px;min-height:76px;font-size:18px;padding:10px 12px 23px;}
+ .under-compose>button {min-height:44px;font-size:16px;padding:7px 20px;}
+ .under-writing-private .under-word {gap:5px;padding:8px;}
+ .under-writing-private .under-word>strong {font-size:25px;}
+ .under-writing-private>small {display:none;}
+ .under-board-heading {padding:10px 12px;gap:10px;}
+ .under-game .under-board-heading h2 {font-size:18px;}
+ .under-board-heading p {font-size:10px;}
+ .under-clue-grid {grid-auto-rows:minmax(118px,1fr);gap:10px;}
+ .under-clue-card {padding:10px;gap:7px;}
+ .under-clue-card.current {padding:9px;}
+ .under-clue-avatar {width:34px;height:34px;font-size:18px;}
+ .under-clue-text {font-size:20px;padding:7px;}
+ .under-board-note {padding-top:9px;font-size:12px;}
+}
+@media(max-width:600px) {
+ .under-board-heading .spy-select {flex-basis:auto;max-width:100px;}
+ .under-board-heading .spy-select-value>strong {font-size:12px;}
+}
+/* Ready-to-vote dock stays outside the scrolling clue board and chat. */
+.under-ready-dock {grid-column:1/-1;display:flex;align-items:center;gap:18px;min-width:0;padding:12px 16px;border:1px solid var(--club-accent);border-radius:12px;background:linear-gradient(120deg,#252a2e,#14181b);flex:none;}
+.under-ready-progress {display:flex;align-items:center;gap:10px;min-width:0;}
+.under-ready-progress>.lobby-icon {color:var(--club-accent);width:28px;height:28px;}
+.under-ready-progress>strong {font-size:20px;white-space:nowrap;}
+.under-ready-progress>span {font-size:16px;white-space:nowrap;}
+.under-ready-progress progress {width:clamp(50px,12vw,190px);height:12px;appearance:none;background:#343e47;border:1px solid #485562;border-radius:20px;overflow:hidden;}
+.under-ready-progress progress::-webkit-progress-bar {background:#343e47;}
+.under-ready-progress progress::-webkit-progress-value {background:linear-gradient(90deg,#f7d890,#d4a753);border-radius:20px;}
+.under-ready-progress progress::-moz-progress-bar {background:#e6c582;}
+.under-ready-dock>p {flex:1;text-align:right;color:var(--club-muted);font-size:12px;line-height:1.5;margin:0;}
+.under-ready-dock>button {display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;min-width:165px;flex:none;font-size:17px;padding:9px 20px;}
+.under-discussion-complete {display:flex;align-items:center;gap:12px;flex:none;padding:15px 18px;border:1px solid var(--club-accent);border-radius:12px;background:linear-gradient(120deg,#282c2e,#171b1e);}
+.under-discussion-complete>.lobby-icon {color:var(--club-accent);width:34px;height:34px;}
+.under-discussion-complete>div {flex:1;min-width:0;}
+.under-game .under-discussion-complete h1 {font-size:23px;margin:0 0 4px;}
+.under-discussion-complete p {margin:0;font-size:12px;color:var(--club-muted);}
+.under-discussion-complete>strong {font-size:22px;color:var(--club-accent);}
+@media(min-width:1000px) and (min-height:651px) {
+ .under-discussion:has(.under-ready-dock) {grid-template-rows:minmax(0,1fr) auto;}
+}
+@media(max-width:999px),(max-height:650px) {
+ .under-ready-dock {gap:10px;padding:8px 10px;}
+ .under-ready-dock>p {font-size:10px;}
+ .under-ready-progress>strong {font-size:15px;}
+ .under-ready-progress>span {font-size:13px;}
+ .under-ready-dock>button {min-width:130px;min-height:44px;font-size:13px;padding:7px 10px;}
+ .under-discussion-complete {padding:10px;}
+ .under-game .under-discussion-complete h1 {font-size:18px;}
+}
+@media(max-width:600px) {
+ .under-ready-dock {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 8px;padding:7px 8px;}
+ .under-ready-progress {gap:6px;}
+ .under-ready-progress>.lobby-icon {width:20px;height:20px;}
+ .under-ready-progress>strong {font-size:12px;}
+ .under-ready-progress>span {font-size:11px;}
+ .under-ready-progress progress {width:32px;height:8px;}
+ .under-ready-dock>p {grid-column:1;grid-row:2;text-align:left;font-size:9px;}
+ .under-ready-dock>button {grid-column:2;grid-row:1/3;min-width:115px;font-size:12px;padding:7px;}
+ .under-ready-dock>button>.lobby-icon {width:18px;height:18px;}
+ .under-discussion-complete {gap:8px;}
+ .under-game .under-discussion-complete h1 {font-size:16px;}
+ .under-discussion-complete p {font-size:10px;}
+ .under-discussion-complete>strong {font-size:16px;}
+ .under-discussion-complete>.lobby-icon {width:24px;height:24px;}
+}
+@media(orientation:landscape) and (max-height:650px) {
+ .under-ready-dock>p {display:none;}
+ .under-ready-dock>button {margin-left:auto;}
+ .under-discussion.awaiting-vote .under-discussion-main {display:flex;flex-direction:column;}
+ .under-discussion-complete {padding:7px 10px;gap:8px;}
+ .under-game .under-discussion-complete h1 {font-size:14px;margin:0;}
+ .under-discussion-complete p {font-size:10px;}
+ .under-discussion-complete>.lobby-icon {width:24px;height:24px;}
+}
+.under-complete-word {width:190px;min-width:0;flex:none;}
+.under-complete-word .under-word {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 8px;min-height:0;padding:7px 9px;text-align:left;}
+.under-complete-word .under-word>span {grid-column:1;font-size:9px;}
+.under-complete-word .under-word>strong {grid-column:1;font-size:22px;}
+.under-complete-word .under-word>button {grid-column:2;grid-row:1/3;min-height:44px;padding:6px;font-size:10px;}
+.under-complete-word .under-word>small {display:none;}
+@media(max-width:600px) {
+ .under-discussion-complete {flex-wrap:wrap;}
+ .under-complete-word {width:100%;}
+ .under-complete-word .under-word {grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) auto;}
+ .under-complete-word .under-word>span {grid-column:1;}
+ .under-complete-word .under-word>strong {grid-column:2;font-size:20px;text-align:center;}
+ .under-complete-word .under-word>button {grid-column:3;grid-row:1;}
+}
+@media(orientation:landscape) and (max-height:650px) {
+ .under-discussion-complete>strong {font-size:15px;}
+ .under-complete-word {width:175px;}
+ .under-complete-word .under-word {padding:4px 7px;}
+ .under-complete-word .under-word>strong {font-size:20px;}
+}
+/* Retain the submitted personal clue beside the private word, as in concept 01. */
+.under-discussion-complete {display:grid;grid-template-columns:34px minmax(0,1fr) auto 190px;gap:8px 12px;}
+.under-discussion-complete>.lobby-icon {grid-column:1;grid-row:1;}
+.under-discussion-complete>div:first-of-type {grid-column:2;grid-row:1;}
+.under-discussion-complete>strong {grid-column:3;grid-row:1;}
+.under-complete-clue {grid-column:1/4;grid-row:2;min-width:0;padding:8px 12px;border:1px solid #555c63;border-radius:8px;background:#141719;}
+.under-complete-clue small {font-size:10px;color:var(--club-muted);}
+.under-complete-clue p {margin:3px 0 0;font-size:20px;line-height:1.5;color:#faf8f2;white-space:pre-wrap;overflow-wrap:anywhere;max-height:3em;overflow:auto;scrollbar-width:thin;}
+.under-complete-word {grid-column:4;grid-row:1/3;align-self:stretch;}
+.under-complete-word .under-word {height:100%;}
+@media(max-width:600px) {
+ .under-discussion-complete {grid-template-columns:24px minmax(0,1fr) auto;gap:6px;}
+ .under-complete-clue {grid-column:1/-1;grid-row:2;padding:6px 9px;}
+ .under-complete-clue p {font-size:16px;}
+ .under-complete-word {grid-column:1/-1;grid-row:3;}
+}
+@media(orientation:landscape) and (max-height:650px) {
+ .under-discussion-complete {grid-template-columns:24px minmax(0,1fr) auto 175px;gap:5px 8px;}
+ .under-complete-clue {grid-column:1/4;grid-row:2;padding:4px 8px;}
+ .under-complete-clue p {font-size:14px;}
+ .under-complete-clue small {display:none;}
+ .under-complete-word {grid-column:4;grid-row:1/3;}
+}
+/* Short displays keep a visible clue grid, with controls outside its scroller. */
+@media(orientation:landscape) and (max-height:650px) {
+ .under-discussion.awaiting-vote .under-discussion-main {display:grid;grid-template-columns:minmax(180px,.85fr) minmax(0,1.5fr);}
+ .under-discussion-complete {position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px;min-height:0;overflow:auto;padding:8px;}
+ .under-discussion-complete>div {flex:none;}
+ .under-discussion-complete>.lobby-icon {display:none;}
+ .under-discussion-complete>div:first-of-type {padding-right:30px;}
+ .under-discussion-complete>strong {position:absolute;right:8px;top:8px;font-size:13px;}
+ .under-complete-word {width:100%;}
+ .under-complete-clue {flex:none;}
+}
+@media(max-width:600px) and (max-height:650px) and (orientation:portrait) {
+ .under-discussion.awaiting-vote .under-discussion-main {overflow:hidden;}
+ .under-discussion.awaiting-vote .under-clue-board {min-height:0;}
+ .under-discussion-complete {grid-template-columns:minmax(0,1fr) 126px;padding:6px;gap:4px 6px;}
+ .under-discussion-complete>.lobby-icon,.under-discussion-complete>strong,.under-discussion-complete>div:first-of-type>p {display:none;}
+ .under-discussion-complete>div:first-of-type {grid-column:1;grid-row:1;}
+ .under-game .under-discussion-complete h1 {font-size:13px;margin:0;}
+ .under-complete-clue {grid-column:1;grid-row:2;padding:4px 6px;}
+ .under-complete-clue small,.under-complete-word .under-word>span {display:none;}
+ .under-complete-clue p {font-size:14px;max-height:1.5em;margin:0;}
+ .under-complete-word {grid-column:2;grid-row:1/3;width:auto;}
+ .under-complete-word .under-word {grid-template-columns:minmax(0,1fr) auto;gap:4px;padding:4px;}
+ .under-complete-word .under-word>strong {grid-column:1;grid-row:1;font-size:16px;}
+ .under-complete-word .under-word>button {grid-column:2;grid-row:1;}
+ .awaiting-vote .under-board-heading {display:grid;grid-template-columns:minmax(0,1fr) auto;padding:5px 7px;gap:4px;}
+ .awaiting-vote .under-board-heading>.lobby-icon {display:none;}
+ .awaiting-vote .under-board-heading>div:first-of-type {grid-column:1;grid-row:1;}
+ .awaiting-vote .under-board-progress {grid-column:1;grid-row:2;}
+ .awaiting-vote .under-board-heading .spy-select {grid-column:2;grid-row:1/3;}
+ .under-game .awaiting-vote .under-board-heading h2 {font-size:12px;}
+}
+.under-board-heading .spy-select {margin:0;}
+@media(orientation:landscape) and (max-height:650px) {
+ .under-discussion-complete {flex-wrap:nowrap;}
+ .under-discussion-complete>div:first-of-type>p {display:none;}
+ .under-discussion.awaiting-vote .under-board-note {display:none;}
+}

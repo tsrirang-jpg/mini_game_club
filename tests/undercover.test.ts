@@ -7,7 +7,7 @@ beforeEach(()=>{vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-18T00:00:0
 afterEach(()=>{game.dispose();vi.useRealTimers();});
 function act(id:string,type:string,value?:unknown,actionId='test-'+(++serial),roundId=game.roundId,turnNumber=game.turnNumber){game.action(id,{type,value,actionId,roundId,turnNumber});}
 function start(whiteCount=0,undercoverCount=1){act(game.hostId,'setSettings',{turnMinutes:1,voteMinutes:1,whiteCount,undercoverCount});for(const p of game.players.values())if(p.id!==game.hostId)act(p.id,'setReady',true);act(game.hostId,'startRound');}
-function describe(){if(game.phase==='WORD')for(const p of game.players.values())act(p.id,'acknowledge');while(game.phase==='DESCRIBE')act(game.turnId,'hint','คำใบ้ '+game.turnNumber);}
+function describe(ready=true){if(game.phase==='WORD')for(const p of game.players.values())act(p.id,'acknowledge');while(game.phase==='DESCRIBE')act(game.turnId,'hint','คำใบ้ '+game.turnNumber);if(ready&&game.phase==='DISCUSS')for(const p of game.players.values())if(p.alive&&p.connected)act(p.id,'readyVote');}
 function voteOut(target:string,advanceReveal=true){
  const active=[...game.players.values()].filter(p=>p.alive),other=active.find(p=>p.id!==target)!;
  for(const p of active){if(game.phase!=='VOTING')break;act(p.id,'vote',{targetId:p.id===target?other.id:target});}
@@ -88,4 +88,56 @@ it('waits for public reveal even if a different player expires, and skips a Whit
  start(1);describe();const white=[...game.players.values()].find(p=>p.role==='white')!,other=[...game.players.values()].find(p=>p.role==='citizen')!;
  voteOut(white.id,false);game.disconnect(other.id);game.expire(other.id);expect(game.phase).toBe('REVEAL');
  game.disconnect(white.id);game.expire(white.id);vi.advanceTimersByTime(UNDER_REVEAL_MS);expect(game.phase).not.toBe('GUESS');expect(game.snapshot().guesserId).toBe('');
+});
+
+it('chat is public but separate from hints and does not advance the turn or deadline',()=>{
+ expect(()=>act('p0','chat','hello')).toThrow('แชทได้');start();expect(()=>act('p0','chat','hello')).toThrow('แชทได้');
+ for(const p of game.players.values())act(p.id,'acknowledge');const before=game.snapshot();
+ const speaker=[...game.players.keys()].find(id=>id!==game.turnId)!;
+ act(speaker,'chat',' สวัสดีเพื่อน ๆ ','chat-once',game.roundId,game.turnNumber-1);
+ const after=game.snapshot();expect(after.chat).toEqual([{id:1,playerId:speaker,name:game.players.get(speaker)!.name,text:'สวัสดีเพื่อน ๆ',timestamp:Date.now()}]);
+ expect(after.hints).toEqual(before.hints);expect(after.turnId).toBe(before.turnId);expect(after.turnNumber).toBe(before.turnNumber);expect(after.deadline).toBe(before.deadline);expect(vi.getTimerCount()).toBe(1);
+ act(speaker,'chat','duplicate','chat-once');expect(game.snapshot().chat).toHaveLength(1);
+ after.chat[0].text='tampered';expect(game.snapshot().chat[0].text).toBe('สวัสดีเพื่อน ๆ');
+ expect(JSON.stringify(game.snapshot().players)).not.toMatch(/role|word|chatTimes|seen/);
+});
+it('chat validates length and membership, bounds rate/history and preserves history across reconnect',()=>{
+ start();for(const p of game.players.values())act(p.id,'acknowledge');
+ for(const value of ['', ' ',null,{},'x'.repeat(501)])expect(()=>act('p0','chat',value)).toThrow('ข้อความ');
+ act('p0','chat','first');act('p0','chat','second');act('p0','chat','third');expect(()=>act('p0','chat','too fast')).toThrow('เร็วเกินไป');
+ vi.advanceTimersByTime(5000);act('p0','chat','after cooldown');
+ game.disconnect('p0');expect(()=>act('p0','chat','offline')).toThrow('เชื่อมต่อ');game.reconnect('p0');expect(game.snapshot().chat).toHaveLength(4);
+ game.players.get('p1')!.alive=false;expect(()=>act('p1','chat','eliminated')).toThrow('แชทได้');
+ const senders=['p2','p3','p4','p5'];
+ for(let i=0;i<110;i++){if(i%12===0)vi.advanceTimersByTime(5000);act(senders[i%4],'chat','bounded '+i);}
+ expect(game.snapshot().chat).toHaveLength(100);expect(game.snapshot().chat.at(-1)!.id).toBe(114);expect(game.snapshot().chat[0].id).toBe(15);
+
+});
+it('chat pauses during voting, reveal and White guess, then clears on replay and a new round',()=>{
+ start(1);for(const p of game.players.values())act(p.id,'acknowledge');act('p0','chat','visible conversation');describe();
+ expect(()=>act('p0','chat','vote coaching')).toThrow('แชทได้');const white=[...game.players.values()].find(p=>p.role==='white')!;
+ voteOut(white.id,false);expect(()=>act('p0','chat','reveal coaching')).toThrow('แชทได้');vi.advanceTimersByTime(UNDER_REVEAL_MS);expect(game.phase).toBe('GUESS');expect(()=>act('p0','chat','guess coaching')).toThrow('แชทได้');
+ act(white.id,'guess',[...game.players.values()].find(p=>p.role==='citizen')!.word);expect(game.phase).toBe('RESULTS');expect(game.snapshot().chat).toHaveLength(1);
+ act(game.hostId,'prepareRound');expect(game.snapshot().chat).toEqual([]);start();expect(game.snapshot().chat).toEqual([]);expect(game.players.get('p0')!.chatTimes).toEqual([]);
+});
+
+it('requires everyone to opt into voting after clues, with no discussion deadline or automatic vote',()=>{
+ start();expect(()=>act('p0','readyVote')).toThrow('รอทุกคน');for(const p of game.players.values())act(p.id,'acknowledge');expect(()=>act('p0','readyVote')).toThrow('รอทุกคน');
+ describe(false);expect(game.phase).toBe('DISCUSS');expect(game.deadline).toBe(0);expect(game.turnId).toBe('');expect(vi.getTimerCount()).toBe(0);
+ const turn=game.turnNumber;vi.advanceTimersByTime(300000);expect(game.phase).toBe('DISCUSS');act('p0','chat','คุยเพิ่มก่อนโหวต');
+ expect(()=>act('p0','readyVote',undefined,'stale',game.roundId,turn-1)).toThrow('ตาเก่า');expect(()=>act('p0','vote',{targetId:'p1'})).toThrow();
+ for(let i=0;i<5;i++)act('p'+i,'readyVote');expect(game.phase).toBe('DISCUSS');expect(game.snapshot().voteReadyIds).toHaveLength(5);
+ act('p0','readyVote');expect(game.snapshot().voteReadyIds).toHaveLength(5);act('p5','readyVote');expect(game.phase).toBe('VOTING');expect(game.deadline).toBe(Date.now()+60000);expect(vi.getTimerCount()).toBe(1);
+});
+it('preserves readiness over reconnect and waits for a disconnected ready player',()=>{
+ start();describe(false);act('p0','readyVote');const state=game.snapshot();state.voteReadyIds.length=0;expect(game.snapshot().voteReadyIds).toEqual(['p0']);
+ game.disconnect('p0');for(let i=1;i<6;i++)act('p'+i,'readyVote');expect(game.phase).toBe('DISCUSS');game.sync('p0');game.reconnect('p0');expect(game.phase).toBe('VOTING');expect(vi.getTimerCount()).toBe(1);
+});
+it('excludes expired participants from the ready gate and starts once remaining players are ready',()=>{
+ start();describe(false);const citizen=[...game.players.values()].find(p=>p.role==='citizen')!;
+ for(const p of game.players.values())if(p!==citizen)act(p.id,'readyVote');game.disconnect(citizen.id);game.expire(citizen.id);expect(game.phase).toBe('VOTING');expect(game.snapshot().voteReadyIds).not.toContain(citizen.id);
+});
+it('clears readiness for a new cycle and does not make eliminated spectators wait or vote-ready',()=>{
+ start();describe();const citizen=[...game.players.values()].find(p=>p.role==='citizen')!;voteOut(citizen.id);expect(game.phase).toBe('DESCRIBE');expect(game.snapshot().voteReadyIds).toEqual([]);
+ describe(false);expect(()=>act(citizen.id,'readyVote')).toThrow('รอทุกคน');for(const p of game.players.values())if(p.alive)act(p.id,'readyVote');expect(game.phase).toBe('VOTING');
 });
