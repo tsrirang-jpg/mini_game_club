@@ -14,12 +14,12 @@ async function fit(page,label,selectors,noScroll=false){
 async function pageAt(width=1366,height=768){const c=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'});contexts.push(c);const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));return p;}
 const page=await pageAt();
 try{
- await page.goto(url+'/games');await page.getByRole('button',{name:'เลือก Liar’s Card →',exact:true}).click();
+ await page.goto(url+'/games');await page.getByRole('button',{name:'เลือก Liar’s Card',exact:true}).click();
  for(const join of [false,true]){
   if(join)await page.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();
   await page.getByLabel('ชื่อของคุณ',{exact:true}).fill('มะนาว');
   if(join)await page.getByLabel('รหัสห้อง',{exact:true}).fill('ABCDEF0123');
-  for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(60);await fit(page,`${join?'join':'create'} ${width}x${height}`,'.liar-entry-layout');if([1366,390,568].includes(width))await page.screenshot({path:previewPath(`preview-liar-real-${join?'join':'create'}-${width}x${height}.png`),fullPage:true});}
+  for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(60);await fit(page,`${join?'join':'create'} ${width}x${height}`,'.liar-entry-layout,.liar-entry-hero,.liar-entry-hero img,.liar-entry-form,.liar-entry-form input,.liar-entry-form .spy-select-trigger,.liar-entry-form .primary');if([1366,390,568].includes(width))await page.screenshot({path:previewPath(`preview-liar-real-${join?'join':'create'}-${width}x${height}.png`),fullPage:true});}
  }
  if(!process.env.GAME_URL){
   for(const phase of ['LOBBY','PLAYING','RESPONSE','REVEAL','RESULTS']){

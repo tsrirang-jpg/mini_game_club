@@ -11,7 +11,7 @@ async function select(page,label,text){await page.getByRole('combobox',{name:lab
 async function guess(page,word){await page.getByRole('button',{name:'ขอทายคำตอบ',exact:true}).click();await page.getByLabel('คำตอบของคุณ',{exact:true}).fill(word);await page.getByRole('button',{name:'ยืนยันคำตอบ',exact:true}).click();await page.getByRole('dialog',{name:'ทายตัวตนของคุณ'}).waitFor({state:'hidden'});}
 const context=await browser.newContext({viewport:{width:1366,height:768},reducedMotion:'reduce'}),page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
 try{
- await page.goto(url+'/games');await page.getByRole('button',{name:'เลือก Who am I →',exact:true}).click();await page.getByLabel('ชื่อของคุณ').fill('Alpha');
+ await page.goto(url+'/games');await page.getByRole('button',{name:'เลือก Who am I',exact:true}).click();await page.getByLabel('ชื่อของคุณ').fill('Alpha');
  for(const [label,values] of [['รอบการถาม',['4 รอบ','6 รอบ','8 รอบ','10 รอบ']],['รอบการเล่นเกม',['3 รอบ','5 รอบ','7 รอบ','10 รอบ']]]){
   await page.getByRole('combobox',{name:label}).click();assert.deepEqual(await page.getByRole('listbox',{name:label}).getByRole('option').allTextContents(),values);await page.keyboard.press('Escape');
  }

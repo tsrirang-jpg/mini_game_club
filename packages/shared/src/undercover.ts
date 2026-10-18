@@ -3,15 +3,17 @@ export const UNDER_MAX_PLAYERS=8;
 export const UNDER_MINUTES=[1,2,3] as const;
 export interface UnderSettings { turnMinutes:number; voteMinutes:number; undercoverCount:number; whiteCount:number }
 export const UNDER_DEFAULT_SETTINGS:UnderSettings={turnMinutes:1,voteMinutes:1,undercoverCount:1,whiteCount:0};
-export type UnderPhase='LOBBY'|'WORD'|'DESCRIBE'|'VOTING'|'GUESS'|'RESULTS';
+export type UnderPhase='LOBBY'|'WORD'|'DESCRIBE'|'VOTING'|'REVEAL'|'GUESS'|'RESULTS';
 export type UnderAction='setReady'|'setSettings'|'startRound'|'acknowledge'|'hint'|'vote'|'guess'|'surrender'|'prepareRound';
-export type UnderSuspect='undercover'|'white';
-export interface UnderVote { targetId:string; suspect:UnderSuspect }
+export type UnderRole='citizen'|'undercover'|'white';
+export const UNDER_REVEAL_MS=6_000;
+export interface UnderVote { targetId:string }
 export interface UnderPlayer { id:string;name:string;seat:number;connected:boolean;ready:boolean;alive:boolean;isBot:boolean }
 // No role, faction, partner word or correct answer is sent in a private message.
 export interface UnderSecret { roundId:number;word:string|null;canGuess:boolean;vote:UnderVote|null }
 export interface UnderHint { id:number;playerId:string;name:string;cycle:number;text:string }
-export interface UnderVoteResult { targetId:string|null;counts:Record<string,number>;tied:boolean }
+// Only the eliminated player's role is public; surviving players stay anonymous.
+export interface UnderVoteResult { targetId:string|null;counts:Record<string,number>;tied:boolean;role:UnderRole|null }
 export interface UnderResult { reason:'citizens'|'undercover'|'white_guess'|'last_white'|'not_enough_players';winnerIds:string[];words:{playerId:string;name:string;word:string|null}[];answer:string|null;guess:string|null }
 export interface UnderSnapshot extends UnderSettings {
   game:'undercover';code:string;roundId:number;phase:UnderPhase;hostId:string;players:UnderPlayer[];

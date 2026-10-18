@@ -1,12 +1,11 @@
 import {randomInt,randomUUID} from 'node:crypto';
-import {UNDER_DEFAULT_SETTINGS,UNDER_MINUTES} from '../../../packages/shared/src/undercover.js';
-import type {UnderSettings,UnderPhase,UnderPlayer,UnderSecret,UnderVote,UnderSnapshot,UnderHint,UnderVoteResult,UnderResult} from '../../../packages/shared/src/undercover.js';
+import {UNDER_DEFAULT_SETTINGS,UNDER_MINUTES,UNDER_REVEAL_MS} from '../../../packages/shared/src/undercover.js';
+import type {UnderSettings,UnderPhase,UnderRole,UnderPlayer,UnderSecret,UnderVote,UnderSnapshot,UnderHint,UnderVoteResult,UnderResult} from '../../../packages/shared/src/undercover.js';
 import {UNDER_WORD_PAIRS} from './undercover-words.js';
 import {GameError} from './game.js';
 
 const demand:(ok:unknown,message:string)=>asserts ok=(ok,message)=>{if(!ok)throw new GameError('INVALID_ACTION',message);};
-type Role='citizen'|'undercover'|'white';
-interface Player extends UnderPlayer {role:Role;word:string|null;expired:boolean;seen:Set<string>}
+interface Player extends UnderPlayer {role:UnderRole;word:string|null;expired:boolean;seen:Set<string>}
 export interface UnderHooks {changed():void;secret(id:string,data:UnderSecret):void}
 export function validateUnderSettings(raw:unknown):UnderSettings {
  demand(raw&&typeof raw==='object'&&!Array.isArray(raw),'การตั้งค่าไม่ถูกต้อง');const s=raw as UnderSettings;
@@ -47,7 +46,7 @@ export class UndercoverGame {
   const p=this.players.get(id);if(!p)return;p.expired=true;p.connected=false;p.alive=false;
   if(this.phase==='LOBBY'||this.phase==='RESULTS')this.players.delete(id);
   else if(this.phase==='GUESS'&&this.guesserId===id)this.resolveGuess(false);
-  else if(this.phase!=='GUESS'&&!this.checkWin()){
+  else if(this.phase!=='GUESS'&&this.phase!=='REVEAL'&&!this.checkWin()){
    if(this.phase==='WORD'&&this.active().every(p=>this.acknowledged.has(p.id)))this.beginCycle();
    else if(this.phase==='DESCRIBE'&&this.turnId===id)this.nextSpeaker();
    else if(this.phase==='VOTING'){
@@ -78,10 +77,9 @@ export class UndercoverGame {
     demand(!p.word||normalize(a.value)!==normalize(p.word),'อย่าพิมพ์คำลับตรง ๆ');this.recordHint(p,a.value.trim());this.described.add(id);this.nextSpeaker();
    }else if(a.type==='vote'){
     demand(this.phase==='VOTING'&&p.alive&&!this.votes.has(id),'โหวตแล้วหรือไม่ได้อยู่ในรอบโหวต');
-    demand(a.value&&typeof a.value==='object'&&!Array.isArray(a.value),'เลือกผู้เล่นและประเภทที่สงสัย');const vote=a.value as UnderVote;
+    demand(a.value&&typeof a.value==='object'&&!Array.isArray(a.value),'เลือกผู้เล่นที่สงสัย');const vote=a.value as UnderVote;
     demand(typeof vote.targetId==='string'&&vote.targetId!==id&&this.eligibleIds.includes(vote.targetId)&&this.players.get(vote.targetId)?.alive,'เลือกผู้เล่นคนอื่นที่ยังอยู่');
-    demand(vote.suspect==='undercover'||vote.suspect==='white','เลือก Undercover หรือ Mr. White');
-    this.votes.set(id,{targetId:vote.targetId,suspect:vote.suspect});this.secret(p);if(this.active().every(p=>this.votes.has(p.id)))this.resolveVotes();
+    this.votes.set(id,{targetId:vote.targetId});this.secret(p);if(this.active().every(p=>this.votes.has(p.id)))this.resolveVotes();
    }else{
     demand(this.phase==='GUESS'&&this.guesserId===id,'เฉพาะผู้ถูกโหวตที่มีสิทธิ์ตอบ');
     if(a.type==='guess'){demand(typeof a.value==='string'&&a.value.trim().length>0&&a.value.trim().length<=80,'คำตอบยาว 1–80 ตัวอักษร');this.lastGuess=a.value.trim();this.resolveGuess(normalize(a.value)===normalize(this.answer));}
@@ -127,10 +125,15 @@ export class UndercoverGame {
  private resolveVotes(){
   this.clearTimer();const counts:Record<string,number>={};for(const vote of this.votes.values())if(this.players.get(vote.targetId)?.alive)counts[vote.targetId]=(counts[vote.targetId]??0)+1;
   const max=Math.max(0,...Object.values(counts)),top=Object.keys(counts).filter(id=>counts[id]===max);
-  this.lastVote={targetId:top.length===1?top[0]:null,counts,tied:top.length>1};
+  this.lastVote={targetId:top.length===1?top[0]:null,counts,tied:top.length>1,role:null};
   if(top.length!==1){if(top.length>1&&!this.runoff){this.eligibleIds=top;this.beginVote(true);}else this.beginCycle();return;}
   const p=this.players.get(top[0])!;p.alive=false;
-  if(p.role==='white'){
+  this.lastVote.role=p.role;this.phase='REVEAL';this.turnId='';this.turnNumber++;
+  this.arm(UNDER_REVEAL_MS,()=>this.afterReveal());this.secrets();
+ }
+ private afterReveal(){
+  const p=this.players.get(this.lastVote?.targetId??'');
+  if(p?.role==='white'&&!p.expired){
    this.phase='GUESS';this.turnId='';this.guesserId=p.id;this.turnNumber++;this.arm(60_000,()=>this.resolveGuess(false));this.secrets();
   }else if(!this.checkWin())this.beginCycle();
  }

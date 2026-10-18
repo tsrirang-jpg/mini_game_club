@@ -1,0 +1,16 @@
+.game-select-action {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 15px;
+  border:1px solid #f7dca6;
+  border-radius:24px;
+  color:#17120c;
+  background:linear-gradient(#ffe6b0,#bf8e45);
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+@media(max-width:720px) {
+  .game-select-action {padding:5px 10px;font-size:11px;}
+}
