@@ -34,6 +34,8 @@
     "test:whoami": "node tests/whoami-browser.mjs",
     "test:liar": "node tests/liar-browser.mjs",
     "test:undercover": "node tests/undercover-browser.mjs",
+    "test:undercover-results": "node tests/undercover-results-browser.mjs",
+    "test:undercover-lobby": "node tests/undercover-lobby-browser.mjs",
     "test:copy-room-code": "node tests/copy-room-code-browser.mjs",
     "test:brand": "node tests/brand-browser.mjs"
   },

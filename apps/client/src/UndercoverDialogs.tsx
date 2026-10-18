@@ -1,8 +1,8 @@
 import {useEffect,useState} from 'react';
 import {GameDialog} from './components/ui/GameDialog';
 import {PlayerVotingContent} from './components/ui/PlayerVotingContent';
-import {undercoverRoleImage} from './assets/images';
-import type {UnderSnapshot,UnderSecret,UnderVote,UnderRole} from '../../../packages/shared/src/undercover';
+import {UnderRolePortrait,underRoleNames} from './UndercoverRolePortrait';
+import type {UnderSnapshot,UnderSecret,UnderVote} from '../../../packages/shared/src/undercover';
 
 export function UnderVoteDialog({s,playerId,secret,connected,seconds,onVote}:{s:UnderSnapshot;playerId:string;secret:UnderSecret|null;connected:boolean;seconds:number;onVote(v:UnderVote):void}) {
   const [targetId,setTargetId]=useState(''),[pending,setPending]=useState(false);
@@ -25,15 +25,14 @@ export function UnderVoteDialog({s,playerId,secret,connected,seconds,onVote}:{s:
 function Countdown({seconds,duration=60}:{seconds:number;duration?:number}) {
   return <div className="under-countdown"><strong role="timer">{String(Math.floor(seconds/60)).padStart(2,'0')}:{String(seconds%60).padStart(2,'0')}</strong><div className="under-time-track" aria-hidden="true"><i style={{width:`${Math.max(0,Math.min(100,seconds/duration*100))}%`}}/></div></div>;
 }
-const roleNames:Record<UnderRole,string>={citizen:'คนธรรมดา',undercover:'Undercover',white:'Mr. White'};
 export function UnderRevealDialog({s,seconds}:{s:UnderSnapshot;seconds:number}) {
   const role=s.lastVote?.role,target=s.players.find(p=>p.id===s.lastVote?.targetId);
   if(!role||!target)return null;
   return <GameDialog title="ผลโหวต" dismissible={false} onClose={()=>{}} className="under-dialog under-reveal-dialog">
     <p className="under-reveal-intro">{target.name} ได้รับคะแนนสูงสุด</p>
     <div className="under-reveal-content">
-      <div className={`under-role-portrait role-${role}`} role="img" aria-label={`ภาพบทบาท ${roleNames[role]}`} style={{backgroundImage:`url(${undercoverRoleImage.src})`}}/>
-      <div className="under-reveal-identity"><p>{target.name} คือ</p><strong>{roleNames[role]}</strong><p>{role==='white'?'ยังมีโอกาสทายคำลับเพื่อพลิกชนะ':'ออกจากรอบนี้แล้ว'}</p></div>
+      <UnderRolePortrait role={role}/>
+      <div className="under-reveal-identity"><p>{target.name} คือ</p><strong>{underRoleNames[role]}</strong><p>{role==='white'?'ยังมีโอกาสทายคำลับเพื่อพลิกชนะ':'ออกจากรอบนี้แล้ว'}</p></div>
     </div>
     <p className="under-reveal-next" role="status">{role==='white'?'เปิดหน้าตอบคำลับ':'ดำเนินเกมต่อ'}ใน {seconds} วินาที</p>
   </GameDialog>;

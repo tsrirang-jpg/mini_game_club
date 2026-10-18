@@ -16,5 +16,5 @@ export const entryImages = {
   oldmaid: { src: '/images/entry/oldmaid-hero-v1.webp', width: 1459, height: 681 },
 } as const;
 
-// Loaded only when the voted player's role is revealed; one cached sprite for all roles.
+// Shared by public vote reveals and final results; one cached sprite for all roles.
 export const undercoverRoleImage = { src: '/images/undercover/role-reveal-v1.png', width: 1080, height: 360 } as const;

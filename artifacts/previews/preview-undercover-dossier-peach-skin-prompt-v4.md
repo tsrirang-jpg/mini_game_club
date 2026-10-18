@@ -1,0 +1,5 @@
+# Undercover preview v4
+
+Generated with image_gen. Edit v3 dossier banner; reference top option 01 of v2 for peach skin tones.
+
+Edit image 1, the single wide Undercover selection banner. Preserve its entire composition, geometric low-poly character silhouettes, black/gold dossier background, typography layout and buttons. ONLY change: (1) skin of the LEFT white-haired man and CENTER brown-haired civilian to light warm peach, matching the skin colors of those two characters in the TOP banner labeled 01 of image 2. Keep subtle polygonal peach shadow planes, not gray or dark brown; include faces, ears, necks and visible hands. Do not change their hair, clothes or geometry. Keep right spy dark as is. (2) Replace the Thai subtitle with exactly 'อธิบายคำให้เนียน หาใครได้คำต่างจากคุณ'. Carefully spell เนียน with เ + น + ี + ย + น, NOT เนือน. Keep Undercover title, 3–8 คน and เลือก Undercover → button unchanged. Return only the edited single banner from image 1, not the reference board. High quality crisp flat geometric game artwork.

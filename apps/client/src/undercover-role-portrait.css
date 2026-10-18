@@ -1,0 +1,4 @@
+.under-role-portrait {flex:none;width:210px;aspect-ratio:1;background-size:300% 100%;background-repeat:no-repeat;}
+.under-role-portrait.role-white {background-position:0% 0;}
+.under-role-portrait.role-citizen {background-position:50% 0;}
+.under-role-portrait.role-undercover {background-position:100% 0;}
