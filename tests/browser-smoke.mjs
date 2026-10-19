@@ -23,7 +23,7 @@ try {
   await a.goto(url); await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click(); await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
   assert.match(await a.locator('.rules').textContent(), /คู่หรือสองใบดอกเดียวกัน = 2 เด้ง/);
   assert.match(await a.locator('.rules').textContent(), /เรียงฟลัชและตอง = 5 เด้ง/);
-  await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
+  await a.getByRole('button', { name: '← เลือกเกมอื่น', exact: true }).click();
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();
   await a.getByLabel('ชื่อของคุณ').fill('เจ้าบ้าน');
@@ -86,6 +86,7 @@ try {
   assert.equal(refreshed, true, 'No actionable round available to test reload');
   assert.deepEqual(errors, [], 'Unexpected browser exception');
   await b.getByRole('button', { name: 'ออกจากห้อง', exact: true }).click();
+  await a.getByRole('button', { name: 'จัดการโต๊ะป๊อกเด้ง', exact: true }).click();
   await a.getByRole('button', { name: '← กลับหน้าแรก', exact: true }).click();
   assert.equal(new URL(a.url()).pathname, '/games');
   await a.getByRole('button', { name: /เลือกป๊อกเด้ง/ }).click();

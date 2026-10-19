@@ -1,0 +1,120 @@
+/* Short desktop and phone landscape: same arena, compact horizontal seats. */
+@media (orientation:landscape) and (max-height:650px) {
+ .app.club-shell.pok-shell:has(.dealer-arena) { padding:4px 8px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:72px; gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:104px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:32px; padding-bottom:4px; gap:6px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:19px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { font-size:6px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:30px; height:30px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar .brand-logo-compact { margin:0; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-room-id,.app.club-shell.pok-shell .pok-game.dealer-arena .pok-navigation { gap:6px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar strong { font-size:14px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar button { min-height:30px; padding:4px 8px; border-radius:10px; font-size:11px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar .pok-icon { width:15px; height:15px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .phase { min-height:16px; font-size:10px; padding:0 4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { font-size:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .table-area { gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { height:29%; grid-template-rows:1fr 1fr auto; width:35%; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { width:44%; height:max(24%,clamp(68px,18dvh,90px)); min-height:0; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage { gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .medallion-suit,.app.club-shell.pok-shell .pok-game.dealer-arena .medallion-line,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-flourish { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-medallion strong { font-size:25px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage h1 { font-size:10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps { width:180px; margin-top:3px; font-size:8px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps > span { padding-top:16px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps i { width:12px; height:12px; left:calc(50% - 6px); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps > span:not(:last-child)::after { top:5px; left:calc(50% + 7px); width:calc(100% - 14px); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-lanterns { inset:40px -4px 70px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-lantern { width:22px; height:85px; opacity:.35; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock { grid-template-columns:80px minmax(0,1fr) 100px; padding:6px 12px; border-radius:15px; gap:12px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock > span,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary > span { font-size:9px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock > div { gap:4px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock .pok-icon { width:18px; height:18px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock strong { font-size:28px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock small { font-size:10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-time { margin-top:2px; height:3px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar { gap:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar > button,.app.club-shell.pok-shell .pok-game.dealer-arena.has-catch .action-bar > button { min-height:38px; padding:5px 12px; gap:8px; font-size:18px; border-radius:12px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar .pok-icon { width:24px; height:24px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary { padding-left:12px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary > strong { font-size:26px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock:has(.pok-round-controls) { grid-template-columns:70px minmax(0,1fr); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls { flex-wrap:nowrap; gap:5px 8px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls > button,.app.club-shell.pok-shell .pok-game.dealer-arena .bets button { min-height:32px; font-size:11px; padding:4px 10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-bet-controls { gap:5px; font-size:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-dealer-control { width:125px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-control-content { gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls { gap:5px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls > button { min-height:30px; padding:4px 8px; font-size:10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls .spy-select-trigger { min-height:30px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-note { font-size:8px; }
+}
+@media (orientation:portrait) and (max-width:800px) {
+ .app.club-shell.pok-shell:has(.dealer-arena) { padding:6px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:clamp(98px,16dvh,160px); gap:5px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:clamp(128px,21dvh,205px); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:46px; padding-bottom:5px; gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar .brand-logo-compact { margin:0; gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:18px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { font-size:6px; letter-spacing:.8px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:30px; height:30px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-room-id,.app.club-shell.pok-shell .pok-game.dealer-arena .pok-navigation { gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar strong { font-size:12px; letter-spacing:.3px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar button { width:30px; min-height:30px; padding:5px; gap:0; border-radius:9px; font-size:0; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar .pok-icon { width:16px; height:16px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .connection { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .phase { min-height:19px; padding:0 3px; font-size:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { font-size:11px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table-area { gap:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table::before { border-radius:28px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-table-seats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:minmax(48px,.8fr) repeat(2,minmax(0,1fr)) minmax(24px,.45fr) minmax(68px,1.1fr); gap:4px; padding:8px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-seat { position:relative; inset:auto; transform:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { position:relative; inset:auto; transform:none; grid-area:1/1/2/-1; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='left-top'] { grid-area:2/1; } .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='left-bottom'] { grid-area:3/1; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='right-top'] { grid-area:2/2; } .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='right-bottom'] { grid-area:3/2; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count] .seat:not([data-position='top']) { left:auto; right:auto; top:auto; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count='2'] .seat[data-position='left-bottom'] { grid-area:2/2; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count='1'] .seat[data-position='left-top'] { grid-column:1/-1; width:65%; justify-self:center; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count='1'] .pok-table-seats,.app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count='2'] .pok-table-seats { grid-template-rows:minmax(48px,.8fr) minmax(0,1fr) 0 minmax(24px,.7fr) minmax(68px,1.1fr); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-side-count='0'] .pok-table-seats { grid-template-rows:minmax(48px,1fr) 0 0 minmax(24px,1fr) minmax(68px,1fr); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage { position:relative; inset:auto; height:100%; width:100%; grid-area:4/1/5/-1; gap:3px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-medallion strong { font-size:clamp(20px,4vw,32px); } .app.club-shell.pok-shell .pok-game.dealer-arena .medallion-suit,.app.club-shell.pok-shell .pok-game.dealer-arena .medallion-line,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-flourish { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage h1 { font-size:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { position:relative; inset:auto; transform:none; grid-area:5/1/6/-1; width:100%; height:100%; min-height:0; max-width:100%; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-lanterns { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock { grid-template-columns:65px minmax(0,1fr); gap:7px; padding:7px 9px; border-radius:16px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary { grid-column:2; border:0; padding:0; display:flex; align-items:baseline; justify-content:center; gap:6px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary > span { font-size:9px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-bet-summary > strong { font-size:15px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock { grid-area:1/1/3/2; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock > span { font-size:9px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock > div { gap:3px; flex-wrap:wrap; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock .pok-icon { width:19px; height:19px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock strong { font-size:30px; } .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock small { font-size:10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-control-content { grid-area:1/2; gap:5px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar { gap:7px; } .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar > button,.app.club-shell.pok-shell .pok-game.dealer-arena.has-catch .action-bar > button { min-height:42px; padding:7px 5px; gap:5px; font-size:18px; border-radius:12px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar .pok-icon { width:23px; height:23px; } .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar p { font-size:11px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock:has(.pok-round-controls) { grid-template-columns:58px minmax(0,1fr); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock:has(.pok-round-controls) .arena-dock-clock { grid-area:1/1; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:5px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-bet-controls { grid-column:1/-1; justify-content:center; gap:6px; font-size:10px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls > button,.app.club-shell.pok-shell .pok-game.dealer-arena .bets button { min-height:32px; padding:4px 8px; font-size:11px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls > button:only-child { grid-column:1/-1; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls:not(:has(.pok-dealer-control)) > button { grid-column:1/-1; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-dealer-control { width:100%; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls { gap:4px; align-items:end; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls > button { min-height:30px; padding:4px; font-size:9px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls .spy-select { flex:1; min-width:0; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-note { font-size:8px; }
+}
+@media (orientation:portrait) and (max-height:600px) {
+ .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:92px; gap:3px; } .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:124px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:36px; padding-bottom:2px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { display:none; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:16px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:25px; height:25px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar strong { font-size:11px; } .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar button { width:27px; min-height:28px; padding:4px; } .app.club-shell.pok-shell .pok-game.dealer-arena .phase { min-height:16px; font-size:9px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { font-size:9px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-table-seats { padding:5px; gap:3px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-medallion strong { font-size:16px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage h1 { font-size:9px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage { gap:2px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-action-dock { padding:5px 7px; grid-template-columns:53px minmax(0,1fr); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-dock-clock strong { font-size:25px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar > button,.app.club-shell.pok-shell .pok-game.dealer-arena.has-catch .action-bar > button { min-height:32px; font-size:14px; padding:4px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .action-bar .pok-icon { width:19px; height:19px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-round-controls > button,.app.club-shell.pok-shell .pok-game.dealer-arena .bets button { min-height:28px; font-size:10px; padding:3px 6px; }
+}
+
+@media (orientation:landscape) and (max-height:400px) {
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage { height:31%; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-medallion strong { font-size:20px; }
+}
+
+/* Tiny landscape reserves a compact center stage between the player stations. */
+@media (orientation:landscape) and (max-height:400px) {
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { height:max(29%,52px); }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='left-bottom'],.app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='right-bottom'] { top:55%; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage { top:52px; bottom:68px; height:auto; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .pok-turn-stage h1,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-steps { display:none; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena .arena-medallion strong { font-size:18px; }
+}

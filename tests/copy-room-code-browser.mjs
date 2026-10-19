@@ -12,12 +12,13 @@ const games=[['pok','/rooms/create','สร้างโต๊ะใหม่ →
 const spyLayout=new Map();
 try{
  for(const[game,route,create]of games){
+  if(process.env.ONLY_GAME && process.env.ONLY_GAME!==game)continue;
   await page.setViewportSize({width:1366,height:768});await page.goto(url+route);await page.getByLabel('ชื่อของคุณ').fill('Copy Test');await page.getByRole('button',{name:create,exact:true}).click();await page.locator('.room-bar').waitFor();
   const button=page.getByRole('button',{name:'คัดลอกรหัส',exact:true}),label=button.locator('.copy-room-code-label');
   const code=await page.locator('.room-bar strong').textContent();assert.match(code,/^[A-F0-9]{10}$/);
   for(const[width,height]of sizes){
    await page.setViewportSize({width,height});const mobile=width<=720||(width>height&&height<=500);
-   assert.equal(await label.isVisible(),!mobile,`${game} label ${width}x${height}`);assert.equal(await button.locator('svg').isVisible(),true);
+   assert.equal(await label.isVisible(),!mobile&&!['pok','poker'].includes(game),`${game} label ${width}x${height}`);assert.equal(await button.locator('svg').isVisible(),true);
    assert.equal(await page.locator('.room-bar .brand-name').textContent(),'วงเซียน');assert.equal(await page.locator('.room-bar .brand-descriptor').textContent(),'MINI GAME CLUB');assert.equal(await page.locator('.room-bar .brand-mark').isVisible(),true);
    const bad=await page.locator('.room-bar .brand-logo,.room-bar .brand-name,.room-bar .brand-descriptor,.room-bar strong,.copy-room-code,.room-bar button').evaluateAll(es=>es.flatMap(e=>{const r=e.getBoundingClientRect();return r.width&&r.height&&(r.x<0||r.y<0||r.right>innerWidth+1||r.bottom>innerHeight+1)?[e.className]:[]}));assert.deepEqual(bad,[],`${game} header fits ${width}x${height}`);
    const overlaps=await page.locator('.room-bar').evaluate(bar=>{const boxes=[...bar.querySelectorAll('.brand-logo,strong,button')].map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);return boxes.some((a,i)=>boxes.slice(i+1).some(b=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+1));});assert.equal(overlaps,false,`${game} no header overlap ${width}x${height}`);
@@ -32,5 +33,5 @@ try{
   await page.evaluate(()=>window.__rejectCopy=true);await button.click();assert.equal(await label.textContent(),'คัดลอกรหัส','denied clipboard never reports success');await page.evaluate(()=>window.__rejectCopy=false);
   await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await page.getByLabel('ชื่อของคุณ').waitFor();
  }
- assert.deepEqual(errors,[]);console.log('PASS: shared copy UI in seven real rooms at 11 viewports, desktop text/mobile icons, complete clipboard values, success/reset/rotation, denied clipboard, no header clipping or overlap');
+ assert.deepEqual(errors,[]);console.log('PASS: shared copy UI in the selected rooms at 11 viewports, theme-specific icon/text styles, complete clipboard values, success/reset/rotation, denied clipboard, no header clipping or overlap');
 }finally{await browser.close();}

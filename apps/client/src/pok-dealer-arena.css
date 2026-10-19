@@ -1,0 +1,6 @@
+/* Dealer Arena modules load after the legacy Pok styles. */
+@import './components/pok/arena-theme.css';
+@import './components/pok/arena-seats.css';
+@import './components/pok/arena-actions.css';
+@import './components/pok/arena-responsive.css';
+@import './components/pok/arena-seat-layout.css';

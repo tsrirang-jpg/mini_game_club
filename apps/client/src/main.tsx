@@ -37,6 +37,7 @@ import './oldmaid.css';
 import './club-desktop.css';
 import './club-entry-desktop.css';
 import './poker-midnight.css';
+import './pok-dealer-arena.css';
 
 function GameShell({ kind, playing = false, children, state, controls }: {
   kind: GameKind; playing?: boolean; children: ReactNode;

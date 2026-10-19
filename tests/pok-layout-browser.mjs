@@ -9,7 +9,7 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 const url = process.env.GAME_URL || 'http://127.0.0.1:5188';
-const sizes = [[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
+const sizes = [[1672,941],[1147,795],[952,442],[1920,1080],[2560,1440],[1920,1200],[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
 
 // Deterministic public/private snapshots cover three cards and every UI phase.
 // Real room actions and reconnection are covered by browser-smoke.mjs.
@@ -17,8 +17,8 @@ async function fixture(phase, count = 6, dealer = 'p1', host = 'p0', disconnecte
   await page.evaluate(async ({ phase, count, dealer, host, disconnected, catchCount, special }) => {
     const { session } = await import('/src/session.ts');
     const { navigate } = await import('/src/router.ts');
-    const cards = special === 'straightFlush' ? [{rank:12,suit:'clubs'},{rank:13,suit:'clubs'},{rank:1,suit:'clubs'}] : [{ rank: 10, suit: 'hearts' }, { rank: 13, suit: 'spades' }, { rank: 8, suit: 'diamonds' }];
-    const value = special ? {score:1,pok:false,multiplier:5,special,highCard:14} : {score:8,pok:false,multiplier:3};
+    const cards = special === 'yellow' ? [{rank:11,suit:'hearts'},{rank:11,suit:'clubs'},{rank:13,suit:'diamonds'}] : special === 'straightFlush' ? [{rank:12,suit:'clubs'},{rank:13,suit:'clubs'},{rank:1,suit:'clubs'}] : [{ rank: 10, suit: 'hearts' }, { rank: 13, suit: 'spades' }, { rank: 8, suit: 'diamonds' }];
+    const value = special ? {score:special==='yellow'?0:1,pok:false,multiplier:special==='yellow'?3:5,special,highCard:14} : {score:8,pok:false,multiplier:3};
     const players = Array.from({ length: count }, (_, i) => ({ id: 'p' + i, name: i === 0 ? 'ผู้เล่นชื่อยาวทดสอบ' : 'ผู้เล่น ' + i, seat: i, points: 1000, bet: 50, isBot: i > 0, ready: true, connected: !(disconnected && i === 1), acted: false, cardCount: phase === 'LOBBY' ? 0 : phase === 'DEALER_ACTION' && 'p' + i === dealer ? 2 : 3 }));
     const revealed = ['REVEAL', 'SETTLEMENT', 'ROUND_END'].includes(phase);
     session.update({ status: 'connected', playerId: 'p0', hand: phase === 'DEALER_ACTION' && dealer === 'p0' ? cards.slice(0,2) : cards, handRound: 1, error: '', snapshot: {
@@ -51,6 +51,8 @@ async function pokDefectFixture(phase) {
 }
 
 async function fits(label) {
+  assert.equal(await page.locator('.pok-game .arena-avatar,.pok-game .pok-avatar').count(),0,label+': Clean Panel contains no player portraits');
+  for(const seat of await page.locator('.pok-game .seat.is-dealer').all()) assert.equal(await seat.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(239, 199, 88)',label+': dealer keeps gold outline');
   const report = await page.evaluate(() => {
     const box = e => e.getBoundingClientRect();
     const table = box(document.querySelector('.pok-game .table'));
@@ -70,8 +72,19 @@ async function fits(label) {
       if (rank.bottom > glyph.top + 1 || rank.left < c.left || rank.right > c.right || rank.top < c.top || glyph.bottom > c.bottom || glyph.left < c.left || glyph.right > c.right || !label.contains(hit)) cardErrors.push({ label: card.getAttribute('aria-label'), rank: rank.toJSON(), suit: glyph.toJSON(), card: c.toJSON(), hit: hit?.className || hit?.tagName });
     }
     const contentOverflow = [...document.querySelectorAll('.pok-game .seat,.pok-game .hand,.pok-action-dock')].filter(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).map(e => ({ element: e.className, width: e.clientWidth, scrollWidth: e.scrollWidth, height: e.clientHeight, scrollHeight: e.scrollHeight }));
+    const balanceCardOverlaps=[];
+    for(const seat of document.querySelectorAll('.pok-game .seat')) {
+      const range=document.createRange();range.selectNodeContents(seat.querySelector('.points'));
+      const balance=range.getBoundingClientRect();
+      for(const card of seat.querySelectorAll('.card')) {
+        const c=box(card);
+        if(Math.min(balance.right,c.right)>Math.max(balance.left,c.left)+1&&Math.min(balance.bottom,c.bottom)>Math.max(balance.top,c.top)+1) balanceCardOverlaps.push(seat.getAttribute('aria-label'));
+      }
+    }
     const own = box(document.querySelector('.pok-self'));
     const ownSeparate = document.querySelectorAll('.pok-self .seat.own').length === 1 && document.querySelectorAll('.pok-opponents .seat.own').length === 0;
+    const seatBoxes=[...document.querySelectorAll('.pok-game .seat')].map(box);
+    const seatOverlaps=[];for(let i=0;i<seatBoxes.length;i++)for(let j=i+1;j<seatBoxes.length;j++){const a=seatBoxes[i],b=seatBoxes[j];if(Math.min(a.right,b.right)>Math.max(a.left,b.left)+1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+1)seatOverlaps.push([i,j]);}
     const opponentsAboveOwn = [...document.querySelectorAll('.pok-opponents .seat')].every(e => box(e).bottom <= own.top + 1);
     const ownCenter = Math.abs((own.left + own.right - table.left - table.right) / 2);
     const desktop=matchMedia('(min-width:1000px) and (min-height:651px)').matches;
@@ -85,21 +98,20 @@ async function fits(label) {
       const a=range.getBoundingClientRect(),b=box(ownValue);
       ownMetaOverlap = Math.min(a.right,b.right)-Math.max(a.left,b.left)>1 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
     }
-    return { clipped, outside, cardErrors, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, desktop,desktopActionsSeparate,landscape:matchMedia('(orientation:landscape) and (max-height:650px)').matches, ownBesideStage:own.left>=stage.right-1, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > dock.top, scrollY };
+    return { clipped, outside, cardErrors, seatOverlaps, balanceCardOverlaps, contentOverflow, ownSeparate, opponentsAboveOwn, ownCenter, ownBottomGap, ownMetaOverlap, desktop,desktopActionsSeparate,landscape:matchMedia('(orientation:landscape) and (max-height:650px)').matches, ownBesideStage:own.left>=stage.right-1, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight, width: innerWidth, height: innerHeight, tableDockOverlap: table.bottom > dock.top, scrollY };
   });
   assert.deepEqual(report.clipped, [], label + ': clipped controls ' + JSON.stringify(report));
   assert.deepEqual(report.outside, [], label + ': outside table ' + JSON.stringify(report));
   assert.deepEqual(report.contentOverflow, [], label + ': content must fit, not be hidden ' + JSON.stringify(report));
   assert.deepEqual(report.cardErrors, [], label + ': ranks and suits must remain separate and visible');
+  assert.deepEqual(report.balanceCardOverlaps,[],label+': chip balance and its unit must not overlap cards');
   assert.ok(report.scrollWidth <= report.width && report.scrollHeight <= report.height, label + ': page must not scroll');
-  if(report.desktop)assert.equal(report.desktopActionsSeparate,true,label+': desktop actions occupy a separate right-hand column');
-  else assert.equal(report.tableDockOverlap, false, label + ': table overlaps actions');
+  assert.equal(report.tableDockOverlap, false, label + ': arena and footer must not overlap');
   assert.equal(report.scrollY, 0, label + ': no scrolling to reach controls');
   assert.equal(report.width, page.viewportSize().width, label + ': mobile layout must not shrink to fit overflow');
   assert.equal(report.ownSeparate, true, label + ': own hand has a separate seat');
-  assert.equal(report.opponentsAboveOwn, true, label + ': opponents stay above own hand');
-  if(report.landscape)assert.equal(report.ownBesideStage,true,label+': landscape own hand stays beside turn area');
-  else if(!report.desktop)assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': portrait own hand stays at bottom center');
+  assert.deepEqual(report.seatOverlaps, [], label + ': arena player frames must not overlap');
+  assert.ok(report.ownCenter <= 1 && report.ownBottomGap <= 24, label + ': local arena station stays at bottom center');
   assert.equal(await page.locator('.pok-self .pok-own-badge').isVisible(), true, label + ': own hand is clearly labelled');
   assert.equal(report.ownMetaOverlap, false, label + ': own balance and hand value remain separate');
 }
@@ -113,7 +125,7 @@ try {
       await fits(phase + ' ' + width + 'x' + height);
       if (phase === 'ROUND_END' && [375,844,1366].includes(width)) await page.screenshot({ path: previewPath('preview-pok-fit-' + width + 'x' + height + '.png'), scale: 'css' });
     }
-    console.log('PASS: ' + phase + ' at 13 viewports');
+    console.log('PASS: ' + phase + ' at '+sizes.length+' viewports');
   }
   for (const count of [2,3,4,5]) for (const [width, height] of [[320,480],[375,667],[568,320]]) {
     await page.setViewportSize({ width, height }); await fixture('ROUND_END', count); await fits(count + ' players ' + width + 'x' + height);
@@ -137,7 +149,7 @@ try {
       await page.screenshot({path:previewPath('preview-pok-recompared.png'),scale:'css'});
     }
   }
-  console.log('PASS: immediate Pok8/9 faces, private other hands and reported re-compared catch at 13 viewports');
+  console.log('PASS: immediate Pok8/9 faces, private other hands and reported re-compared catch at '+sizes.length+' viewports');
   await fixture('DEALER_ACTION',6,'p0','p0',false,2);
   for (const [width,height] of sizes) { await page.setViewportSize({width,height}); await fits('partial catches ' + width + 'x' + height); }
   assert.equal(await countOptions(page,'จับผู้เล่น 3 ใบ'),3);
@@ -149,6 +161,26 @@ try {
     await fixture(phase,6,phase === 'DEALER_ACTION' ? 'p0' : 'p1','p0',false,phase === 'DEALER_ACTION' ? 2 : 0,'straightFlush');
     for (const [width,height] of sizes) { await page.setViewportSize({width,height}); await fits('special hands ' + phase + ' ' + width + 'x' + height); }
   }
+  // Reproduce the reported long Thai hand label at large desktop and compact mobile sizes.
+  for (const phase of ['PLAYER_ACTIONS','ROUND_END']) {
+    await fixture(phase,6,'p1','p0',false,0,'yellow');
+    for (const [width,height] of sizes) {
+      await page.setViewportSize({width,height});
+      await fits('three yellow cards ' + phase + ' ' + width + 'x' + height);
+      const labels=await page.locator('.pok-game .special-hand strong,.pok-game .pok-result-hand').evaluateAll(nodes=>nodes.map(n=>{
+        const range=document.createRange();range.selectNodeContents(n);
+        return {text:n.textContent,lines:new Set([...range.getClientRects()].map(r=>Math.round(r.top))).size,width:n.scrollWidth,available:n.clientWidth,nowrap:getComputedStyle(n).whiteSpace};
+      }));
+      assert.ok(labels.some(n=>n.text.includes('สามเหลือง')),'special-hand label must remain visible');
+      for(const n of labels) {
+        assert.equal(n.nowrap,'nowrap','hand label must stay intact: '+width+'x'+height);
+        assert.equal(n.lines,1,'Thai label must stay on one line: '+n.text);
+      }
+      assert.ok(await page.locator('.pok-shell').evaluate(e=>{const background=getComputedStyle(e).backgroundImage;const surface=getComputedStyle(e.querySelector('.table'),'::before');return background.includes('radial-gradient')&&!background.includes('url(')&&surface.borderRadius!=='50%'&&surface.borderTopColor==='rgb(56, 109, 80)';}),'Plain green reference background must be used at every viewport');
+      if ([390,1366,2560].includes(width)) await page.screenshot({path:previewPath('pok-clean-panel-'+phase.toLowerCase()+'-'+width+'x'+height+'.png'),scale:'css'});
+    }
+  }
+  console.log('PASS: Plain green reference background and unbroken three-yellow-card labels at '+sizes.length+' viewports');
   await page.setViewportSize({ width: 320, height: 480 });
   await fixture('LOBBY', 6, 'p1', 'p1'); await fits('non-host bets and ready');
   await fixture('PLAYER_ACTIONS', 6, 'p1', 'p0', true); await fits('disconnected player');

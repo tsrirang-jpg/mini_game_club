@@ -1,0 +1,155 @@
+/* Clean Panel: one shared avatar-free composition for every player and phase.
+   Positioning stays in arena-seats.css; this module owns panel content and sizing. */
+.app.club-shell.pok-shell .pok-game.dealer-arena .arena-seat,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'],
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own {
+  --panel-gap:6px; --pok-card:78px; --footer-space:32px;
+  container-type:size; display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:'name hand' 'points hand' 'status status';
+  align-items:center; gap:4px var(--panel-gap);
+  padding:14px 18px 10px; border:var(--panel-stroke,2px) solid var(--panel-border,#538e76); border-radius:22px;
+  background:var(--panel-fill,linear-gradient(135deg,#032a20,#001e16));
+  box-shadow:0 4px 10px #00170e33; text-align:left;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat { width:28%; height:31%; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { width:34%; height:27%; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { width:clamp(420px,38%,680px); height:27%; min-height:0; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own { --pok-card:90px; --panel-border:#83eec3; --panel-stroke:3px; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .seat.is-dealer,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own.is-dealer { --chip-color:#dcae44; --panel-border:#efc758; border-color:var(--panel-border); --panel-stroke:3px; --panel-fill:linear-gradient(135deg,#082c20,#032219); }
+.app.club-shell.pok-shell .pok-game.dealer-arena .seat.is-winner { box-shadow:0 4px 10px #00170e33; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .seat.catchable { border-color:#a9c38a; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .seat.disconnected { opacity:.6; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .player-name,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .player-name {
+  align-self:center; gap:6px; font-size:clamp(14px,1.5vw,24px); line-height:1.4; color:#f7f7e9;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .dealer,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-badge {
+  flex:none; display:inline-block; padding:2px 8px; border:1px solid #d8b14b; border-radius:20px;
+  background:#69511f66; color:#f5d16c; font-size:.58em; line-height:1.4; white-space:nowrap;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-badge { border-color:#67d7a9; background:#14684666; color:#8ee8c4; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .points,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .points {
+  display:flex; align-items:center; align-self:center; gap:8px;
+  font-size:clamp(18px,1.9vw,32px); line-height:1.4; color:#f0f6e9;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-balance { min-width:0; white-space:nowrap; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .points small { font-size:.47em; font-weight:400; color:#b1c9b9; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-chip-stack { flex:none; width:clamp(24px,2.3vw,34px); height:30px; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .hand,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .hand,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] .hand {
+  --arena-card:min(var(--pok-card),calc((58cqw - (var(--hand-count) - 1)*var(--panel-gap))/var(--hand-count)),calc((100cqh - var(--footer-space))/1.4));
+  align-self:center; justify-content:flex-end; gap:var(--panel-gap);
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .player-status,
+.app.club-shell.pok-shell .pok-game.dealer-arena .result {
+  display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap;
+  gap:2px 8px; border-top:1px solid #538e76; padding-top:6px;
+  font-size:clamp(12px,1.2vw,20px); line-height:1.5; color:#e1edde;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-value {
+  grid-area:auto; display:flex; flex-wrap:nowrap; align-items:baseline; gap:3px;
+  padding:0; border:0; color:#f2f5e5; font:inherit; white-space:nowrap; text-align:left;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-value strong,
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-value span { display:inline; margin:0; font:inherit; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-own-value strong { font-weight:650; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-hand-multiplier { color:#f4cc62; font-weight:650; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-result-hand { color:#f0f3e3; font-weight:650; white-space:nowrap; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-result-outcome { white-space:nowrap; font-weight:650; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .win .pok-result-outcome { color:#7de6b8; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .lose .pok-result-outcome { color:#f2a897; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-status-copy { color:#b1c9b9; }
+@media (min-width:1800px) and (min-height:900px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat { width:min(28%,560px); height:min(28%,250px); --pok-card:110px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { width:min(34%,760px); height:min(27%,220px); --pok-card:110px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { height:min(25%,220px); }
+}
+@media (orientation:landscape) and (max-height:650px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'],
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own {
+    --pok-card:40px; --panel-gap:3px; --footer-space:20px;
+    padding:5px 7px; gap:3px; border-radius:14px; border-width:1px;
+  }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat { width:25%; height:max(28%,58px); }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { width:35%; height:max(27%,58px); }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { width:44%; height:max(25%,72px); }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-name,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .player-name { font-size:11px; gap:3px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .points,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .points { font-size:15px; gap:4px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-chip-stack { width:20px; height:17px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-status,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .result { font-size:8px; line-height:1.4; padding-top:3px; gap:1px 4px; }
+}
+@media (orientation:portrait) and (max-width:800px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'],
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own {
+    --pok-card:60px; --panel-gap:3px; --footer-space:28px;
+    width:100%; height:100%; padding:7px; gap:3px; border-radius:15px;
+  }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self { width:100%; height:100%; min-height:0; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-name,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .player-name { font-size:clamp(10px,2.7vw,17px); gap:3px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .points,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .points { font-size:clamp(13px,3.5vw,23px); gap:4px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-chip-stack { width:20px; height:17px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-status,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .result { font-size:clamp(8px,2vw,12px); line-height:1.5; padding-top:4px; gap:1px 4px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own { --pok-card:84px; }
+}
+@media (orientation:portrait) and (max-height:600px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'],
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .seat.own {
+    --pok-card:32px; --footer-space:20px; padding:4px; gap:3px; border-radius:12px; border-width:1px;
+  }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .points,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .points { font-size:12px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-chip-stack { width:16px; height:14px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-name,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .player-name { font-size:9px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .player-status,
+  .app.club-shell.pok-shell .pok-game.dealer-arena .result { font-size:7px; padding-top:2px; }
+}
+@media (orientation:landscape) and (max-height:400px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .arena-seat { --pok-card:28px; --footer-space:17px; padding:4px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .player-name { font-size:9px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .points { font-size:12px; }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .pok-chip-stack { width:16px; height:14px; }
+}
+@media (orientation:landscape) and (max-height:400px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='left-top'],
+  .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='right-top'] { top:8%; }
+}
+
+/* Match the Clean Panel card face: corner rank and suit, large lower suit. */
+.app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) > span:not(.bottom) {
+  position:absolute; left:10%; top:5%; font:bold calc(var(--arena-card)*.4)/1.15 Georgia,serif; text-align:left;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) small {
+  margin-top:1px; font:calc(var(--arena-card)*.2)/1.1 Georgia,serif; text-align:left;
+}
+.app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) > b {
+  display:block; position:absolute; top:auto; left:0; right:0; bottom:9%; margin:0;
+  text-align:center; font:normal calc(var(--arena-card)*.48)/1 Georgia,serif; pointer-events:none;
+}
+
+/* Compact stations stack the balance unit so three cards never cover the balance. */
+@media (orientation:portrait) and (max-width:800px), (orientation:landscape) and (max-height:650px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .points small { display:block; font-size:.6em; line-height:1.2; }
+}
+@container (max-width:300px) {
+  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .points small { display:block; line-height:1.2; }
+}
+
+.app.club-shell.pok-shell .pok-game.dealer-arena .seat.is-dealer .player-name { color:#f4d16f; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .pok-result-outcome { border-left:1px solid #538e76; padding-left:10px; }

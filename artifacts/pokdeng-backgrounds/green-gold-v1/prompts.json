@@ -1,0 +1,40 @@
+﻿{
+  "tool": "built-in imagegen",
+  "images": [
+    {
+      "slug": "01-classic-emerald-felt",
+      "label": "Classic Emerald Felt",
+      "prompt": "Use case: stylized-concept. Asset type: production web card game BACKGROUND ONLY for Thai Pok Deng. Create one landscape 16:9 background filling the canvas, flat top-down texture with no perspective, no UI, no text, no logos, no characters, no playing cards, no chips, no table object or drawn seat positions. Design 1 CLASSIC EMERALD FELT. Deep emerald-green pool-table felt #103f2d with subtle premium micro woven texture and gentle radial illumination at the center, falling to very dark forest green #031c13 toward edges. Restrained antique-gold #bca05b thin double-line border inset only slightly from outer edges, softly rounded rectangular corners, delicate tiny gold ornamental corner flourishes. Center 75% clean and quiet, low contrast to keep cream cards and white game text legible. Sophisticated warm green-and-gold atmosphere matching a premium Thai social card club, soft natural material shading, no bright speckles, no busy patterns, no hard glossy reflections. Background is directly usable behind a game interface and should not look like a photographed physical table. One complete background image, no collage, no labels.",
+      "filename": "01-classic-emerald-felt.png",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a11a8b-6fa7-7151-97ce-1470ce5afc4c\\exec-afa0c22b-4b1c-42b4-a394-9d85bc4de088.png"
+    },
+    {
+      "slug": "02-jade-thai-clouds",
+      "label": "Jade Thai Clouds",
+      "prompt": "Use case: stylized-concept. Asset type: production background ONLY for Thai Pok Deng web game. One landscape 16:9 full-canvas elegant flat background. Design 2 JADE CLOUDS. Dark jade forest green #06291d with deep soft green radial gradient, quiet matte center, translucent stylized Thai-inspired curling cloud and vine motifs delicately placed ONLY along the far left/right sides and top/bottom corners. Finely traced muted warm gold #c6a658 line work and very low contrast darker green ornament layers, tasteful symmetrical framing without a central emblem. No physical table, no chairs, no UI, no words, no letters, no logo, no numbers, no faces, no hands, no playing cards, no chips, no gold coins. Keep central 70% uncluttered, almost solid deep jade, with maximum contrast reserved for artwork near edges. Rich handmade understated ornamental green-and-gold visual language appropriate to a friendly premium Thai card club. No garish saturated yellow, no neon cyan, no perspective, no busy sparkle. One single finished background, no collage.",
+      "filename": "02-jade-thai-clouds.png",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a11a8b-6fa7-7151-97ce-1470ce5afc4c\\exec-528ea473-79fb-4b23-b4c5-0c93168aa8c8.png"
+    },
+    {
+      "slug": "03-minimal-green-gold",
+      "label": "Minimal Green Gold",
+      "prompt": "Use case: stylized-concept. Asset type: minimalist game-interface background ONLY, Thai Pok Deng. Create one landscape 16:9 production-ready full-canvas background. Design 3 MINIMAL GREEN GOLD. Almost black pine-green #031b13 perimeter and smooth deep emerald #0e3928 central glow, matte velvety finish without discernible objects. Very restrained soft gold ambient light washes near two opposite far corners, one hairline curved gold stroke along upper left edge, balanced corresponding hairline lower right, faint blurred darker green flowing shapes only at perimeter. Contemporary clean premium app visual, extremely calm large central negative space for cards and player panels. Green is dominant, gold minimal and elegant. No explicit table/oval/board drawing, no characters or avatars, no words, no logos, no game controls, no cards/chips/coins/suit icons, no inset screenshot, no frame mockup, no perspective. No glitter or pronounced noise. Single usable seamless-looking background image, no collage, no labels.",
+      "filename": "03-minimal-green-gold.png",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a11a8b-6fa7-7151-97ce-1470ce5afc4c\\exec-09ea6380-4b73-48ce-be82-bcf8e18d1cc2.png"
+    },
+    {
+      "slug": "04-emerald-art-deco",
+      "label": "Emerald Art Deco",
+      "prompt": "Use case: stylized-concept. Asset type: green and gold background ONLY for Thai Pok Deng card game UI. ONE landscape 16:9 image. Design 4 EMERALD ART DECO. Deep luxurious forest-green matte cloth background #082b1f, gentle emerald center light, rich near-black green vignette. Precise art-deco geometric fine antique gold lines, stepped symmetric fan/corner ornaments and subtle filigree restricted to outer 10-15% of canvas; thin rectilinear nested edge accents, elegant rather than ornate. No center medallion or central geometry. Keep inner 75% nearly uninterrupted dark green so interface cards and readable white text can overlay it. Strong tasteful green-and-gold club identity, harmonious symmetry, not a photographed table, not 3D. No UI elements, no letters/numbers/text/logos, no characters, no cards, no chips, no money, no objects, no neon color. No busy all-over pattern. Produce a single complete usable game background, no collage.",
+      "filename": "04-emerald-art-deco.png",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a11a8b-6fa7-7151-97ce-1470ce5afc4c\\exec-e18fe258-662f-4b1e-a144-ec0e4e31fc3f.png"
+    },
+    {
+      "slug": "05-silk-jade-gold",
+      "label": "Silk Jade Gold",
+      "prompt": "Use case: stylized-concept. Asset type: production game BACKGROUND ONLY for a Thai Pok Deng web interface. One landscape 16:9 full-canvas image. Design 5 SILK JADE GOLD. Dark emerald and jade silk-like abstract texture with broad very gentle flowing fabric bands around the bottom and sides, smooth quiet dark green center #062c20 for game content. Soft antique-gold metallic threads tracing graceful flowing curves ONLY at edges, warm diffused golden light on folds near bottom corners, subtle textile richness without pronounced glossy highlights. This is a flat background illustration suitable underneath a full desktop game UI, not a photograph of an actual table, no perspective, no objects. Calm understated luxury; green occupies 90%, gold accents 10% or less. Center 70% kept unobstructed and low contrast for six player panels, cards, and controls to be overlaid later. No logos, no words, no letters, no numbers, no cards/chips/coins, no people, no controls, no central emblem, no bright glitter. One final complete background, not multiple panels or collage.",
+      "filename": "05-silk-jade-gold.png",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a11a8b-6fa7-7151-97ce-1470ce5afc4c\\exec-086c483b-7259-4050-b05e-cb5573925d7e.png"
+    }
+  ]
+}
