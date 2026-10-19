@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 export async function checkPokerViewport(page, label) {
+  // Very short screens intentionally scroll, keeping controls at usable sizes.
+  await page.evaluate(() => window.scrollTo(0, 0));
   const report = await page.evaluate(() => {
+    const scrollLayout = matchMedia('(orientation: portrait) and (max-width: 999px), (orientation: landscape) and (max-height: 380px)').matches;
     const clipped = [];
     for (const element of document.querySelectorAll('.room-bar,.poker-seat,.community,.pot-display,.poker-self,.poker-action-dock,.poker-actions button,.raise-controls input,.pot-breakdown,.pot-entry')) {
       const r = element.getBoundingClientRect();
-      if (r.width && r.height && (r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || r.bottom > innerHeight + 1)) clipped.push(element.className);
+      if (r.width && r.height && (r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || (!scrollLayout && r.bottom > innerHeight + 1))) clipped.push(element.className);
     }
     const table = document.querySelector('.poker-table').getBoundingClientRect();
     const dock = document.querySelector('.poker-action-dock').getBoundingClientRect();
@@ -15,7 +18,7 @@ export async function checkPokerViewport(page, label) {
       hole: Math.min(...[...document.querySelectorAll('.poker-seat .card')].map(e=>e.getBoundingClientRect().width)),
       board: document.querySelector('.community .card,.card-slot').getBoundingClientRect().width,
     } : null;
-    const mobileLandscape = matchMedia('(orientation: landscape) and (max-height: 650px)').matches;
+    const mobileLandscape = matchMedia('(orientation: landscape) and (max-height: 650px), (orientation: landscape) and (max-width: 999px) and (max-height: 740px)').matches;
     const desktopLayout = !mobileLandscape && matchMedia('(min-width: 1000px) and (min-height: 600px), (any-hover: hover) and (any-pointer: fine) and (min-width: 800px) and (min-height: 400px)').matches;
     const center = document.querySelector('.poker-center').getBoundingClientRect();
     const own = document.querySelector('.poker-self')?.getBoundingClientRect();
@@ -24,7 +27,7 @@ export async function checkPokerViewport(page, label) {
     const portraitLayout = smallPortrait ? {
       columns: getComputedStyle(document.querySelector('.poker-opponents')).gridTemplateColumns.split(' ').length,
       opponentsAboveBoard: opponents.every(r => r.bottom <= center.top + 1),
-      ownBelowBoard: !own || (innerHeight<=570 ? own.left>=center.right-1 : own.top >= center.bottom-1),
+      ownBelowBoard: !own || (own.top >= center.bottom-1),
       boardBottomGap: table.bottom - center.bottom,
     } : null;
     const landscapeLayout = mobileLandscape ? {
@@ -51,11 +54,12 @@ export async function checkPokerViewport(page, label) {
       const label = card.querySelector('span:not(.bottom)');
       const range = document.createRange(); range.selectNodeContents(label.firstChild);
       const r = range.getBoundingClientRect(), c = card.getBoundingClientRect();
+      if (scrollLayout && (r.top < 0 || r.bottom > innerHeight)) continue;
       const hit = document.elementFromPoint((r.left+r.right)/2, (r.top+r.bottom)/2);
       if (!r.width || !r.height || r.left<c.left || r.right>c.right || r.top<c.top || r.bottom>c.bottom || !label.contains(hit)) obscuredRanks.push(card.getAttribute('aria-label'));
     }
     const shell = document.querySelector('.poker-shell');
-    return { clipped, outside, overlaps, cutAmounts, obscuredRanks, potAboveBoard, desktopCards, centerOffset, ownBottom, landscapeLayout, portraitLayout, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
+    return { scrollLayout, clipped, outside, overlaps, cutAmounts, obscuredRanks, potAboveBoard, desktopCards, centerOffset, ownBottom, landscapeLayout, portraitLayout, tableDockOverlap: table.bottom > dock.top, width: innerWidth, height: innerHeight,
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight,
       shellOverflow: shell.scrollHeight > shell.clientHeight + 1, shellWidth: shell.clientWidth, scrollY, shellScroll: shell.scrollTop };
   });
@@ -76,7 +80,7 @@ export async function checkPokerViewport(page, label) {
   if(report.portraitLayout) {
     assert.equal(report.portraitLayout.columns, 3, label + ': small portrait opponents use three columns');
     assert.equal(report.portraitLayout.opponentsAboveBoard, true, label + ': small portrait board sits below opponents');
-    assert.equal(report.portraitLayout.ownBelowBoard, true, label + ': portrait own hand has a separate panel beside the board on very short screens, below otherwise');
+    assert.equal(report.portraitLayout.ownBelowBoard, true, label + ': portrait own hand sits below the board');
   }
   if(report.desktopCards) {
     assert.ok(report.desktopCards.hole >= 60, label + ': desktop hole cards must be enlarged');
@@ -84,7 +88,8 @@ export async function checkPokerViewport(page, label) {
   }
   assert.equal(report.tableDockOverlap, false, label + ': table/actions overlap');
   assert.equal(report.shellOverflow, false, label + ': hidden overflow is not fitting');
-  assert.ok(report.shellWidth <= (report.width>=1000&&report.height>=651?1680:1280), label + ': responsive desktop width cap');
-  assert.ok(report.scrollWidth <= report.width && report.scrollHeight <= report.height, label + ': page scroll');
+  assert.ok(report.shellWidth <= 1680, label + ': responsive desktop width cap');
+  assert.ok(report.scrollWidth <= report.width, label + ': horizontal scroll');
+  if (!report.scrollLayout) assert.ok(report.scrollHeight <= report.height, label + ': unexpected vertical scroll');
   assert.equal(report.scrollY + report.shellScroll, 0, label + ': scrolled to reach controls');
 }

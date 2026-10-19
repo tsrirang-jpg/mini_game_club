@@ -10,7 +10,7 @@ const [a,b,c,d,e,f] = pages;
 const errors = [];
 for (const page of pages) page.on('pageerror', error => errors.push(error.message));
 const url = process.env.GAME_URL || 'http://127.0.0.1:5188';
-const sizes = [[844,390],[667,375],[568,320],[740,360],[932,430],[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[1366,768],[1024,600],[1903,885],[2560,1080]];
+const sizes = [[390,741],[600,741],[700,800],[280,640],[600,800],[900,700],[999,700],[1000,651],[1024,1366],[1280,720],[1920,1080],[844,390],[667,375],[568,320],[740,360],[932,430],[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[1366,768],[1024,600],[1903,885],[2560,1080]];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function wait(fn, ms = 15000) {
   const until = Date.now() + ms;
@@ -80,7 +80,7 @@ try {
   await a.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   for (const page of pages) await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
   assert.deepEqual(errors,[]);
-  console.log('PASS: 6 real players, unequal all-ins, live eligibility, 5 pots + refund, exact per-player awards, 15 viewport sizes including SE phones and 1280px width cap');
+  console.log('PASS: 6 real players, unequal all-ins, live eligibility, 5 pots + refund, exact per-player awards, 26 viewport sizes including SE phones and wide desktops');
 } catch(error) {
   await a.screenshot({path:previewPath('preview-debug.png')}); throw error;
 } finally { await browser.close(); }

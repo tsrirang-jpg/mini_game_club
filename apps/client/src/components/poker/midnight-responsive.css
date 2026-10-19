@@ -1,0 +1,1150 @@
+/* Tablet/portrait: the opponents form a compact three-column grid. */
+
+@media (max-width:999px) and (min-height:601px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    --seat-card: clamp(24px,5vw,42px);
+    --board-card: clamp(39px,9vw,76px);
+    --avatar: 32px;
+    border-radius: 38px;
+    padding: 16px 12px 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0,1fr) auto auto;
+    gap: 10px;
+  }
+
+  .poker-shell .midnight-arena .poker-bank {
+    grid-area: 1/1;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents {
+    display: grid;
+    grid-area: 2/1;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 10px 7px;
+    align-content: center;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents] .poker-opponents>.poker-seat:nth-child(n) {
+    grid-area: auto;
+    max-width: none;
+    align-self: center;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents="1"] .poker-opponents {
+    grid-template-columns: minmax(0,240px);
+    justify-content: center;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents="2"] .poker-opponents {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .poker-shell .midnight-arena .poker-center {
+    grid-area: 3/1;
+  }
+
+  .poker-shell .midnight-arena .poker-self {
+    grid-area: 4/1;
+    width: min(100%,380px);
+  }
+
+  .poker-shell .midnight-arena .poker-self .poker-seat {
+    --seat-card: clamp(34px,8vw,54px);
+    --avatar: 44px;
+  }
+
+  .poker-shell .midnight-arena .poker-seat {
+    grid-template-columns: var(--avatar) minmax(0,1fr);
+    grid-template-areas: 'avatar name' 'points hand' 'status status';
+    gap: 4px;
+    padding: 8px 6px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .points {
+    font-size: 15px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .points small {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .player-name {
+    font-size: 11px;
+  }
+
+  .poker-shell .midnight-arena .poker-badges {
+    left: 5px;
+    bottom: 24px;
+  }
+
+  .poker-shell .midnight-arena .own {
+    grid-template-columns: var(--avatar) minmax(0,1fr) auto;
+    grid-template-areas: 'avatar name hand' 'avatar points hand' 'status status status';
+  }
+
+  .poker-shell .midnight-arena .poker-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .poker-shell .midnight-arena .raise-panel {
+    border: 0;
+    border-top: 1px solid #2a3d60;
+    padding: 6px 0 0;
+  }
+
+  .poker-shell .midnight-arena .room-code-label,.poker-shell .midnight-arena .poker-header-meta {
+    display: none;
+  }
+}
+
+@media (max-width:600px) {
+
+  .app.club-shell.poker-shell {
+    padding: max(6px,env(safe-area-inset-top)) max(7px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));
+  }
+
+  .poker-shell .midnight-arena {
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .room-bar {
+    align-items: center;
+    gap: 5px;
+    padding-bottom: 5px;
+    min-height: 60px;
+  }
+
+  .poker-shell .midnight-arena .poker-room-id {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 34px;
+    gap: 0 4px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact {
+    grid-area: 1/1;
+    margin: 0;
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-mark {
+    width: 26px;
+    height: 26px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-name {
+    font-size: 17px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-descriptor {
+    font-size: 6px;
+    letter-spacing: .7px;
+  }
+
+  .poker-shell .midnight-arena .room-bar strong {
+    grid-area: 2/1;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .poker-shell .midnight-arena .room-code-label,.poker-shell .midnight-arena .poker-header-meta {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .copy-room-code {
+    grid-area: 1/2/3/3;
+    min-width: 34px;
+    min-height: 38px;
+    padding: 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-tools {
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .room-bar .small {
+    min-height: 40px;
+    padding: 6px;
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .poker-tools .poker-icon,.poker-shell .midnight-arena .poker-tools .connection {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .phase {
+    min-height: 18px;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .phase small {
+    font-size: 8px;
+  }
+
+  .poker-shell .midnight-arena .poker-table-info {
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .turn-banner {
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .table-area {
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .poker-table {
+    --seat-card: clamp(23px,6.4vw,32px);
+    --board-card: clamp(37px,10.3vw,52px);
+    --avatar: 24px;
+    padding: 10px 6px 7px;
+    gap: 7px;
+    border-width: 2px;
+    border-radius: 28px;
+  }
+
+  .poker-shell .midnight-arena .poker-table::before {
+    inset: 10px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents {
+    gap: 8px 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-seat {
+    padding: 6px 4px 4px;
+    border-radius: 10px;
+    gap: 3px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .player-name {
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .points {
+    font-size: 12px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .hand {
+    gap: 2px;
+  }
+
+  .poker-shell .midnight-arena .player-status,.poker-shell .midnight-arena .result {
+    font-size: 8px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .bot-badge {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .poker-badges {
+    bottom: 19px;
+    left: 3px;
+    font-size: 7px;
+    gap: 1px;
+  }
+
+  .poker-shell .midnight-arena .poker-badges>span {
+    padding: 0 2px;
+  }
+
+  .poker-shell .midnight-arena .seat-winner {
+    top: -9px;
+    left: 4px;
+    font-size: 6px;
+    padding: 1px 4px;
+    letter-spacing: .5px;
+  }
+
+  .poker-shell .midnight-arena .seat-winner .poker-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .poker-shell .midnight-arena .own .player-name {
+    font-size: 13px;
+  }
+
+  .poker-shell .midnight-arena .own .points {
+    font-size: 19px;
+  }
+
+  .poker-shell .midnight-arena .pot-display {
+    margin-bottom: 6px;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .pot-display strong {
+    font-size: 25px;
+  }
+
+  .poker-shell .midnight-arena .chip-stack {
+    width: 40px;
+    height: 26px;
+  }
+
+  .poker-shell .midnight-arena .arena-stage {
+    font-size: 8px;
+    margin-bottom: 2px;
+  }
+
+  .poker-shell .midnight-arena .street-track {
+    gap: 12px;
+    font-size: 8px;
+    margin-top: 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-table .card {
+    border-radius: 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-table .card small {
+    margin-top: 2px;
+  }
+
+  .poker-shell .midnight-arena .poker-action-dock {
+    padding: 8px 6px;
+    border-radius: 12px;
+  }
+
+  .poker-shell .midnight-arena .poker-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .poker-shell .midnight-arena .quick-actions button {
+    min-height: 44px;
+    font-size: 11px;
+  }
+
+  .poker-shell .midnight-arena .raise-panel {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .raise-hint {
+    grid-area: auto;
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .raise-chips {
+    grid-area: auto;
+    padding: 2px;
+    gap: 9px;
+  }
+
+  .poker-shell .midnight-arena .raise-controls {
+    grid-area: auto;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    align-items: center;
+  }
+
+  .poker-shell .midnight-arena .raise-controls label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .raise-controls input {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .poker-shell .midnight-arena .raise-controls button {
+    min-height: 44px;
+  }
+
+  .poker-shell .midnight-arena .raise-summary {
+    grid-area: auto;
+    font-size: 8px;
+  }
+
+  .poker-shell .midnight-arena .poker-dock-idle {
+    min-height: 44px;
+    gap: 6px;
+  }
+
+  .poker-shell .midnight-arena .poker-dock-idle button {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-dock-idle p,.poker-shell .midnight-arena .poker-dock-idle>span {
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .pot-grid {
+    gap: 3px;
+  }
+
+  .poker-shell .midnight-arena .pot-entry {
+    padding: 3px 1px;
+    min-height: 36px;
+  }
+
+  .poker-shell .midnight-arena .pot-title {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .pot-title-short {
+    display: block;
+    font-size: 8px;
+    color: #b6cbea;
+  }
+
+  .poker-shell .midnight-arena .pot-entry strong {
+    font-size: 11px;
+  }
+
+  .poker-shell .midnight-arena .pot-players {
+    display: none;
+  }
+}
+
+/* Short landscape: opponents across the top, board and hero beside each other. */
+
+@media (orientation:landscape) and (max-height:650px), (orientation:landscape) and (max-width:999px) and (max-height:740px) {
+
+  .app.club-shell.poker-shell {
+    padding: 5px max(8px,env(safe-area-inset-right)) 5px max(8px,env(safe-area-inset-left));
+  }
+
+  .poker-shell .midnight-arena {
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .room-bar {
+    min-height: 36px;
+    padding-bottom: 3px;
+  }
+
+  .poker-shell .midnight-arena .poker-room-id {
+    display: flex;
+    gap: 6px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact {
+    margin-right: 0;
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-mark {
+    width: 27px;
+    height: 27px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-name {
+    font-size: 17px;
+  }
+
+  .poker-shell .midnight-arena .brand-logo-compact .brand-descriptor {
+    font-size: 6px;
+    letter-spacing: .8px;
+  }
+
+  .poker-shell .midnight-arena .room-bar strong {
+    font-size: 13px;
+  }
+
+  .poker-shell .midnight-arena .room-bar button {
+    min-height: 32px;
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .copy-room-code {
+    min-width: 32px;
+  }
+
+  .poker-shell .midnight-arena .copy-room-code-label,.poker-shell .midnight-arena .room-code-label,.poker-shell .midnight-arena .poker-header-meta {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .poker-tools {
+    gap: 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-tools .poker-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .poker-shell .midnight-arena .phase {
+    min-height: 16px;
+    padding: 0 4px;
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .phase small,.poker-shell .midnight-arena .poker-table-info {
+    font-size: 8px;
+  }
+
+  .poker-shell .midnight-arena .turn-banner {
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .table-area {
+    gap: 3px;
+  }
+
+  .poker-shell .midnight-arena .poker-table {
+    --seat-card: clamp(22px,6.3dvh,34px);
+    --board-card: clamp(30px,10.3dvh,60px);
+    --avatar: 24px;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows: auto minmax(0,1fr) auto;
+    gap: 5px 12px;
+    padding: 7px 9px;
+    border-width: 2px;
+    border-radius: 26px;
+  }
+
+  .poker-shell .midnight-arena .poker-table::before {
+    inset: 9px;
+  }
+
+  .poker-shell .midnight-arena .poker-bank {
+    grid-area: 1/1/2/-1;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents {
+    display: grid;
+    grid-area: 2/1/3/-1;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+    gap: 6px;
+    align-content: center;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents] .poker-opponents>.poker-seat:nth-child(n) {
+    grid-area: auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents="1"] .poker-opponents {
+    grid-template-columns: minmax(0,220px);
+    justify-content: center;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents="2"] .poker-opponents {
+    grid-template-columns: repeat(2,minmax(0,220px));
+    justify-content: center;
+  }
+
+  .poker-shell .midnight-arena .poker-center {
+    grid-area: 3/1;
+  }
+
+  .poker-shell .midnight-arena .poker-self {
+    grid-area: 3/2;
+    align-self: center;
+    width: min(100%,380px);
+  }
+
+  .poker-shell .midnight-arena .poker-seat {
+    grid-template-columns: minmax(0,1fr) auto;
+    grid-template-areas: 'name name' 'points hand' 'status status';
+    gap: 2px 4px;
+    padding: 5px;
+    border-radius: 9px;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .poker-avatar {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .player-name {
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .points {
+    font-size: 13px;
+  }
+
+  .poker-shell .midnight-arena .points small {
+    font-size: 7px;
+  }
+
+  .poker-shell .midnight-arena .player-status,.poker-shell .midnight-arena .result {
+    font-size: 8px;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .poker-shell .midnight-arena .poker-badges {
+    left: 4px;
+    bottom: 17px;
+    font-size: 7px;
+  }
+
+  .poker-shell .midnight-arena .poker-badges>span {
+    padding: 0 2px;
+  }
+
+  .poker-shell .midnight-arena .bot-badge {
+    font-size: 7px;
+  }
+
+  .poker-shell .midnight-arena .poker-self .poker-seat {
+    --seat-card: clamp(30px,9dvh,50px);
+    --avatar: 38px;
+    grid-template-columns: var(--avatar) minmax(0,1fr) auto;
+    grid-template-areas: 'avatar name hand' 'avatar points hand' 'status status status';
+  }
+
+  .poker-shell .midnight-arena .own .player-name {
+    font-size: 12px;
+  }
+
+  .poker-shell .midnight-arena .own .points {
+    font-size: 19px;
+  }
+
+  .poker-shell .midnight-arena .pot-display {
+    margin-bottom: 4px;
+    gap: 5px;
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .pot-display strong {
+    font-size: 22px;
+  }
+
+  .poker-shell .midnight-arena .chip-stack {
+    width: 32px;
+    height: 21px;
+  }
+
+  .poker-shell .midnight-arena .arena-stage {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .street-track {
+    font-size: 8px;
+    margin-top: 4px;
+    gap: 12px;
+  }
+
+  .poker-shell .midnight-arena .poker-table .card {
+    border-radius: 4px;
+  }
+
+  .poker-shell .midnight-arena .poker-table .card small {
+    margin-top: 2px;
+  }
+
+  .poker-shell .midnight-arena .seat-winner {
+    top: -8px;
+    left: 4px;
+    padding: 0 5px;
+    font-size: 6px;
+  }
+
+  .poker-shell .midnight-arena .seat-winner .poker-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .poker-shell .midnight-arena .poker-action-dock {
+    padding: 6px 8px;
+    border-radius: 10px;
+  }
+
+  .poker-shell .midnight-arena .poker-actions {
+    grid-template-columns: minmax(180px,.9fr) minmax(0,1.8fr);
+    gap: 8px;
+  }
+
+  .poker-shell .midnight-arena .quick-actions {
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .quick-actions button {
+    min-height: 38px;
+    padding: 5px;
+    font-size: 10px;
+  }
+
+  .poker-shell .midnight-arena .raise-panel {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    border: 0;
+    padding: 0;
+  }
+
+  .poker-shell .midnight-arena .raise-hint {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .raise-chips {
+    grid-area: 1/1;
+    gap: 7px;
+    padding: 2px;
+  }
+
+  .poker-shell .midnight-arena .chip-choice {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    border-width: 2px;
+    font-size: 9px;
+  }
+
+  .poker-shell .midnight-arena .chip-all-in {
+    min-height: 28px;
+    font-size: 9px;
+    padding: 4px;
+  }
+
+  .poker-shell .midnight-arena .raise-controls {
+    grid-area: 2/1;
+    grid-template-columns: minmax(0,1fr) minmax(100px,1fr);
+    gap: 5px;
+    align-items: center;
+  }
+
+  .poker-shell .midnight-arena .raise-controls label {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 8px;
+    gap: 4px;
+  }
+
+  .poker-shell .midnight-arena .raise-controls input {
+    min-height: 32px;
+    height: 32px;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .poker-shell .midnight-arena .raise-controls button {
+    min-height: 34px;
+    font-size: 10px;
+    padding: 4px;
+  }
+
+  .poker-shell .midnight-arena .raise-summary {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .poker-dock-idle {
+    min-height: 38px;
+  }
+
+  .poker-shell .midnight-arena .poker-dock-idle button {
+    min-height: 38px;
+    padding: 5px 16px;
+    font-size: 12px;
+  }
+
+  .poker-shell .midnight-arena .pot-entry {
+    min-height: 28px;
+    padding: 2px;
+  }
+
+  .poker-shell .midnight-arena .pot-title {
+    font-size: 8px;
+  }
+
+  .poker-shell .midnight-arena .pot-entry strong {
+    font-size: 11px;
+  }
+
+  .poker-shell .midnight-arena .pot-players {
+    display: none;
+  }
+}
+
+/* On short portrait/zoomed screens, scroll vertically instead of hiding controls. */
+
+@media (orientation:portrait) and (max-height:740px) {
+
+  .app.club-shell.poker-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .poker-shell .midnight-arena .game-layout {
+    flex: none;
+  }
+
+  .poker-shell .midnight-arena .poker-table {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    min-height: 360px;
+  }
+
+  .poker-shell .midnight-arena .poker-bank {
+    grid-area: 1/1;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents {
+    display: grid;
+    grid-area: 2/1;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    align-content: center;
+    gap: 9px 5px;
+  }
+
+  .poker-shell .midnight-arena .poker-table[data-opponents] .poker-opponents>.poker-seat:nth-child(n) {
+    grid-area: auto;
+  }
+
+  .poker-shell .midnight-arena .poker-center {
+    grid-area: 3/1;
+  }
+
+  .poker-shell .midnight-arena .poker-self {
+    grid-area: 4/1;
+  }
+
+  .poker-shell .midnight-arena .poker-opponents .poker-seat {
+    grid-template-columns: 24px minmax(0,1fr);
+    grid-template-areas: 'avatar name' 'points hand' 'status status';
+  }
+
+  .poker-shell .midnight-arena .poker-self .poker-seat {
+    --seat-card: 34px;
+    --avatar: 40px;
+  }
+}
+
+@media (min-width:1000px) and (min-height:760px) {
+
+  .poker-shell .midnight-arena.card-size-high .poker-table {
+    --seat-card: clamp(60px,7.9dvh,74px);
+    --board-card: clamp(76px,10.1dvh,105px);
+  }
+}
+
+@keyframes arena-card-in {
+
+  from {
+    opacity: 0;
+    transform: rotateY(60deg) translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes arena-deal {
+
+  from {
+    opacity: 0;
+    transform: translate(20px,-30px) rotate(-12deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+
+  .poker-shell .midnight-arena *,.poker-shell .midnight-arena *::before,.poker-shell .midnight-arena *::after {
+    animation: none!important;
+    transition: none!important;
+  }
+}
+
+.poker-shell .midnight-arena .poker-table::after {
+  inset: 20% 0 10%;
+  font-size: clamp(40px,15dvh,140px);
+  overflow: hidden;
+}
+
+/* Very short landscape windows scroll instead of squeezing cards into the rail. */
+
+@media (orientation:landscape) and (max-height:380px) {
+
+  .app.club-shell.poker-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .poker-shell .midnight-arena .game-layout {
+    flex: none;
+  }
+
+  .poker-shell .midnight-arena .poker-table {
+    min-height: 210px;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+/* Give names the full seat width above the hole cards instead of truncating them. */
+
+@media (min-width:1000px) and (min-height:651px) {
+
+  .poker-shell .midnight-arena .poker-seat {
+    grid-template-areas: 'avatar name name' 'avatar points hand' 'status status hand';
+  }
+
+  .poker-shell .midnight-arena .player-name {
+    font-size: 14px;
+  }
+
+  .poker-shell .midnight-arena .poker-badges {
+    bottom: auto;
+    top: calc(var(--avatar) + 8px);
+  }
+}
+
+@media (max-width:999px) and (min-height:741px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    grid-template-rows: auto auto minmax(0,1fr) auto;
+    --board-card: clamp(42px,12vw,82px);
+  }
+
+  .poker-shell .midnight-arena .poker-opponents {
+    align-content: start;
+  }
+
+  .poker-shell .midnight-arena .poker-self .poker-seat {
+    --seat-card: clamp(38px,10vw,58px);
+  }
+}
+
+/* Intrinsic row minima prevent a large board/side-pot row from touching the hero. */
+
+@media (min-width:1000px) and (min-height:651px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    grid-template-rows: auto minmax(min-content,1fr) minmax(min-content,1.25fr) minmax(min-content,1fr);
+  }
+
+  .poker-shell .midnight-arena.has-side-pots .arena-stage {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena.has-side-pots .pot-display {
+    margin-bottom: 6px;
+  }
+
+  .poker-shell .midnight-arena.has-side-pots .street-track {
+    margin-top: 4px;
+  }
+}
+
+/* The card-size preference also works on desktops with display scaling. */
+
+@media (orientation:landscape) and (max-height:650px) and (min-width:900px) and (min-height:400px) {
+
+  .poker-shell .midnight-arena.card-size-high .poker-table {
+    --seat-card: clamp(36px,6.3dvh,46px);
+    --board-card: clamp(48px,10.3dvh,65px);
+  }
+
+  .poker-shell .midnight-arena.card-size-high .poker-self .poker-seat {
+    --seat-card: clamp(42px,9dvh,58px);
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-table {
+    --seat-card: 28px;
+    --board-card: 40px;
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-self .poker-seat {
+    --seat-card: 34px;
+  }
+}
+
+/* Reserve the same dock space while waiting, so the table does not jump each turn. */
+
+.poker-shell .midnight-arena.hand-active .poker-action-dock {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width:999px) and (min-height:651px) {
+
+  .poker-shell .midnight-arena.hand-active .poker-action-dock {
+    min-height: 140px;
+  }
+}
+
+@media (max-width:600px) and (orientation:portrait) {
+
+  .poker-shell .midnight-arena.hand-active .poker-action-dock {
+    min-height: 214px;
+  }
+}
+
+@media (orientation:landscape) and (max-height:650px), (orientation:landscape) and (max-width:999px) and (max-height:740px) {
+
+  .poker-shell .midnight-arena.hand-active .poker-action-dock {
+    min-height: 86px;
+  }
+}
+
+/* Laptops retain the ring but tighten ornamental spacing before reducing text. */
+
+@media (min-width:1000px) and (min-height:651px) and (max-height:850px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    padding: 10px 20px 8px;
+    gap: 6px 18px;
+  }
+
+  .poker-shell .midnight-arena .arena-stage {
+    display: none;
+  }
+
+  .poker-shell .midnight-arena .pot-display {
+    margin-bottom: 6px;
+  }
+
+  .poker-shell .midnight-arena .pot-display strong {
+    font-size: 29px;
+  }
+
+  .poker-shell .midnight-arena .street-track {
+    margin-top: 4px;
+  }
+}
+
+@media (min-width:1000px) and (min-height:651px) and (max-height:750px) {
+
+  .poker-shell .midnight-arena.card-size-high .poker-table {
+    --seat-card: 44px;
+    --board-card: 58px;
+    --avatar: 40px;
+  }
+
+  .poker-shell .midnight-arena.card-size-high .poker-self .poker-seat {
+    --seat-card: 50px;
+    --avatar: 48px;
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-table {
+    --seat-card: 34px;
+    --board-card: 48px;
+    --avatar: 40px;
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-self .poker-seat {
+    --seat-card: 40px;
+    --avatar: 48px;
+  }
+}
+
+@media (min-width:601px) {
+
+  .poker-shell .midnight-arena .poker-action-dock:has(.show-cards-button) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .poker-shell .midnight-arena .show-cards-button {
+    margin: 0;
+    min-height: 38px;
+    font-size: 12px;
+  }
+}
+
+/* Keep card groups inside the narrower center column on portrait desktop displays. */
+
+@media (min-width:1000px) and (min-height:751px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    container-type: inline-size;
+    grid-template-columns: minmax(0,1fr) minmax(0,2fr) minmax(0,1fr);
+  }
+
+  .poker-shell .midnight-arena.card-size-high .poker-table {
+    --board-card: min(clamp(76px,10.1dvh,105px),calc(10cqw - 12px));
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-table {
+    --board-card: min(clamp(48px,8.3dvh,86px),calc(10cqw - 12px));
+  }
+}
+
+@media (min-width:1000px) and (max-width:1199px) and (min-height:751px) {
+
+  .poker-shell .midnight-arena.card-size-high .poker-table {
+    --avatar: 40px;
+    --seat-card: min(clamp(60px,7.9dvh,74px),calc(12.5cqw - 45px));
+  }
+
+  .poker-shell .midnight-arena.card-size-normal .poker-table {
+    --avatar: 40px;
+    --seat-card: min(clamp(34px,6.2dvh,58px),calc(12.5cqw - 45px));
+  }
+}
+
+@media (max-width:600px) and (min-height:741px) {
+
+  .poker-shell .midnight-arena .poker-table {
+    --board-card: clamp(42px,12vw,58px);
+  }
+
+  .poker-shell .midnight-arena .poker-self .poker-seat {
+    --seat-card: clamp(38px,10vw,48px);
+  }
+}
+/* Compact portrait tablets keep space for six live pots without covering seats. */
+@media (min-width:500px) and (max-width:999px) and (orientation:portrait) and (max-height:900px) {
+  .poker-shell .midnight-arena .poker-table { --seat-card:28px; }
+  .poker-shell .midnight-arena .poker-self .poker-seat { --seat-card:38px; }
+  .poker-shell .midnight-arena .arena-stage { display:none; }
+}
+/* Preserve a clear ring on short laptops even with all six pot summaries. */
+@media (min-width:1000px) and (min-height:651px) and (max-height:750px) {
+  .poker-shell .midnight-arena.has-side-pots .poker-table { padding:6px 16px; gap:4px 12px; }
+  .poker-shell .midnight-arena.has-side-pots.card-size-high .poker-table { --seat-card:34px; --board-card:48px; --avatar:32px; }
+  .poker-shell .midnight-arena.has-side-pots.card-size-high .poker-self .poker-seat { --seat-card:40px; --avatar:40px; }
+  .poker-shell .midnight-arena.has-side-pots.card-size-normal .poker-table { --seat-card:28px; --board-card:42px; --avatar:32px; }
+  .poker-shell .midnight-arena.has-side-pots.card-size-normal .poker-self .poker-seat { --seat-card:34px; --avatar:40px; }
+  .poker-shell .midnight-arena.has-side-pots .poker-seat { padding:8px 6px; }
+  .poker-shell .midnight-arena.has-side-pots .player-name { font-size:12px; }
+  .poker-shell .midnight-arena.has-side-pots .own .player-name { font-size:14px; }
+  .poker-shell .midnight-arena.has-side-pots .own .points { font-size:20px; }
+  .poker-shell .midnight-arena.has-side-pots .pot-entry { min-height:28px; padding:2px; }
+  .poker-shell .midnight-arena.has-side-pots .pot-title { font-size:8px; }
+  .poker-shell .midnight-arena.has-side-pots .pot-entry strong { font-size:11px; }
+  .poker-shell .midnight-arena.has-side-pots .pot-players { display:none; }
+}
+@media (min-width:500px) and (max-width:999px) and (orientation:portrait) and (max-height:900px) {
+  .poker-shell .midnight-arena .poker-table { --avatar:24px; --board-card:clamp(42px,10vw,58px); }
+  .poker-shell .midnight-arena .poker-seat { padding:6px 4px; gap:3px; }
+  .poker-shell .midnight-arena .player-name { font-size:11px; }
+  .poker-shell .midnight-arena .player-status,.poker-shell .midnight-arena .result { font-size:8px; }
+}
+@media (min-width:500px) and (max-width:999px) and (orientation:portrait) and (max-height:900px) {
+  .poker-shell .midnight-arena .poker-table { padding:8px 6px; gap:5px; }
+  .poker-shell .midnight-arena .pot-display { margin-bottom:4px; }
+  .poker-shell .midnight-arena .pot-display strong { font-size:22px; }
+  .poker-shell .midnight-arena .street-track { margin-top:3px; }
+}
+/* Intrinsic portrait height is the fallback between breakpoints: fill the viewport
+   when it fits, and grow the page when zoom/available height needs more room. */
+@media (orientation:portrait) and (max-width:999px) {
+  .app.club-shell.poker-shell { height:auto; min-height:100dvh; overflow:visible; }
+  .poker-shell .midnight-arena { min-height:min-content; }
+  .poker-shell .midnight-arena .game-layout { flex:1; min-height:min-content; }
+  .poker-shell .midnight-arena .table-area { min-height:min-content; }
+  .poker-shell .midnight-arena .poker-table { min-height:min-content; grid-template-rows:auto auto minmax(min-content,1fr) auto; }
+}

@@ -1,0 +1,250 @@
+/* Midnight Arena play-page theme. Entry pages and ranking examples use poker.css. */
+
+body:has(.club-shell.poker-shell) {
+  background: #070c21;
+}
+
+.app.club-shell.poker-shell {
+  --club-bg: #080f27;
+  --club-panel: #111d3d;
+  --club-felt: #1a2c55;
+  --club-edge: #314c7c;
+  --club-accent: #62dcff;
+  --club-primary: #16b7e7;
+  --club-muted: #a6b7d6;
+  width: 100%;
+  max-width: 1680px;
+  height: 100vh;
+  height: 100dvh;
+  margin: auto;
+  padding: max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 12% 4%,#19376455,transparent 35%),radial-gradient(ellipse at 94% 75%,#4a277c2b,transparent 35%),#080f27;
+}
+
+.poker-shell>.top,.poker-shell>footer {
+  display: none;
+}
+
+.poker-shell>.error,.poker-shell>.notice {
+  flex: none;
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.poker-shell .midnight-arena {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.midnight-arena .poker-icon {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  vertical-align: middle;
+}
+
+.poker-shell .midnight-arena button {
+  transition: background .15s,border-color .15s,box-shadow .15s;
+}
+
+.poker-shell .midnight-arena button:focus-visible {
+  outline: 3px solid #88eaff;
+  outline-offset: 3px;
+}
+
+.poker-shell .midnight-arena button.primary {
+  background: linear-gradient(#58e5ff,#18b7ed);
+  color: #071a32;
+  border-color: #80edff;
+  box-shadow: inset 0 1px #c2f7ff,0 5px 22px #15bafa26;
+}
+
+.poker-shell .midnight-arena button.primary:hover:not(:disabled) {
+  background: linear-gradient(#8ef0ff,#43cefa);
+  box-shadow: 0 0 24px #36caff45;
+}
+
+.poker-shell .midnight-arena button:disabled {
+  opacity: .4;
+}
+
+.poker-shell .midnight-arena .room-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  margin: 0;
+  min-height: 58px;
+  gap: 12px;
+  padding: 0 0 9px;
+  border-bottom: 1px solid #28416a80;
+}
+
+.poker-shell .poker-room-id,.poker-shell .poker-tools {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.poker-shell .midnight-arena .brand-logo-compact {
+  margin-right: 14px;
+}
+
+.poker-shell .midnight-arena .brand-logo-compact .brand-mark {
+  width: 43px;
+  height: 43px;
+}
+
+.poker-shell .midnight-arena .brand-logo-compact .brand-name {
+  font-size: 26px;
+}
+
+.poker-shell .midnight-arena .brand-logo-compact .brand-descriptor {
+  font-size: 8px;
+  letter-spacing: 1.8px;
+}
+
+.poker-shell .midnight-arena .room-code-label {
+  color: #8fa5cb;
+  font-size: 11px;
+  border-left: 1px solid #2a4266;
+  padding-left: 18px;
+}
+
+.poker-shell .midnight-arena .room-bar strong {
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .8px;
+  margin: 0;
+}
+
+.poker-shell .midnight-arena .room-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #355787;
+  border-radius: 11px;
+  background: #0c1b36;
+  font-size: 12px;
+}
+
+.poker-shell .midnight-arena .room-bar .ghost {
+  border-color: #8e3b60;
+  color: #ffb2c5;
+  background: #40213a33;
+}
+
+.poker-shell .midnight-arena .copy-room-code {
+  min-width: 42px;
+}
+
+.poker-shell .midnight-arena .copy-room-code-label,.poker-shell .midnight-arena .connection-label {
+  display: none;
+}
+
+.poker-shell .midnight-arena .connection {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.poker-shell .midnight-arena .connection i {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  box-shadow: 0 0 12px #5ce4ba50;
+}
+
+.poker-shell .midnight-arena .poker-header-meta {
+  font-size: 12px;
+  color: #c3d4f1;
+  white-space: nowrap;
+}
+
+.poker-shell .midnight-arena .poker-header-meta span {
+  color: #849bbf;
+}
+
+.poker-shell .midnight-arena .game-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
+.poker-shell .midnight-arena .table-area {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.poker-shell .midnight-arena .phase {
+  flex: none;
+  min-height: 22px;
+  padding: 0 10px;
+  font-size: 12px;
+  align-items: center;
+  gap: 8px;
+  color: #cbd8ef;
+}
+
+.poker-shell .midnight-arena .phase>span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poker-shell .midnight-arena .phase small {
+  font-size: 10px;
+  color: #7f96bd;
+}
+
+.poker-shell .midnight-arena .poker-table-info {
+  color: #8da5cc;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.poker-shell .midnight-arena .turn-banner {
+  min-width: 100px;
+  max-width: 55%;
+  margin: 0;
+  font-size: 11px;
+  color: #70e1ff;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poker-shell .midnight-arena .turn-time {
+  width: 100%;
+  height: 3px;
+  margin: 3px 0 0;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #233a66;
+}
+
+.poker-shell .midnight-arena .turn-time i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg,#a883ff,#50e6ff);
+  transition: width .2s linear;
+}

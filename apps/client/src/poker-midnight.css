@@ -1,0 +1,5 @@
+/* Ordered, scoped modules for the Midnight Arena play page. */
+@import './components/poker/midnight-theme.css';
+@import './components/poker/midnight-table.css';
+@import './components/poker/midnight-actions.css';
+@import './components/poker/midnight-responsive.css';

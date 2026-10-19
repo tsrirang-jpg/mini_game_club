@@ -7,11 +7,11 @@
 .club-playing .room-bar button { margin:0; display:inline-flex; align-items:center; justify-content:center; flex:none; min-height:36px; padding:6px 9px; font-size:11px; }
 .club-room-id,.club-room-tools { display:flex; align-items:center; gap:8px; min-width:0; }
 .club-shell .table,.club-shell .poker-table { background:radial-gradient(ellipse at 50% 40%,var(--club-felt),var(--club-bg)); border:1px solid var(--club-edge); box-shadow:inset 0 0 0 1px #ffffff08,0 8px 22px #0002; border-radius:24px; }
-.club-shell .pok-game .seat,.club-shell .poker-game .poker-seat { background:color-mix(in srgb,var(--club-bg),transparent 8%); border:1px solid var(--club-edge); }
-.club-shell .pok-game .seat.own,.club-shell .poker-game .poker-seat.own { border:1px solid #e6c47e; background:linear-gradient(135deg,var(--club-panel),var(--club-bg)); box-shadow:0 0 0 1px #e6c47e22; }
-.club-shell .pok-game .pok-self .pok-avatar,.club-shell .poker-game .poker-self .poker-avatar { background:#e6c47e; color:var(--club-ink); }
+.club-shell .pok-game .seat { background:color-mix(in srgb,var(--club-bg),transparent 8%); border:1px solid var(--club-edge); }
+.club-shell .pok-game .seat.own { border:1px solid #e6c47e; background:linear-gradient(135deg,var(--club-panel),var(--club-bg)); box-shadow:0 0 0 1px #e6c47e22; }
+.club-shell .pok-game .pok-self .pok-avatar { background:#e6c47e; color:var(--club-ink); }
 .club-shell .pok-avatar,.club-shell .poker-avatar { border-color:var(--club-edge); background:var(--club-felt); color:#f7f3dc; }
-.club-shell .pok-game .player-status,.club-shell .poker-game .player-status,.club-shell .points small { color:var(--club-muted); }
+.club-shell .pok-game .player-status,.club-shell .points small { color:var(--club-muted); }
 .club-shell .pok-action-dock,.club-shell .poker-action-dock { background:var(--club-bg); border:1px solid var(--club-edge); box-shadow:inset 0 1px 0 #ffffff09; }
 .club-shell .pok-game .table-mark { display:none; }
 .club-shell .pok-game .pok-table-seats { grid-template-rows:auto minmax(0,1fr) auto; gap:10px; }
@@ -32,28 +32,6 @@
 .pok-turn-stage p { margin:2px 0 8px; font-size:12px; color:var(--club-muted); }
 .club-stage-clock { color:var(--club-accent); font-size:26px; font-variant-numeric:tabular-nums; }
 .club-shell .pok-game .seat.catchable { border-color:#a39558; }
-.club-shell .poker-game .poker-table { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr) auto; gap:12px; padding:18px; --seat-card:clamp(24px,4vw,42px); --board-card:clamp(45px,7vw,80px); }
-.club-shell .poker-game .poker-bank { grid-column:1; grid-row:1; }
-.club-shell .poker-game .poker-opponents { grid-column:1; grid-row:2; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:8px; }
-.club-shell .poker-game .poker-table[data-opponents] .poker-opponents > .poker-seat:nth-child(n) { grid-column:auto; grid-row:auto; width:100%; max-width:none; }
-.club-shell .poker-game .poker-seat { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto auto auto; gap:3px 5px; align-content:center; padding:8px; min-height:0; }
-.club-shell .poker-game .poker-seat .player-name { grid-column:1/-1; grid-row:1; font-size:12px; min-height:0; }
-.club-shell .poker-game .poker-seat .poker-badges { grid-column:1; grid-row:2; height:16px; min-height:0; gap:3px; justify-content:flex-start; font-size:9px; }
-.club-shell .poker-game .poker-seat .hand { grid-column:2; grid-row:2/5; gap:3px; min-height:0; }
-.club-shell .poker-game .poker-seat .points { grid-column:1; grid-row:3; font-size:15px; }
-.club-shell .poker-game .poker-seat .result,.club-shell .poker-game .poker-seat .player-status { grid-column:1/-1; grid-row:5; min-height:0; font-size:9px; line-height:1.3; }
-.club-shell .poker-game .poker-center { grid-column:1; grid-row:3; align-self:center; padding:8px 0; }
-.club-shell .poker-game .poker-self { grid-column:1; grid-row:4; width:min(100%,520px); justify-self:center; }
-.club-shell .poker-game .poker-self .poker-seat { width:100%; --seat-card:clamp(45px,8vw,72px); padding:10px 14px; }
-.club-shell .poker-game .poker-self .player-name { grid-column:1; font-size:15px; }
-.club-shell .poker-game .poker-self .hand { grid-column:2; grid-row:1/6; }
-.club-shell .poker-game .poker-self .points { font-size:24px; }
-.club-shell .poker-game .poker-self .player-status,.club-shell .poker-game .poker-self .result { grid-column:1; }
-.club-shell .poker-game .community { gap:8px; }
-.club-shell .poker-game .pot-display { margin-bottom:10px; }
-.club-shell .poker-game .pot-display strong { font-size:29px; color:#e6c47e; }
-.club-shell .poker-game .street-track { margin-top:10px; }
-.club-shell .poker-game .fold-button { background:#70363c; border-color:#aa6067; }
 /* Spyfall uses the same compact roster/self panel language, with a chat canvas. */
 .club-shell .spy-game { flex:1; min-height:0; display:flex; flex-direction:column; gap:7px; padding:0; }
 .club-shell .spy-game .mission-banner { flex:none; display:flex; gap:10px; min-height:74px; padding:10px 16px; margin:0; background:linear-gradient(120deg,var(--club-panel),var(--club-bg)); border-color:var(--club-edge); border-radius:16px; }
@@ -130,21 +108,6 @@
   .pok-turn-stage .eyebrow { display:none; }
   .pok-turn-stage p { font-size:10px; margin-bottom:3px; }
   .club-stage-clock { font-size:23px; }
-  .club-shell .poker-game .poker-table,.club-shell .poker-game.has-side-pots .poker-table { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr) auto; padding:9px; gap:8px; --seat-card:clamp(19px,5.6vw,25px); --board-card:clamp(35px,11.5vw,57px); }
-  .club-shell .poker-game .poker-opponents { grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
-  .club-shell .poker-game .poker-seat { padding:5px; gap:2px; }
-  .club-shell .poker-game .poker-seat .player-name { font-size:9px; }
-  .club-shell .poker-game .poker-seat .points { font-size:12px; }
-  .club-shell .poker-game .poker-seat .points small { font-size:8px; }
-  .club-shell .poker-game .poker-seat .player-status,.club-shell .poker-game .poker-seat .result { font-size:8px; }
-  .club-shell .poker-game .poker-center { padding:3px 0; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:clamp(33px,10vw,48px); padding:7px 9px; }
-  .club-shell .poker-game .poker-self .points { font-size:20px; }
-  .club-shell .poker-game .poker-self .player-name { font-size:12px; }
-  .club-shell .poker-game .community { gap:5px; }
-  .club-shell .poker-game .pot-display { margin-bottom:6px; }
-  .club-shell .poker-game .pot-display strong { font-size:23px; }
-  .club-shell .poker-game .street-track { margin:6px 0 0; font-size:9px; }
   .club-shell .spy-game { gap:5px; }
   .club-shell .spy-game .mission-banner { padding:7px 10px; min-height:64px; gap:7px; }
   .club-shell .spy-game .mission-banner > .spy-artwork { display:none; }
@@ -233,22 +196,6 @@
   .pok-turn-stage .eyebrow { display:none; }
   .pok-turn-stage p { font-size:10px; margin-bottom:3px; }
   .club-stage-clock { font-size:21px; }
-  .club-shell .poker-game .poker-table,.club-shell .poker-game.has-side-pots .poker-table { grid-template-columns:minmax(0,1fr) minmax(0,.85fr); grid-template-rows:auto auto minmax(0,1fr); gap:5px 10px; padding:7px; --seat-card:clamp(18px,3.3vw,30px); --board-card:clamp(32px,5.5vw,56px); }
-  .club-shell .poker-game .poker-bank { grid-column:1/-1; grid-row:1; }
-  .club-shell .poker-game .poker-opponents { grid-column:1/-1; grid-row:2; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; }
-  .club-shell .poker-game .poker-seat { padding:4px; gap:1px 4px; }
-  .club-shell .poker-game .poker-seat .player-name { font-size:9px; }
-  .club-shell .poker-game .poker-seat .points { font-size:12px; }
-  .club-shell .poker-game .poker-seat .player-status,.club-shell .poker-game .poker-seat .result { font-size:8px; }
-  .club-shell .poker-game .poker-center { grid-column:1; grid-row:3; padding:0; }
-  .club-shell .poker-game .poker-self { grid-column:2; grid-row:3; width:100%; align-self:center; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:clamp(30px,5.4vw,48px); padding:5px 8px; }
-  .club-shell .poker-game .poker-self .player-name { font-size:12px; }
-  .club-shell .poker-game .poker-self .points { font-size:18px; }
-  .club-shell .poker-game .community { gap:5px; }
-  .club-shell .poker-game .pot-display { margin-bottom:4px; }
-  .club-shell .poker-game .pot-display strong { font-size:22px; }
-  .club-shell .poker-game .street-track { margin:2px 0 0; font-size:8px; }
   .club-shell .spy-game { gap:4px; }
   .club-shell .spy-game .mission-banner { padding:4px 10px; min-height:47px; gap:8px; }
   .club-shell .spy-game .mission-banner > .spy-artwork { width:40px; height:37px; }
@@ -318,12 +265,6 @@
   .pok-turn-stage h1 { font-size:15px; }
   .pok-turn-stage p { display:none; }
   .club-stage-clock { font-size:18px; }
-  .club-shell .poker-game .poker-opponents .poker-seat { padding:3px; }
-  .club-shell .poker-game .poker-opponents .poker-seat .player-status { font-size:7px; }
-  .club-shell .poker-game .poker-table { gap:4px; padding:6px; --seat-card:19px; --board-card:32px; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:30px; padding:4px 7px; }
-  .club-shell .poker-game .poker-self .points { font-size:16px; }
-  .club-shell .poker-game .pot-display strong { font-size:20px; }
   .club-shell .spy-game .mission-banner { min-height:52px; padding:5px 8px; }
   .club-shell .spy-game .mission-banner h1 { font-size:13px; }
   .club-shell .spy-game .mission-clock strong { font-size:25px; }
@@ -332,80 +273,12 @@
   .club-shell .secret-card,.club-shell .secret-card.revealed { min-height:66px; padding:5px; }
   .club-shell .secret-card .secret-location { font-size:18px; }
 }
-@media(min-width:1000px) and (min-height:760px) {
-  .club-shell .poker-game.card-size-high .poker-table { --seat-card:60px; --board-card:80px; }
-  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:72px; }
-}
 .app.club-shell.club-playing { max-width:1280px; }
 /* Reset the previous absolute ring positions before applying the new grid. */
-.club-shell .poker-game .poker-table .poker-center,.club-shell .poker-game.has-side-pots .poker-table .poker-center,
-.club-shell .poker-game .poker-table .poker-self,.club-shell .poker-game.has-side-pots .poker-table .poker-self,
-.club-shell .poker-game .poker-table .poker-bank { position:static; inset:auto; transform:none; margin:0; max-width:100%; }
-.club-shell .poker-game .poker-table .poker-center { width:100%; }
-.club-shell .poker-game .poker-table .poker-self { width:min(100%,520px); }
-.club-shell .poker-game .poker-table .poker-bank { width:100%; }
-.club-shell .poker-game .poker-table[data-opponents] .poker-opponents { display:grid; }
-.club-shell .poker-game .poker-table[data-opponents] .poker-opponents > .poker-seat:nth-child(n) { position:static; inset:auto; transform:none; }
 @media(min-width:721px) and (min-height:651px) {
   .club-shell .pok-game .pok-opponents { height:clamp(230px,34dvh,300px); }
 }
-@media(orientation:landscape) and (max-height:650px) {
-  .club-shell .poker-game .poker-table .poker-self { width:100%; }
-}
-@media(orientation:landscape) and (max-height:360px) {
-  .club-shell .poker-game .poker-table,.club-shell .poker-game.has-side-pots .poker-table { --seat-card:17px; --board-card:26px; padding:5px; gap:3px 7px; }
-  .club-shell .poker-game .poker-opponents .poker-seat .player-status { display:none; }
-  .club-shell .poker-game .poker-opponents .poker-seat { padding:3px; gap:1px; }
-  .club-shell .poker-game .poker-center .pot-display strong { font-size:18px; }
-  .club-shell .poker-game .poker-center .pot-display { margin-bottom:2px; }
-  .club-shell .poker-game .street-track { font-size:7px; margin-top:2px; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:28px; padding:4px 6px; }
-  .club-shell .poker-game .poker-self .points { font-size:15px; }
-}
-@media(max-width:720px) and (orientation:portrait) {
-  .club-shell .poker-game.hand-active .poker-action-dock { min-height:0; }
-  .club-shell .poker-game .poker-actions { gap:5px; }
-  .club-shell .poker-game .raise-hint,.club-shell .poker-game .raise-summary { display:none; }
-  .club-shell .poker-game .quick-actions button { min-height:40px; padding:6px; }
-  .club-shell .poker-game .raise-panel { gap:4px; }
-  .club-shell .poker-game .raise-chips { padding:0; gap:6px; }
-  .club-shell .poker-game .chip-choice { width:32px; height:32px; min-height:32px; font-size:10px; border-width:2px; }
-  .club-shell .poker-game .chip-all-in { min-height:32px; font-size:10px; padding:4px 7px; }
-  .club-shell .poker-game .raise-controls { gap:5px; }
-  .club-shell .poker-game .raise-controls input { height:34px; min-height:34px; }
-  .club-shell .poker-game .raise-controls button { height:35px; min-height:35px; padding:5px 9px; }
-  .club-shell .poker-game .raise-controls small { display:none; }
-}
-@media(max-height:570px) and (orientation:portrait) {
-  .club-shell .poker-game .poker-opponents .poker-seat .player-status { display:none; }
-  .club-shell .poker-game .poker-opponents .poker-seat .poker-badges { height:12px; min-height:0; font-size:7px; }
-  .club-shell .poker-game .poker-opponents .poker-seat .player-name { line-height:1.2; }
-  .club-shell .poker-game .poker-opponents .poker-seat .points { font-size:11px; }
-  .club-shell .poker-game .quick-actions button { min-height:34px; font-size:10px; padding:4px; }
-  .club-shell .poker-game .poker-actions { gap:3px; }
-  .club-shell .poker-game .chip-choice { width:28px; height:28px; min-height:28px; }
-  .club-shell .poker-game .chip-all-in { min-height:28px; }
-  .club-shell .poker-game .poker-action-dock { padding:5px; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:30px; }
-}
 /* Very small portrait phones place the board and your hand side by side. */
-@media(max-width:720px) and (min-height:571px) and (max-height:700px) and (orientation:portrait) {
-  .club-shell .poker-game .poker-table { --board-card:clamp(30px,9.5vw,43px); }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:clamp(30px,9vw,40px); }
-}
-@media(max-width:720px) and (max-height:570px) and (orientation:portrait) {
-  .club-shell .poker-game .poker-table,.club-shell .poker-game.has-side-pots .poker-table { grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr); --board-card:24px; }
-  .club-shell .poker-game .poker-table .poker-bank { grid-column:1/-1; }
-  .club-shell .poker-game .poker-opponents { grid-column:1/-1; grid-row:2; }
-  .club-shell .poker-game .poker-center { grid-column:1; grid-row:3; }
-  .club-shell .poker-game .poker-self { grid-column:2; grid-row:3; align-self:center; }
-  .club-shell .poker-game .community { gap:3px; }
-  .club-shell .poker-game .poker-self .poker-seat { --seat-card:25px; padding:4px; gap:2px; }
-  .club-shell .poker-game .poker-self .player-name { font-size:10px; }
-  .club-shell .poker-game .poker-self .points { font-size:14px; }
-  .club-shell .poker-game .poker-self .player-status { font-size:7px; }
-  .club-shell .poker-game .street-track { gap:5px; font-size:7px; }
-}
 @media(min-width:721px) and (min-height:651px) {
   .club-shell .spy-player-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
   .club-shell .spy-player { display:flex; flex-direction:column; justify-content:center; padding:8px 4px; gap:5px; text-align:center; }
@@ -438,24 +311,11 @@
   .club-shell .spy-game.phase-RESULTS .spy-player .agent-avatar { display:none; }
 }
 .club-shell.spy-shell .spy-panel { background:var(--club-panel); border-color:var(--club-edge); }
-.club-shell .poker-game .poker-table .poker-bank { grid-column:1/-1; grid-row:1; align-self:start; height:auto; min-height:0; }
-.club-shell .poker-game .poker-bank .pot-breakdown { position:static; width:100%; max-width:100%; margin:0; padding:0; border:0; }
 @media(min-width:721px) and (min-height:651px) {
   .club-shell .spy-player { min-height:60px; }
   .club-shell .spy-game.phase-RESULTS .spy-player { min-height:45px; padding:6px 4px; }
 }
-.club-shell .poker-game .poker-table .poker-opponents { grid-column:1/-1; grid-row:2; }
 /* Side pots use the same rows as a normal hand, without legacy ring placement. */
-.club-shell .poker-game .poker-table .poker-center { grid-column:1; grid-row:3; }
-.club-shell .poker-game .poker-table .poker-self { grid-column:1; grid-row:4; }
-@media(orientation:landscape) and (max-height:650px) {
-  .club-shell .poker-game .poker-table .poker-self { grid-column:2; grid-row:3; }
-}
-@media(max-width:720px) and (max-height:570px) and (orientation:portrait) {
-  .club-shell .poker-game .poker-table .poker-self { grid-column:2; grid-row:3; }
-}
-.club-shell .poker-game .poker-bank .pot-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }
-.club-shell .poker-game.hand-active .poker-action-dock:has(.poker-dock-idle) { min-height:0; }
 /* Compact popover selectors replace native selects without growing the docks. */
 .club-shell .pok-dealer-control .spy-select { margin:0; min-width:0; width:155px; }
 .club-shell .pok-catch-controls > .spy-select { flex:1; min-width:0; max-width:220px; margin:0; }
@@ -478,22 +338,4 @@
   .club-shell .pok-dealer-control .spy-select-caption,.club-shell .pok-catch-controls .spy-select-caption { font-size:8px; }
   .club-shell .pok-dealer-control .spy-select-value strong,.club-shell .pok-catch-controls .spy-select-value strong { font-size:10px; }
 }
-@media(max-width:360px) {
-}
 /* Preserve the Normal/High preference on short desktop windows as well. */
-@media(any-hover:hover) and (any-pointer:fine) and (min-width:800px) and (orientation:landscape) and (max-height:650px) {
-  .club-shell .poker-game.card-size-high .poker-table { --seat-card:clamp(28px,8.2dvh,45px); --board-card:clamp(40px,11dvh,64px); }
-  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:clamp(35px,10dvh,60px); }
-  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:clamp(23px,6.8dvh,37px); --board-card:clamp(30px,9.5dvh,52px); }
-  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:clamp(28px,8.5dvh,48px); }
-}
-@media(min-width:1000px) and (min-height:760px) {
-  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:44px; --board-card:60px; }
-  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:52px; }
-}
-@media(min-width:721px) and (min-height:651px) and (max-height:759px) {
-  .club-shell .poker-game.card-size-high .poker-table { --board-card:64px; }
-  .club-shell .poker-game.card-size-high .poker-self .poker-seat { --seat-card:60px; }
-  .club-shell .poker-game.card-size-normal .poker-table { --seat-card:34px; --board-card:52px; }
-  .club-shell .poker-game.card-size-normal .poker-self .poker-seat { --seat-card:46px; }
-}

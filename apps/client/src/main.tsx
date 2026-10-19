@@ -27,14 +27,7 @@ import './pok-rules.css';
 import './pok-layout.css';
 import './pok-player-layout.css';
 import './poker.css';
-import './poker-layout.css';
 import './poker-pots.css';
-import './poker-ring.css';
-import './poker-card-clarity.css';
-import './poker-sizing.css';
-import './poker-desktop.css';
-import './poker-mobile-landscape.css';
-import './poker-mobile-small-portrait.css';
 import './spyfall.css';
 import './spyfall-theme.css';
 import './spyfall-select.css';
@@ -43,6 +36,7 @@ import './club-play.css';
 import './oldmaid.css';
 import './club-desktop.css';
 import './club-entry-desktop.css';
+import './poker-midnight.css';
 
 function GameShell({ kind, playing = false, children, state, controls }: {
   kind: GameKind; playing?: boolean; children: ReactNode;
