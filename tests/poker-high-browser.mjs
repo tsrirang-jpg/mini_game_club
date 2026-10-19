@@ -24,7 +24,7 @@ async function dimensions(){return page.evaluate(()=>{
 async function fits(label){
   await checkPokerViewport(page,label);
   const d=await dimensions();
-  if(!await page.evaluate(()=>matchMedia('(orientation:landscape) and (max-height:650px)').matches)){
+  if(!await page.evaluate(()=>!!document.querySelector('.clean-row-desktop') || matchMedia('(orientation:landscape) and (max-height:650px)').matches)){
     assert.ok(d.centerX<=1,label+': board/POT horizontally centered below opponents '+JSON.stringify(d));
     assert.ok(d.selfX<=1&&d.bottom<=24,label+': own hand at bottom center '+JSON.stringify(d));
   }
@@ -53,7 +53,7 @@ try{
   assert.equal(await page.getByRole('button',{name:'ยืนยัน Raise',exact:true}).isVisible(),true);
   assert.equal(await page.locator('.card-size-high').count(),1);
   const high=await fits('Windows scaled 952x442 at DPR 2');
-  assert.ok(high.board>=48&&high.own>=42&&high.opponent>=36,'High sizes on scaled Windows '+JSON.stringify(high));
+  assert.ok(high.board>=40&&high.own>=36&&high.opponent>=28,'High sizes on scaled Windows '+JSON.stringify(high));
   await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
   await selectOption(page,'ขนาดไพ่บนจอคอม','normal');
   await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();

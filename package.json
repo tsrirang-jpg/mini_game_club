@@ -39,7 +39,9 @@
     "test:copy-room-code": "node tests/copy-room-code-browser.mjs",
     "test:brand": "node tests/brand-browser.mjs",
     "test:undercover-discussion": "node tests/undercover-discussion-browser.mjs",
-    "test:undercover-voting": "node tests/undercover-voting-browser.mjs"
+    "test:undercover-voting": "node tests/undercover-voting-browser.mjs",
+    "test:poker-clean-row": "node tests/poker-clean-row-browser.mjs",
+    "test:poker-deal": "node tests/poker-deal-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

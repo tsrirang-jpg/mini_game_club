@@ -68,7 +68,7 @@ try {
   await a.getByRole('button',{name:'เริ่มรอบ Poker',exact:true}).click();
   await b.getByRole('button',{name:'Fold / หมอบ',exact:true}).click();
   await a.locator('.show-cards-button').waitFor();
-  for (const [width,height] of [[320,568],[360,640],[568,320],[844,390]]) {
+  for (const [width,height] of [[320,568],[360,640],[568,320],[844,390],[952,442],[900,400]]) {
     await a.setViewportSize({width,height});await pause(100);
     await checkPokerViewport(a,'host winner with all result buttons '+width+'x'+height);
     assert.equal(await a.locator('.show-cards-button').isVisible(),true);

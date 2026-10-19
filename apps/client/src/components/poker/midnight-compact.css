@@ -1,0 +1,101 @@
+/* Compact desktop uses the available height; touch layouts keep their own rules. */
+@media (max-height: 650px) {
+  .app.club-shell.poker-shell:has(.clean-row-desktop) { padding: 6px; height: 100dvh; min-height: 0; }
+  .app.poker-shell .midnight-arena.clean-row-desktop { --console-height: clamp(118px, 27dvh, 174px); gap: 4px; min-height: 0; }
+  .app.poker-shell .clean-row-desktop .room-bar { min-height: 40px; padding-bottom: 4px; }
+  .app.poker-shell .clean-row-desktop .brand-logo-compact .brand-name { font-size: 24px; }
+  .app.poker-shell .clean-row-desktop .brand-logo-compact svg { width: 34px; height: 34px; }
+  .app.poker-shell .clean-row-desktop .room-bar strong { font-size: 18px; }
+  .app.poker-shell .clean-row-desktop .room-bar button { min-height: 32px; padding: 5px 9px; font-size: 11px; }
+  .app.poker-shell .clean-row-desktop .phase { min-height: 18px; font-size: 11px; }
+  .app.poker-shell .clean-row-desktop .phase small,
+  .app.poker-shell .clean-row-desktop .poker-table-info { font-size: 9px; }
+  .app.poker-shell .clean-row-desktop .table-area { gap: 4px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table {
+    --seat-card: clamp(28px, min(4vw, 8dvh), 46px);
+    --board-card: clamp(36px, min(6vw, 10dvh), 64px);
+    padding: 8px 24px 6px; gap: 4px; border-radius: 28px;
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop.card-size-normal .poker-table {
+    --seat-card: clamp(24px, min(3.3vw, 6.8dvh), 38px);
+    --board-card: clamp(32px, min(5.3vw, 8.6dvh), 54px);
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots.card-size-high .poker-table { --board-card: clamp(36px, min(6vw, 10dvh), 64px); }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) { grid-template-rows: auto minmax(0, 1fr); }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) .poker-opponents { grid-area: 1 / 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) .poker-center { grid-area: 2 / 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table[data-opponents] .poker-opponents > .poker-seat:nth-child(n) { height: clamp(72px, 17dvh, 110px); padding: 5px 7px; gap: 1px 5px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-opponents .player-name { font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-opponents .points { font-size: 17px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-opponents .points small,
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-opponents .poker-badges { font-size: 8px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .player-status,
+  .app.poker-shell .midnight-arena.clean-row-desktop .result { font-size: 9px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .pot-display { font-size: 10px; margin-bottom: 3px; line-height: 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .pot-display strong { font-size: 24px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .chip-stack { width: 34px; height: 22px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .street-track { margin-top: 3px; font-size: 9px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .street-track > span { padding-bottom: 9px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .pot-entry { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 22px; padding: 2px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .pot-entry strong { font-size: 12px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-console { gap: 8px; padding: 6px; border-radius: 15px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-self .poker-seat { --seat-card: clamp(36px, 9dvh, 54px); --avatar: 36px; gap: 2px 6px; padding: 6px 8px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.card-size-normal .poker-self .poker-seat { --seat-card: clamp(32px, 7.8dvh, 46px); }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-self .player-name { font-size: 12px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-self .points { font-size: 22px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-self .player-status { font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-self .poker-badges { top: 6px; bottom: auto; left: 8px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock { gap: 4px; padding: 5px 8px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-console-status { min-height: 16px; font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .turn-banner { font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .turn-time { height: 5px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-actions { gap: 5px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .quick-actions button { min-height: 32px; padding: 4px; font-size: 12px; border-radius: 10px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .chip-choice { width: clamp(28px, 7.5dvh, 42px); height: clamp(28px, 7.5dvh, 42px); border-width: 3px; font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .chip-all-in { min-height: 30px; font-size: 10px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input,
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls button { height: 32px; min-height: 32px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input { font-size: 20px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-summary { font-size: 9px; line-height: 1.2; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-dock-idle button { min-height: 36px; }
+}
+@media (max-height: 480px) {
+  .app.club-shell.poker-shell:has(.clean-row-desktop) { padding: 4px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop { --console-height: 112px; }
+  .app.poker-shell .clean-row-desktop .room-bar { min-height: 36px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table { padding-top: 6px; padding-bottom: 4px; }
+}
+@media (max-height: 650px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .poker-table[data-opponents] .poker-opponents > .poker-seat:nth-child(n) { height: clamp(72px, 17dvh, 110px); }
+}
+@media (max-height: 480px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots.card-size-high .poker-table { --board-card: clamp(36px, 8.5dvh, 42px); padding-top: 4px; padding-bottom: 2px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .pot-entry { min-height: 18px; height: 18px; padding: 1px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .pot-entry strong { font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .pot-display { margin-bottom: 2px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .pot-display strong { font-size: 22px; line-height: 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .street-track { margin-top: 2px; font-size: 8px; line-height: 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .street-track > span { padding-bottom: 8px; }
+}
+/* Place the timer beside the action buttons on very short desktops, leaving
+   room for the full raise summary instead of pushing it below the viewport. */
+@media (max-height: 480px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.poker-actions) {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 2.2fr);
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: 5px 8px;
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.poker-actions) .poker-console-status { grid-area: 1 / 1; min-height: 0; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.poker-actions) .turn-banner { flex-direction: column; align-items: flex-start; gap: 3px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.poker-actions) .turn-time { width: 100%; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-actions { display: contents; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .quick-actions { grid-area: 1 / 2; gap: 5px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-panel { grid-area: 2 / 1 / 3 / -1; row-gap: 2px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .raise-chips { padding: 0 3px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.show-cards-button) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.show-cards-button) .poker-console-status { grid-area: 1 / 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .show-cards-button { grid-area: 1 / 2; min-height: 28px; padding: 4px 8px; font-size: 11px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock:has(.show-cards-button) .poker-dock-idle { grid-area: 2 / 1 / 3 / -1; }
+}

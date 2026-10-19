@@ -26,7 +26,7 @@ try {
   await page.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
   await page.locator('.poker-seat').nth(1).waitFor();
   for (let count = 2; count <= 6; count++) {
-    for (const [width, height] of [[568,320],[844,390],[1366,768]]) {
+    for (const [width, height] of [[568,320],[844,390],[1147,795],[1366,768]]) {
       await page.setViewportSize({ width, height }); await pause(80);
       await fits('ring with ' + count + ' players at ' + width + 'x' + height);
     }

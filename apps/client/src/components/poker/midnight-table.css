@@ -252,6 +252,15 @@
   gap: 4px;
 }
 
+/* Empty seats reserve the exact two-card footprint, including the hand gap.
+   Lobby frames therefore stay the same size when a round starts. */
+.poker-shell .midnight-arena .poker-hole-placeholder {
+  flex: none;
+  width: var(--seat-card);
+  height: calc(var(--seat-card) * 1.4);
+  visibility: hidden;
+}
+
 .poker-shell .midnight-arena .player-status,.poker-shell .midnight-arena .result {
   grid-area: status;
   display: flex;
@@ -347,7 +356,7 @@
   --card-width: var(--board-card);
 }
 
-.poker-shell .midnight-arena .poker-table .card {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card {
   position: relative;
   display: grid;
   place-items: center;
@@ -364,11 +373,11 @@
   animation: arena-card-in .35s ease-out both;
 }
 
-.poker-shell .midnight-arena .poker-table .card.red {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card.red {
   color: #ca414d;
 }
 
-.poker-shell .midnight-arena .poker-table .card>span:not(.bottom) {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card>span:not(.bottom) {
   position: relative;
   display: block;
   font-family: Georgia,serif;
@@ -378,23 +387,23 @@
   text-align: center;
 }
 
-.poker-shell .midnight-arena .poker-table .card small {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card small {
   display: block;
   font-size: calc(var(--card-width)*.3);
   line-height: 1;
   margin-top: 4px;
 }
 
-.poker-shell .midnight-arena .poker-table .card>b,.poker-shell .midnight-arena .poker-table .card .bottom,.poker-shell .midnight-arena .poker-table .court-art {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card>b,.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card .bottom,.poker-shell .midnight-arena :is(.poker-table, .poker-self) .court-art {
   display: none;
 }
 
-.poker-shell .midnight-arena .poker-table .card.back {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card.back {
   border: 2px solid #94b3ee;
   background: repeating-linear-gradient(45deg,transparent 0 5px,#a1adff13 5px 6px),linear-gradient(135deg,#37467c,#263157);
 }
 
-.poker-shell .midnight-arena .poker-table .card.back::after {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card.back::after {
   content: '♠';
   color: #b3c7ef;
   font-family: Georgia,serif;
@@ -412,7 +421,7 @@
   flex: none;
 }
 
-.poker-shell .midnight-arena .poker-table .card-slot {
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .card-slot {
   width: var(--board-card);
   height: calc(var(--board-card)*1.4);
   border: 1px dashed #5982bf80;
@@ -508,12 +517,19 @@
   white-space: nowrap;
 }
 
-.poker-shell .midnight-arena .dealing .hand .card {
-  animation: arena-deal .45s ease-out both;
+/* Hole-card dealing is independent of table placement and phase changes.
+   All six seats finish before the server's 1200ms DEALING phase ends. */
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .hand .card {
+  animation: none;
 }
 
-.poker-shell .midnight-arena .dealing .hand .card:nth-child(2) {
-  animation-delay: .25s!important;
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .hand.deal-once .card {
+  animation: arena-deal .45s ease-out both;
+  animation-delay: calc(var(--deal-seat) * 80ms)!important;
+}
+
+.poker-shell .midnight-arena :is(.poker-table, .poker-self) .hand.deal-once .card:nth-child(2) {
+  animation-delay: calc(var(--deal-seat) * 80ms + 250ms)!important;
 }
 
 .poker-shell .midnight-arena .poker-room-notice {
@@ -599,4 +615,15 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Zero-chip seats stay visible while clearly distinct from funded players.
+   Keep the winner highlight and retain readable cards/badges during an all-in. */
+.app.club-shell.poker-shell .midnight-arena .poker-seat.chips-empty:not(.winner) {
+  border-color: #64748b;
+  box-shadow: none;
+  opacity: .65;
+}
+.app.club-shell.poker-shell .midnight-arena .poker-seat.chips-empty:has(.all-in-tag):not(.winner) {
+  opacity: .9;
 }

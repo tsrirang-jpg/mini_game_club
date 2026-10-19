@@ -3,3 +3,5 @@
 @import './components/poker/midnight-table.css';
 @import './components/poker/midnight-actions.css';
 @import './components/poker/midnight-responsive.css';
+@import './components/poker/clean-row-desktop.css';
+@import './components/poker/midnight-compact.css';

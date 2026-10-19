@@ -1,5 +1,8 @@
 import { BrandLogo } from './components/ui/BrandLogo';
 import { useDeadlineNow } from './hooks/useDeadlineNow';
+import { usePokerRaiseInput } from './hooks/usePokerRaiseInput';
+import { usePokerDesktopLayout } from './hooks/usePokerDesktopLayout';
+import { PokerTurnTimer } from './components/poker/PokerTurnTimer';
 import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
 import { SpyfallSelect as ClubSelect } from './SpyfallSelect';
 import { useEffect, useRef, useState } from 'react';
@@ -30,7 +33,8 @@ function PokerPanel({ panel, close, children }: { panel: Panel; close: () => voi
 }
 
 export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapshot>; code: string }) {
-  const [raiseTo, setRaiseTo] = useState(40);
+  const desktop = usePokerDesktopLayout();
+  const { value: raiseValue, amount: raiseTo, setAmount: setRaiseTo, onChange: handleRaiseChange } = usePokerRaiseInput();
   const [panel, setPanel] = useState<Panel | null>(null);
   const [hostNotice, setHostNotice] = useState('');
   const lastHost = useRef<string | undefined>(undefined);
@@ -46,7 +50,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
     const timer = setTimeout(() => setHostNotice(''), 6000);
     return () => clearTimeout(timer);
   }, [s?.hostId]);
-  useEffect(() => { if (s) setRaiseTo(s.currentBet + s.minRaise); }, [s?.roundId, s?.phase, s?.currentBet, s?.minRaise]);
+  useEffect(() => { if (s) setRaiseTo(s.currentBet + s.minRaise); }, [s?.roundId, s?.phase, s?.currentBet, s?.minRaise, setRaiseTo]);
   if (!s || s.code !== code) return <main className="page-message"><h1>{state.status === 'reconnecting' ? 'กำลังกลับเข้าโต๊ะ Poker…' : 'ยังไม่ได้เข้าห้อง Poker นี้'}</h1><p>{code}</p>{state.status === 'idle' && <button className="primary" onClick={() => navigate('/poker/rooms/join?code=' + code)}>เข้าห้องนี้</button>}</main>;
   const me = s.players.find(p => p.id === state.playerId), host = s.hostId === state.playerId;
   const active = state.status === 'connected', canAct = active && s.turnId === state.playerId && now < s.deadline;
@@ -69,13 +73,15 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   </section>)}</div>;
   const playing = !['LOBBY', 'ROUND_END'].includes(s.phase);
   const canStart = active && !s.roomClosing && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
-  return <main className={'game poker-game midnight-arena card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
+  const ownSeat = me && <div className="poker-self"><PokerSeat player={me} snapshot={s} state={state} now={now} turnLabel={desktop && canAct ? 'ถึงตาคุณ' : undefined}/></div>;
+  const turnBanner = s.turnId && <PokerTurnTimer label={canAct ? 'ถึงตาคุณ' : 'รอ ' + playerName(s.turnId)} seconds={seconds} progress={(s.deadline - now) / s.turnDurationMs * 100}/>;
+  return <main className={'game poker-game midnight-arena ' + (desktop ? 'clean-row-desktop ' : '') + 'card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
     <div className="room-bar">
       <div className="poker-room-id"><BrandLogo compact/><span className="room-code-label">รหัสห้อง</span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div>
       <div className="poker-tools"><span className="poker-header-meta">{s.players.length}/6 คน <span>· Blinds 10/20</span></span><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}><PokerIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}><PokerIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}><PokerIcon name="leave"/><span>ออกจากห้อง</span></button></div>
     </div>
     <div className="game-layout"><section className="table-area">
-      <div className="phase"><span>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></span>{s.turnId ? <div className="turn-banner" role="status">{canAct ? 'ถึงตาคุณ' : 'รอ ' + s.players.find(p => p.id === s.turnId)?.name} · {seconds} วินาที<div className="turn-time"><i style={{ width: Math.max(0, Math.min(100, (s.deadline - now) / s.turnDurationMs * 100)) + '%' }}/></div></div> : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
+      <div className="phase"><span>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></span>{!desktop && s.turnId ? turnBanner : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
       <div data-opponents={bySeat.filter(p => p.id !== state.playerId).length} className={'poker-table ' + (s.phase === 'DEALING' ? 'dealing' : '')}>
         {(s.roomClosing || hostNotice) && <div className="poker-room-notice" role="status">{s.roomClosing ? s.closeAt ? 'ปิดห้องใน ' + Math.max(0, Math.ceil((s.closeAt - now) / 1000)) + ' วินาที' : 'Host จะปิดห้องหลังจบรอบนี้' : hostNotice}</div>}
         <div className="poker-bank">{pots.length > 1 && <section className="pot-breakdown" aria-label="กองเดิมพันแยก"><div className="pot-grid">{pots.map((p, i) => <button key={i} className={'pot-entry ' + (p.refund ? 'pot-refund' : i ? 'pot-side' : 'pot-main')} aria-label={potLabel(pots, i) + ' ' + p.amount + ' ชิป'} title={(p.winners.length ? 'รับ: ' + p.winners.map(id => playerName(id) + ' ' + p.awards[id]).join(', ') : 'มีสิทธิ์: ' + p.eligible.map(playerName).join(', '))} onClick={() => setPanel('pots')}>
@@ -90,10 +96,13 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
           {s.phase === 'DEALING' && <div className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</div>}
           <div className="street-track">{['PREFLOP', 'FLOP', 'TURN', 'RIVER'].map(phase => <span className={s.phase === phase ? 'current' : ''} key={phase}>{phase === 'PREFLOP' ? 'Pre-flop' : phase.charAt(0) + phase.slice(1).toLowerCase()}</span>)}</div>
         </section>
-        {me && <div className="poker-self"><PokerSeat player={me} snapshot={s} state={state} now={now}/></div>}
+        {!desktop && ownSeat}
       </div>
     </section></div>
+    <div className="poker-console">
+      {desktop && ownSeat}
     <div className="poker-action-dock" aria-label="การเล่นและเดิมพัน">
+      {desktop && <div className="poker-console-status">{turnBanner || <span>{stages[s.phase]}</span>}</div>}
       {canShowCards && <button className="show-cards-button" disabled={!active} onClick={() => pokerSession.send('showCards')}>Show cards / เปิดไพ่</button>}
       {canAct && me ? <section className="poker-actions">
         <div className="quick-actions"><button className="fold-button" onClick={() => pokerSession.send('fold')}>Fold / หมอบ</button>{call === 0 ? <button onClick={() => pokerSession.send('check')}>Check / ผ่าน</button> : <button className="primary" onClick={() => pokerSession.send('call')}>Call {Math.min(call, me.points)}</button>}<button disabled={max > s.currentBet && !raiseAllowed} onClick={() => pokerSession.send('allIn')}>All-in {me.points}</button></div>
@@ -103,12 +112,13 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
             const target = s.currentBet + chip, valid = target <= max && (chip >= s.minRaise || target === max);
             return <button key={chip} type="button" className={'chip-choice chip-' + chip + (raiseTo === target ? ' selected' : '')} aria-label={'Raise เพิ่ม ' + chip} aria-pressed={raiseTo === target} title={!valid ? target > max ? 'ชิปไม่พอ' : 'Raise ขั้นต่ำเพิ่ม ' + s.minRaise : 'Raise รวมเป็น ' + target} disabled={!valid} onClick={() => setRaiseTo(target)}>{chip}</button>;
           })}<button type="button" className={'chip-all-in ' + (raiseTo === max ? 'selected' : '')} aria-label="เลือก All-in" aria-pressed={raiseTo === max} onClick={() => setRaiseTo(max)}>All-in</button></div>
-          <div className="raise-controls"><label>Raise รวมเป็น<input inputMode="numeric" type="number" min={Math.min(min, max)} max={max} step="1" value={raiseTo} onChange={e => setRaiseTo(Number(e.target.value))}/></label><button className="primary" disabled={!Number.isSafeInteger(raiseTo) || raiseTo > max || raiseTo <= s.currentBet || (raiseTo < min && raiseTo !== max)} onClick={() => pokerSession.send(raiseTo === max ? 'allIn' : 'raise', raiseTo)}>{raiseTo === max ? 'ยืนยัน All-in' : 'ยืนยัน Raise'}</button><small>ขั้นต่ำรวม {min} · สูงสุด {max}</small></div>
+          <div className="raise-controls"><label>Raise รวมเป็น<input inputMode="numeric" type="number" min={Math.min(min, max)} max={max} step="1" autoComplete="off" value={raiseValue} onChange={handleRaiseChange}/></label><button className="primary" disabled={!Number.isSafeInteger(raiseTo) || raiseTo > max || raiseTo <= s.currentBet || (raiseTo < min && raiseTo !== max)} onClick={() => pokerSession.send(raiseTo === max ? 'allIn' : 'raise', raiseTo)}>{raiseTo === max ? 'ยืนยัน All-in' : 'ยืนยัน Raise'}</button><small>ขั้นต่ำรวม {min} · สูงสุด {max}</small></div>
           <p className="raise-summary">Call {call} + Raise {Math.max(0, raiseTo - s.currentBet)} · จ่ายเพิ่ม {Math.max(0, raiseTo - me.streetBet)} ชิป · รวมเดิมพันตานี้ {raiseTo}</p>
         </div>}
       </section> : <div className="poker-dock-idle">
         {s.phase === 'LOBBY' && me ? <>{host ? <><button className="primary" disabled={!canStart} onClick={() => pokerSession.send('startRound')}>เริ่มรอบ Poker</button><button disabled={!active || s.players.length >= 6} onClick={() => pokerSession.send('addBot')}>เพิ่มบอท</button></> : <button className="primary" disabled={!active || me.points === 0} onClick={() => pokerSession.send('setReady', !me.ready)}>{me.ready ? 'ยกเลิกพร้อม' : 'พร้อมเล่น'}</button>}<span>พร้อมแล้ว {s.players.filter(p => p.ready || p.id === s.hostId).length}/{s.players.length} คน</span></> : s.phase === 'ROUND_END' ? <>{host && <button className="primary" disabled={!active} onClick={() => pokerSession.send('prepareRound')}><PokerIcon name="cards"/>เตรียมรอบใหม่</button>}<button onClick={() => setPanel('results')}><PokerIcon name="chart"/>ดูผลและสรุป Pot</button></> : <p>{s.phase === 'DEALING' ? 'กำลังแจกไพ่…' : me?.folded ? 'คุณหมอบแล้ว · รอผลรอบนี้' : me?.allIn ? 'คุณ All-in แล้ว · รอเปิดไพ่' : 'รอผู้เล่นคนอื่น · ปุ่มเดิมพันจะแสดงเมื่อถึงตาคุณ'}</p>}
       </div>}
+    </div>
     </div>
     {panel && <PokerPanel panel={panel} close={() => setPanel(null)}>
       {panel === 'close' ? <><p>{playing ? 'ห้องจะปิดหลังจบรอบและแจกชิปครบแล้ว ทุกคนมีเวลา 8 วินาทีดูผลก่อนกลับหน้าสร้างห้อง' : 'ทุกคนจะออกจากห้องใน 8 วินาที และรหัสห้องนี้จะใช้ไม่ได้อีก'}</p><p>หากต้องการออกคนเดียว ให้ใช้ปุ่ม “ออกจากห้อง” ระบบจะย้าย Host ให้คนที่เหลือ</p><div className="poker-close-actions"><button onClick={() => setPanel('table')}>ยกเลิก</button><button className="fold-button" disabled={!host || !active || s.roomClosing} onClick={() => { pokerSession.send('closeRoom'); setPanel(null); }}>ยืนยันปิดห้อง</button></div></> : panel === 'rules' ? <PokerRules/> : panel === 'pots' ? potDetails : panel === 'table' ? <>
