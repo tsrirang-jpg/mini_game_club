@@ -1,0 +1,24 @@
+{
+  "tool": "Built-in image_gen",
+  "type": "UI concept images; application code not modified",
+  "screens": [
+    "desktop",
+    "tablet",
+    "mobile"
+  ],
+  "theme": "Black, white and red application UI; colorful Famicom-style gameplay",
+  "prompts": [
+    {
+      "image": "01-select-games.png",
+      "brief": "Responsive Thai game selection page for วงเซียน, black/red/white UI, featured Road Fighter and game cards, desktop/tablet/mobile layouts. Correct capacities: Pok Deng 2–10, Poker 2–6, Spyfall 3–8, Old Maid 3–8; omit unspecified dice-game capacity."
+    },
+    {
+      "image": "02-start-race.png",
+      "brief": "Responsive Road Fighter pre-race screen: colorful Famicom race preview, name input, difficulty, stage, sound, controls guide and red เริ่มแข่ง button. Desktop/tablet/mobile; top back navigation; black/red/white chrome."
+    },
+    {
+      "image": "03-play-no-title.png",
+      "brief": "Adapt the approved colorful Famicom race and black/red/white analog-gauge HUD to desktop/tablet/mobile. Remove ROAD FIGHTER title from every gameplay header, retain brand and controls. Desktop side HUD, compact gauges above track on smaller screens."
+    }
+  ]
+}

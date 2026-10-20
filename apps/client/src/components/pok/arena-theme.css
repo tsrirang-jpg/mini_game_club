@@ -20,7 +20,7 @@ body:has(.dealer-arena) { background:radial-gradient(ellipse at 20% 5%,#174d37,#
 .app.club-shell.pok-shell .pok-game.dealer-arena .phase { display:flex; flex:none; min-height:25px; padding:0 8px; font-size:14px; color:#d5ebd7; grid-area:auto; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { color:#a4efc7; font-size:16px; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .table { position:relative; flex:1; display:block; min-height:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; container-type:size; isolation:isolate; grid-area:auto; }
-.app.club-shell.pok-shell .pok-game.dealer-arena .table::before { content:''; position:absolute; inset:0; z-index:-2; pointer-events:none; border:1px solid var(--club-edge); border-radius:34px; background:radial-gradient(ellipse at 50% 40%,var(--club-felt),var(--club-bg)); box-shadow:inset 0 0 0 1px #ffffff08,0 8px 22px #0002; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .table::before { content:''; position:absolute; inset:0; z-index:-2; pointer-events:none; border:1px solid var(--club-edge); border-radius:15px; background:radial-gradient(ellipse at 50% 40%,var(--club-felt),var(--club-bg)); box-shadow:inset 0 0 0 1px #ffffff08,0 8px 22px #0002; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .table::after { content:none; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-table-seats { position:relative; display:block; height:100%; min-height:0; padding:0; grid-area:auto; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-opponents] .pok-opponents { display:contents; height:auto; min-height:0; max-height:none; container-type:normal; }

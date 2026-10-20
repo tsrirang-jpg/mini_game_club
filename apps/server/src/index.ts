@@ -39,7 +39,7 @@ const server = new Server({
       }));
       app.use(express.static(clientDist, { maxAge: 0, dotfiles: 'deny' }));
       // Only application routes receive the SPA; missing assets and APIs stay 404.
-      app.get(/^\/(?:games\/?|(?:rooms|play|poker|spyfall|oldmaid|whoami|liar|undercover)(?:\/.*)?)?$/, (_request, response) => {
+      app.get(/^\/(?:games\/?|(?:rooms|play|poker|spyfall|oldmaid|whoami|liar|undercover|road-fighter)(?:\/.*)?)?$/, (_request, response) => {
         response.set('Cache-Control', 'no-cache');
         response.sendFile(resolve(clientDist, 'index.html'));
       });

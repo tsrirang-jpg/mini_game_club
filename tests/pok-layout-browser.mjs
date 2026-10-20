@@ -9,7 +9,7 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 const url = process.env.GAME_URL || 'http://127.0.0.1:5188';
-const sizes = [[1672,941],[1147,795],[952,442],[1920,1080],[2560,1440],[1920,1200],[320,480],[320,568],[360,640],[375,667],[390,844],[420,750],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
+const sizes = [[880,590],[1672,941],[1147,795],[952,442],[1920,1080],[2560,1440],[1920,1200],[320,480],[320,568],[360,640],[375,667],[390,844],[420,750],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
 
 // Deterministic public/private snapshots cover three cards and every UI phase.
 // Real room actions and reconnection are covered by browser-smoke.mjs.
@@ -64,10 +64,13 @@ async function fits(label) {
     }).map(e => e.className);
     const cardErrors = [];
     for (const card of document.querySelectorAll('.pok-game .card:not(.back)')) {
-      const label = card.querySelector('span:not(.bottom)'), suit = label.querySelector('small');
+      const label = card.querySelector('span:not(.bottom)'), suit = card.querySelector(':scope > b');
       const rankRange = document.createRange(); rankRange.selectNodeContents(label.firstChild);
       const suitRange = document.createRange(); suitRange.selectNodeContents(suit);
       const rank = rankRange.getBoundingClientRect(), glyph = suitRange.getBoundingClientRect(), c = box(card);
+      const suits=[...card.querySelectorAll('small,b')].filter(e=>box(e).width&&box(e).height&&getComputedStyle(e).visibility!=='hidden');
+      const centered=Math.abs((glyph.left+glyph.right-c.left-c.right)/2)<=1&&Math.abs((glyph.top+glyph.bottom-c.top-c.bottom)/2)<=1;
+      if(suits.length!==1||suits[0]!==suit||!centered)cardErrors.push({label:card.getAttribute('aria-label'),visibleSuits:suits.length,centered});
       const hit = document.elementFromPoint((rank.left + rank.right) / 2, (rank.top + rank.bottom) / 2);
       if (rank.bottom > glyph.top + 1 || rank.left < c.left || rank.right > c.right || rank.top < c.top || glyph.bottom > c.bottom || glyph.left < c.left || glyph.right > c.right || !label.contains(hit)) cardErrors.push({ label: card.getAttribute('aria-label'), rank: rank.toJSON(), suit: glyph.toJSON(), card: c.toJSON(), hit: hit?.className || hit?.tagName });
     }
@@ -118,6 +121,27 @@ async function fits(label) {
 
 try {
   await page.goto(url + '/rooms/create');
+  // The same station must keep card and frame dimensions when a third card arrives.
+  for(const count of [2,6,10]) for(const [width,height] of sizes){
+    await page.setViewportSize({width,height});await fixture('ROUND_END',count);
+    const three=await page.locator('.pok-game .seat').evaluateAll(nodes=>nodes.map(e=>({frame:[e.clientWidth,e.clientHeight],card:[e.querySelector('.card').getBoundingClientRect().width,e.querySelector('.card').getBoundingClientRect().height]})));
+    await page.evaluate(async()=>{
+      const {session}=await import('/src/session.ts');const state=session.getSnapshot(),s=state.snapshot;
+      session.update({hand:state.hand.slice(0,2),snapshot:{...s,players:s.players.map(p=>({...p,cardCount:2})),results:s.results.map(r=>({...r,cards:r.cards.slice(0,2)}))}});
+    });
+    await page.locator('.pok-game .card').last().waitFor();
+    const two=await page.locator('.pok-game .seat').evaluateAll(nodes=>nodes.map(e=>({frame:[e.clientWidth,e.clientHeight],card:[e.querySelector('.card').getBoundingClientRect().width,e.querySelector('.card').getBoundingClientRect().height]})));
+    assert.deepEqual(two,three,'two/three cards keep identical card and frame sizes: '+count+' players '+width+'x'+height);
+    await fits('two-card sizes '+count+' players '+width+'x'+height);
+    // Reproduce a table containing both two-card and three-card hands together.
+    await page.evaluate(async()=>{
+      const {session}=await import('/src/session.ts');const state=session.getSnapshot(),s=state.snapshot,third={rank:8,suit:'diamonds'};
+      session.update({snapshot:{...s,players:s.players.map(p=>({...p,cardCount:p.seat%2?2:3})),results:s.results.map(r=>({...r,cards:s.players.find(p=>p.id===r.id).seat%2?r.cards:[...r.cards,third]}))}});
+    });
+    await fits('mixed two/three cards '+count+' players '+width+'x'+height);
+    if(count===10&&[880,390,1366].includes(width))await page.screenshot({path:previewPath('pok-uniform-cards-'+width+'x'+height+'.png'),scale:'css'});
+  }
+  console.log('PASS: equal two/three-card dimensions and a single centered suit at '+sizes.length+' viewports');
   for(const count of [7,8,9,10]) for(const phase of ['LOBBY','DEALING','PLAYER_ACTIONS','DEALER_ACTION','ROUND_END']) {
     await fixture(phase,count,phase==='DEALER_ACTION'?'p0':'p1');
     for(const [width,height] of sizes){

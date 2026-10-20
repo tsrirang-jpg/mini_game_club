@@ -19,7 +19,6 @@ export function PokSeat({player:p,s,state,showCatches,position,gridSlot}: {
   // Keep the featured seat centered in both the five-column and three-column grids.
   const wideSlot=gridSlot === 1 ? 2 : gridSlot === 2 ? 1 : gridSlot;
   const seatStyle={
-    '--hand-count':handCount,
     ...(gridSlot !== undefined && wideSlot !== undefined ? {
       '--seat-row':Math.floor(wideSlot/5)+1, '--seat-column':wideSlot%5+1,
       '--mobile-seat-row':Math.floor(gridSlot/3)+1, '--mobile-seat-column':gridSlot%3+1,

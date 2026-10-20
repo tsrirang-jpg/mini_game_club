@@ -1,5 +1,5 @@
 /* Arena positioning and shared card primitives; Clean Panel content lives in arena-seat-layout.css. */
-.app.club-shell.pok-shell .pok-game.dealer-arena .arena-seat { --hand-count:2; position:absolute; min-height:0; max-height:none; max-width:none; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .arena-seat { position:absolute; min-height:0; max-height:none; max-width:none; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { left:50%; top:0; transform:translateX(-50%); }
 .app.club-shell.pok-shell .pok-game.dealer-arena .player-name { grid-area:name; display:flex; justify-content:flex-start; width:100%; min-width:0; min-height:0; margin:0; white-space:nowrap; flex-wrap:nowrap; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .points { grid-area:points; margin:0; font-weight:600; white-space:nowrap; }
@@ -14,7 +14,7 @@
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-player-label { min-width:0; overflow:hidden; text-overflow:ellipsis; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .bot-badge { font-size:8px; padding:1px 4px; border-radius:5px; color:#aacdb6; background:#22533b; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .hand { --arena-card:var(--pok-card); grid-area:hand; display:flex; justify-content:flex-end; align-items:center; min-height:0; min-width:0; gap:5px; padding:0; margin:0; flex-wrap:nowrap; }
-.app.club-shell.pok-shell .pok-game.dealer-arena .hand .card,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-card-placeholder { position:relative; flex:none; width:var(--arena-card); height:calc(var(--arena-card)*1.4); min-width:0; border-radius:6px; }
+.app.club-shell.pok-shell .pok-game.dealer-arena .hand .card,.app.club-shell.pok-shell .pok-game.dealer-arena .arena-card-placeholder { position:relative; flex:none; width:var(--arena-card); height:calc(var(--arena-card)*1.4); min-width:0; border-radius:3px; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .arena-card-placeholder { visibility:hidden; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .card:not(.back) { display:flex; align-items:center; justify-content:center; padding:0; border:1px solid #fff8db; background:linear-gradient(130deg,#fffdf0,#eeeada); color:#101b19; box-shadow:0 4px 7px #0005; }
 .app.club-shell.pok-shell .pok-game.dealer-arena .card.red { color:#ce253b; }

@@ -44,7 +44,8 @@
 .app.club-shell.pok-shell .pok-game.dealer-arena .hand,
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-self .hand,
 .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] .hand {
-  --arena-card:min(var(--pok-card),calc((58cqw - (var(--hand-count) - 1)*var(--panel-gap))/var(--hand-count)),calc((100cqh - var(--footer-space))/1.4));
+  /* Reserve room for three cards even while only two are dealt. */
+  --arena-card:min(var(--pok-card),calc((58cqw - 2*var(--panel-gap))/3),calc((100cqh - var(--footer-space))/1.4));
   align-self:center; justify-content:flex-end; gap:var(--panel-gap);
 }
 .app.club-shell.pok-shell .pok-game.dealer-arena .player-status,
@@ -131,15 +132,15 @@
   .app.club-shell.pok-shell .pok-game.dealer-arena .seat[data-position='right-top'] { top:8%; }
 }
 
-/* Match the Clean Panel card face: corner rank and suit, large lower suit. */
+/* One centered suit per card; the rank remains readable in the upper corner. */
 .app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) > span:not(.bottom) {
-  position:absolute; left:10%; top:5%; font:bold calc(var(--arena-card)*.4)/1.15 Georgia,serif; text-align:left;
+  position:absolute; left:8%; top:4%; font:bold calc(var(--arena-card)*.28)/1 Georgia,serif; text-align:left;
 }
 .app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) small {
-  margin-top:1px; font:calc(var(--arena-card)*.2)/1.1 Georgia,serif; text-align:left;
+  display:none;
 }
 .app.club-shell.pok-shell .pok-game.dealer-arena .hand .card:not(.back) > b {
-  display:block; position:absolute; top:auto; left:0; right:0; bottom:9%; margin:0;
+  display:grid; place-items:center; position:absolute; inset:0; margin:0;
   text-align:center; font:normal calc(var(--arena-card)*.48)/1 Georgia,serif; pointer-events:none;
 }
 

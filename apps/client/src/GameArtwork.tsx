@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { RoadTrack } from './roadfighter/RoadTrack';
 import { WhoAmIArtwork } from './WhoAmIArtwork';
 import { Card } from './components/ui/Card';
 import type { Card as CardData } from '../../../packages/shared/src/index';
@@ -12,6 +13,7 @@ function CardFan({cards,backs=0}:{cards:CardData[];backs?:number}) {
   return <div className="art-cards">{Array.from({length:backs},(_,i)=><Card key={`back-${i}`}/>)}{cards.map(card=><Card key={`${card.rank}-${card.suit}`} card={card}/>)}</div>;
 }
 export const GameArtwork = memo(function GameArtwork({game}: {game: GameKind}) {
+  if (game === 'roadfighter') return <div className="game-artwork artwork-roadfighter" aria-hidden="true"><RoadTrack preview/></div>;
   if (game === 'undercover') return <div className="game-artwork artwork-undercover" aria-hidden="true"><img {...menuImages.undercover} alt="" loading="lazy" decoding="async"/></div>;
   const cards:CardData[]=game==='oldmaid'?[{rank:12,suit:'spades'},{rank:12,suit:'hearts'}]:game==='liar'?[{rank:1,suit:'clubs'}]:[{rank:game==='pok'?9:1,suit:'spades'},{rank:13,suit:'hearts'}];
   return <div className={'game-artwork artwork-' + game} aria-hidden="true"><span className="art-leaf leaf-left">❦</span><span className="art-leaf leaf-right">❦</span>{game==='whoami'?<WhoAmIArtwork/>:game==='spyfall'?<SpyArtwork/>:<CardFan cards={cards} backs={game==='oldmaid'?1:game==='liar'?2:0}/>}</div>;

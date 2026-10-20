@@ -1,0 +1,336 @@
+@font-face {
+  font-family: ArcadeThai;
+  src: url('/fonts/syy-udt-regular-v1.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0E00-0E7F;
+}
+/* Pixel Scene catalogue. All rules are scoped so the racing and card-game UIs keep their own themes. */
+:root:has(.arcade-selection-shell), body:has(.arcade-selection-shell) {
+  background: #071f18;
+  color: #fff7e5;
+}
+.arcade-shell.arcade-selection-shell {
+  --menu-gold: #efc758;
+  --menu-line: #467e68;
+  --menu-muted: #c3d8cb;
+  --race-line: #467e68;
+  position: relative;
+  max-width: 1500px;
+  min-height: 100dvh;
+  padding: 0 28px;
+  color: #fff7e5;
+  background: radial-gradient(ellipse at 22% 0%, #1247339c, transparent 65%);
+}
+.arcade-selection-shell .arcade-header {
+  height: 88px;
+  border-bottom-color: #527e65;
+}
+.arcade-selection-shell .brand-mark { filter: none; width: 50px; height: 50px; }
+.arcade-selection-shell .brand-name { color: var(--menu-gold); font-size: 31px; }
+.arcade-selection-shell .brand-descriptor { color: #f5d16a; }
+.arcade-selection-shell .arcade-header nav { gap: 10px; min-width: 0; }
+.arcade-selection-shell .arcade-profile {
+  max-width: 180px;
+  min-width: 0;
+  border-color: #4c7763;
+  background: #03261acc;
+  color: #fff7e5;
+}
+.arcade-selection-shell .arcade-profile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arcade-selection-shell .arcade-header button {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border-radius: 50%;
+  border-color: #4c7763;
+  background: #03261acc;
+  flex: none;
+}
+.arcade-selection-shell :is(button, a):focus-visible {
+  outline: 3px solid #ffe38b;
+  outline-offset: 3px;
+}
+.arcade-selection-shell .game-select { padding: 26px 0 10px; }
+.arcade-selection-shell .menu-intro {
+  position: relative;
+  isolation: isolate;
+  padding: 0 180px 0 0;
+}
+.arcade-selection-shell .menu-intro::after {
+  content: '';
+  position: absolute;
+  width: 175px;
+  height: 125px;
+  right: 0;
+  top: -8px;
+  z-index: -1;
+  pointer-events: none;
+  background: url('/images/menu/gold-strokes-v1.svg') right top / contain no-repeat;
+}
+.arcade-selection-shell h1 {
+  margin: 0 0 7px;
+  font-size: clamp(30px, 3.3vw, 49px);
+  font-weight: 750;
+  line-height: 1.35;
+  color: #fff9e9;
+}
+.arcade-selection-shell .menu-intro p {
+  font-size: 17px;
+  color: #deeadf;
+  line-height: 1.6;
+  margin-bottom: 21px;
+}
+.arcade-selection-shell .menu-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.arcade-selection-shell .menu-filters button {
+  min-height: 44px;
+  gap: 8px;
+  padding: 10px 21px;
+  border-radius: 30px;
+  border-color: #4b7b64;
+  background: #04291dcc;
+  font-size: 14px;
+  white-space: nowrap;
+  color: #fff9e9;
+}
+.arcade-selection-shell .menu-filters button[aria-selected=true] {
+  background: linear-gradient(#ffdf70, #eabe47);
+  border-color: #f3d473;
+  color: #102719;
+  font-weight: 750;
+}
+.arcade-selection-shell .menu-filters .road-icon { width: 18px; height: 18px; }
+.arcade-selection-shell .game-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+.arcade-selection-shell .game-option {
+  display: grid;
+  grid-template-columns: 44% minmax(0, 1fr);
+  gap: 0;
+  position: relative;
+  align-items: stretch;
+  justify-content: normal;
+  min-width: 0;
+  min-height: 235px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid var(--menu-line);
+  border-radius: 14px;
+  background: linear-gradient(115deg, #073c2c, #02251b 65%, #031e17);
+  color: #fff9e9;
+  box-shadow: 0 3px 10px #00170f25;
+}
+.arcade-selection-shell .game-option:hover:not(:disabled) {
+  transform: none;
+  border-color: #e8c45b;
+  background: linear-gradient(115deg, #0b4934, #073222 65%, #062a1f);
+  box-shadow: 0 3px 17px #00170f55;
+}
+.arcade-selection-shell .menu-card-art {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #073726;
+}
+.arcade-selection-shell .menu-card-art::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, #03281d);
+  pointer-events: none;
+}
+.arcade-selection-shell .menu-game-artwork {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.arcade-selection-shell .menu-card-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 18px 18px 16px 16px;
+}
+.arcade-selection-shell .menu-genre {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  margin-bottom: 8px;
+  border-radius: 13px;
+  background: linear-gradient(#ffe17a, #eac04d);
+  color: #142918;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+.arcade-selection-shell .menu-genre .road-icon { width: 13px; height: 13px; }
+.arcade-selection-shell .game-option h2 {
+  margin: 0 0 7px;
+  color: #fffaed;
+  font-family: Arcade, ArcadeThai, monospace;
+  font-size: clamp(13px, 1.13vw, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.6;
+  letter-spacing: -.6px;
+  overflow-wrap: anywhere;
+}
+/* Match Thai pixel glyphs to the cap height of Press Start 2P. */
+.arcade-selection-shell .game-option h2:lang(th) {
+  font-size: clamp(24px, 2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+.arcade-selection-shell .menu-card-copy p {
+  margin: 0 0 10px;
+  color: #edf1e5;
+  font-size: 13px;
+  line-height: 1.6;
+  flex: 1;
+}
+.arcade-selection-shell .player-count-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border: 1px solid #416b54;
+  border-radius: 16px;
+  background: #06261baa;
+  color: #fff9e9;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: nowrap;
+  margin-bottom: 10px;
+}
+.arcade-selection-shell .player-count-pill .road-icon { width: 16px; height: 16px; }
+.arcade-selection-shell .menu-start-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  gap: 12px;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #f7d367;
+  border-radius: 24px;
+  background: linear-gradient(#ffe071, #edbf42);
+  color: #122516;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.4;
+  box-shadow: inset 0 1px #fff2a7aa;
+}
+.arcade-selection-shell .menu-start-cta .road-icon { width: 18px; height: 18px; }
+.arcade-selection-shell .menu-footer {
+  border: 0;
+  color: #9cbca7;
+  font-size: 12px;
+  text-align: center;
+  padding: 26px 0;
+  margin: 0;
+}
+.arcade-selection-shell .road-dialog {
+  border-color: var(--menu-line);
+  background: #062d20;
+  color: #fff9e9;
+}
+.arcade-selection-shell .road-dialog button { background: #124333; border-color: #59856e; }
+.arcade-selection-shell .road-dialog .road-primary {
+  background: linear-gradient(#ffe071, #edbf42);
+  border-color: #f3d473;
+  color: #122516;
+}
+@media (max-width: 1199px) {
+  .arcade-shell.arcade-selection-shell { padding-inline: 22px; }
+  .arcade-selection-shell .game-options { gap: 16px; }
+  .arcade-selection-shell .game-option { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .arcade-selection-shell .menu-card-art { aspect-ratio: 1.85; }
+  .arcade-selection-shell .menu-card-art::after {
+    inset: auto 0 0;
+    width: auto;
+    height: 16px;
+    background: linear-gradient(transparent, #03281d);
+  }
+  .arcade-selection-shell .menu-game-artwork { object-position: center 44%; }
+  .arcade-selection-shell .menu-card-copy { padding: 15px 17px 17px; }
+  .arcade-selection-shell .game-option h2 { font-size: clamp(14px, 2.15vw, 22px); }
+  .arcade-selection-shell .game-option h2:lang(th) { font-size: 30px; }
+}
+@media (max-width: 600px) {
+  .arcade-shell.arcade-selection-shell { padding-inline: 14px; }
+  .arcade-selection-shell .arcade-header { height: 74px; gap: 8px; }
+  .arcade-selection-shell .brand-logo { gap: 7px; }
+  .arcade-selection-shell .brand-mark { width: 38px; height: 38px; }
+  .arcade-selection-shell .brand-name { font-size: 23px; }
+  .arcade-selection-shell .brand-descriptor { font-size: 6px; letter-spacing: 1.5px; }
+  .arcade-selection-shell .arcade-header nav { gap: 6px; }
+  .arcade-selection-shell .arcade-header button {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 8px;
+  }
+  .arcade-selection-shell .arcade-header .road-icon { width: 19px; height: 19px; }
+  .arcade-selection-shell .arcade-profile {
+    max-width: 100px;
+    padding: 7px 10px;
+    font-size: 11px;
+    gap: 5px;
+  }
+  .arcade-selection-shell .game-select { padding-top: 22px; }
+  .arcade-selection-shell .menu-intro { padding-right: 0; }
+  .arcade-selection-shell .menu-intro::after { width: 85px; height: 85px; top: -10px; opacity: .75; }
+  .arcade-selection-shell h1 { font-size: clamp(28px, 7.7vw, 38px); padding-right: 8px; }
+  .arcade-selection-shell .menu-intro p { font-size: 13px; margin-bottom: 17px; }
+  .arcade-selection-shell .menu-filters {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    margin-bottom: 18px;
+  }
+  .arcade-selection-shell .menu-filters button {
+    min-height: 42px;
+    padding: 8px 5px;
+    gap: 4px;
+    font-size: 10px;
+  }
+  .arcade-selection-shell .menu-filters .road-icon { width: 14px; height: 14px; }
+  .arcade-selection-shell .game-options { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .arcade-selection-shell .menu-card-art { aspect-ratio: 2.05; }
+  .arcade-selection-shell .menu-card-copy { padding: 15px 16px 16px; }
+  .arcade-selection-shell .game-option h2 { font-size: clamp(17px, 4.7vw, 22px); }
+  .arcade-selection-shell .game-option h2:lang(th) { font-size: 32px; }
+  .arcade-selection-shell .menu-card-copy p { font-size: 14px; }
+  .arcade-selection-shell .menu-genre { font-size: 11px; }
+  .arcade-selection-shell .player-count-pill { font-size: 13px; }
+  .arcade-selection-shell .menu-start-cta { min-height: 46px; font-size: 18px; }
+  .arcade-selection-shell .menu-footer { font-size: 10px; }
+}
+@media (max-width: 380px) {
+  .arcade-selection-shell .arcade-profile-name { display: none; }
+  .arcade-selection-shell .arcade-profile { padding: 7px 8px; }
+  .arcade-selection-shell .brand-name { font-size: 21px; }
+  .arcade-selection-shell .brand-mark { width: 34px; height: 34px; }
+  .arcade-selection-shell .brand-descriptor { font-size: 6px; letter-spacing: 1px; }
+}

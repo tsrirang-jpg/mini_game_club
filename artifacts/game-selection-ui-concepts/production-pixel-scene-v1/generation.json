@@ -1,0 +1,15 @@
+{
+  "tool": "Built-in image_gen",
+  "prompt": "Use case: illustration-story. Asset type: production-ready game-selection thumbnail sprite atlas, NOT a UI mockup. Reference image is ONLY for pixel-art style and scenes; do NOT render any interface, text labels, buttons, frames, logo or screenshot. Generate EXACTLY EIGHT distinct equal square illustrations arranged edge-to-edge in a mathematically regular 4 COLUMNS x2 ROWS atlas. Target wide 2048x1024 image, every scene512x512, no margins, no gutters, no dividing border. All eight images must be a coherent professionally drawn flat pixel-art family with crisp stepped sprite edges, consistent roughly64x64 logicalpixel scale, deep emerald backgrounds, cream/gold highlights, red/blue accents, limited clean palette. No photographic objects, no smooth 3D renders. Important subjects are centered in inner75% of each tile so they survive thumbnail cropping. Do not let objects cross into other tiles.\nEXACT POSITION ORDER:\nTOP ROW tile1: Famicom top-down vertical gray road, white dashed centerline, red/cream curb, bright green verges, small pixel trees/houses, red player car bottom, blue and yellow opponents above. No text.\nTOP ROW tile2: Pokdeng, cream 9-spade and K-heart cards leaning on rich dark emerald felt, gold/red/blue pixel chip stacks around outer bottom corners.\nTOP ROW tile3: Poker, cream A-spade and K-heart cards with red/blue/green pixel chip stacks, blue-green felt background.\nTOP ROW tile4: Spyfall, mysterious dark blue pixel spy wearing a fedora and overcoat, cyan glowing eyes, navy skyline at night, a couple warm gold streetlights.\nBOTTOM ROW tile1: OLD MAID, exactly two cream queen playing cards with pixel queen faces Q-spade and Q-heart fanned over subtle dark emerald/purple felt. ABSOLUTELY NO CHIPS, COINS, MONEY, TOKENS, DISCS OR STACKS ANYWHERE IN THIS TILE. ONLY PLAYING CARDS and a quiet clean background. Do NOT copy the chips from the reference Old Maid card.\nBOTTOM ROW tile2: Who am I, friendly pixel identity guessing scene, central dark human silhouette with big gold questionmark, four surrounding pixel faces on warm emerald/ochre background, no chips.\nBOTTOM ROW tile3: LIAR'S CARD, two dark emerald patterned card backs and one cream A-club face-up card slightly fanned, rich green felt background. ABSOLUTELY NO CHIPS, COINS, MONEY, TOKENS, DISCS OR STACKS ANYWHERE IN THIS TILE. ONLY PLAYING CARDS and a quiet clean background. Do NOT copy reference Liar card chips.\nBOTTOM ROW tile4: Undercover, three close-up original pixel agents: white-haired figure left, brown-haired figure wearing sunglasses center, mysterious dark fedora figure right, dark blue/emerald background, no chips.\nDo not repeat or reorder tiles. Pixel art all the way through. No UI words, no headings, no player labels. In-card ranks Q,K,A,9 and a questionmark are the ONLY characters allowed. This image will be cut into eight exact equal rectangles and used as runtime artwork.",
+  "layout": "4 columns x 2 rows; row-major order",
+  "tiles": [
+    "roadfighter",
+    "pok",
+    "poker",
+    "spyfall",
+    "oldmaid",
+    "whoami",
+    "liar",
+    "undercover"
+  ]
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 140" fill="none">
+  <g fill="#e7be48">
+    <path opacity=".68" d="m74 91 87-75-55 70-43 31 35-39z"/>
+    <path opacity=".43" d="m114 100 69-62-49 59-32 22 32-34z"/>
+    <path opacity=".7" d="m79 100 64-48-49 46-27 17z"/>
+    <path opacity=".38" d="m101 65 27-21-20 26-17 11z"/>
+    <circle cx="160" cy="20" r="1.2"/><circle cx="174" cy="34" r=".9"/>
+    <circle cx="143" cy="20" r=".7"/><circle cx="134" cy="34" r="1"/>
+    <circle cx="119" cy="29" r=".8"/><circle cx="151" cy="44" r=".8"/>
+    <circle cx="175" cy="55" r="1"/><circle cx="168" cy="77" r=".7"/>
+    <circle cx="145" cy="97" r=".8"/><circle cx="117" cy="112" r="1.2"/>
+    <circle cx="84" cy="125" r="1"/><circle cx="59" cy="105" r=".8"/>
+    <circle cx="43" cy="123" r="1.1"/><circle cx="67" cy="78" r=".9"/>
+    <circle cx="91" cy="49" r=".8"/><circle cx="104" cy="42" r=".6"/>
+    <path opacity=".5" d="m114 51 2-2-1 4-2 1zm43 42 3-1-2 3-2-1z"/>
+  </g>
+</svg>

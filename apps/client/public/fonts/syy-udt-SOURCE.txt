@@ -1,0 +1,5 @@
+Syy UDT Regular by The Syy BENEATHPOEM Project Authors
+https://github.com/Plaenithaan/Syy-BENEATHPOEM
+Commit: c663f13698ea348b4921e7678c070076cf75b0c1
+Unmodified webfont: fonts/webfonts/SyyUDT-Regular.woff2
+License: SIL OFL 1.1 (see syy-udt-LICENSE.txt)

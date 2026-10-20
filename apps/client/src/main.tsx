@@ -8,6 +8,8 @@ import { GameSelectPage } from './GameSelectPage';
 import { games } from './games';
 import { BrandLogo } from './components/ui/BrandLogo';
 import type { GameKind } from './games';
+const RoadStartPage = lazy(() => import('./roadfighter/RoadStartPage').then(m => ({default:m.RoadStartPage})));
+const RoadPlayPage = lazy(() => import('./roadfighter/RoadPlayPage').then(m => ({default:m.RoadPlayPage})));
 const CreateRoomPage = lazy(() => import('./CreateRoomPage').then(m => ({ default: m.CreateRoomPage })));
 const PlayPage = lazy(() => import('./PlayPage').then(m => ({ default: m.PlayPage })));
 const PokerCreatePage = lazy(() => import('./PokerCreatePage').then(m => ({ default: m.PokerCreatePage })));
@@ -65,7 +67,8 @@ function App() {
   const route = useSyncExternalStore(subscribeRoute, getRoute);
   const path = route.split('?')[0];
   useEffect(() => { if (path === '/') navigate('/games', true); }, [path]);
-  if (path === '/games' || path === '/') return <GameShell kind="pok"><GameSelectPage/></GameShell>;
+  if (path === '/games' || path === '/') return <GameSelectPage/>;
+  if (path === '/road-fighter' || path === '/road-fighter/play') return <Suspense fallback={<main className="page-message">กำลังโหลดสนามแข่ง…</main>}>{path.endsWith('/play') ? <RoadPlayPage/> : <RoadStartPage/>}</Suspense>;
   const code = /\/play\/([A-F0-9]{10})$/.exec(path)?.[1];
   if (path.startsWith('/undercover')) return <GameScreen key="undercover" store={underSession} kind="undercover" code={code}>{state => code ? <UndercoverPlayPage state={state} code={code}/> : <UndercoverCreatePage key={path} state={state} join={path === '/undercover/rooms/join'}/>}</GameScreen>;
   if (path.startsWith('/liar')) return <GameScreen key="liar" store={liarSession} kind="liar" code={code}>{state => code ? <LiarPlayPage state={state} code={code}/> : <LiarCreatePage key={path} state={state} join={path === '/liar/rooms/join'}/>}</GameScreen>;

@@ -54,7 +54,6 @@
  .app.club-shell.pok-shell .pok-game.dealer-arena .connection { display:none; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .phase { min-height:19px; padding:0 3px; font-size:10px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { font-size:11px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .table-area { gap:4px; }
- .app.club-shell.pok-shell .pok-game.dealer-arena .table::before { border-radius:28px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-table-seats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:minmax(48px,.8fr) repeat(2,minmax(0,1fr)) minmax(24px,.45fr) minmax(68px,1.1fr); gap:4px; padding:8px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .arena-seat { position:relative; inset:auto; transform:none; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-opponents .seat[data-position='top'] { position:relative; inset:auto; transform:none; grid-area:1/1/2/-1; }

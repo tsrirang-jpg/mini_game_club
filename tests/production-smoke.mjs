@@ -11,7 +11,7 @@ const health = await fetch(`${httpUrl}/health`);
 assert.equal(health.status, 200);
 assert.deepEqual(await health.json(), { status: 'ok' });
 let html;
-for (const path of ['/', '/games', '/rooms/create', '/play/ABC123', '/poker/rooms/create', '/poker/play/ABC123', '/spyfall/rooms/create', '/spyfall/play/ABC123', '/oldmaid/rooms/create', '/oldmaid/play/ABC123', '/whoami/rooms/create', '/whoami/play/ABC123', '/liar/rooms/create', '/liar/rooms/join', '/liar/play/ABC123', '/undercover/rooms/create', '/undercover/rooms/join', '/undercover/play/ABC123']) {
+for (const path of ['/', '/games', '/road-fighter', '/road-fighter/play', '/rooms/create', '/play/ABC123', '/poker/rooms/create', '/poker/play/ABC123', '/spyfall/rooms/create', '/spyfall/play/ABC123', '/oldmaid/rooms/create', '/oldmaid/play/ABC123', '/whoami/rooms/create', '/whoami/play/ABC123', '/liar/rooms/create', '/liar/rooms/join', '/liar/play/ABC123', '/undercover/rooms/create', '/undercover/rooms/join', '/undercover/play/ABC123']) {
   const response = await fetch(`${httpUrl}${path}`);
   assert.equal(response.status, 200, `SPA route ${path}`);
   assert.match(response.headers.get('content-type'), /text\/html/);
@@ -26,7 +26,8 @@ assert.match(asset.headers.get('cache-control'), /immutable/);
 for (const path of ['/assets/missing.js', '/.env', '/package.json', '/unknown-api']) {
   assert.equal((await fetch(`${httpUrl}${path}`)).status, 404, `Missing path ${path}`);
 }
-console.log('PASS: production health, deep links, cached assets, and missing-file responses');
+const font=await fetch(httpUrl+'/fonts/press-start-2p-latin.ttf');assert.equal(font.status,200);assert.ok((await font.arrayBuffer()).byteLength>1000);
+console.log('PASS: production health, Road Fighter refresh/deep links and local font, cached assets, and missing-file responses');
 for (const game of ['pok', 'poker', 'spyfall', 'oldmaid', 'whoami', 'liar', 'undercover']) {
   let snapshot;
   const a = await new Client(endpoint).create(game, { name: 'Production Host' });

@@ -41,7 +41,7 @@
   .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents .points { font-size:clamp(10px,2.7vw,22px); gap:2px; }
   .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents :is(.player-status,.result) { font-size:clamp(6px,1.65vw,12px); }
   .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents :is(.dealer,.bot-badge) { font-size:6px; padding:0 3px; }
-  .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents .hand { --arena-card:min(var(--pok-card),calc((54cqw - (var(--hand-count) - 1)*var(--panel-gap))/var(--hand-count)),calc((100cqh - var(--footer-space))/1.4)); }
+  .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents .hand { --arena-card:min(var(--pok-card),calc((54cqw - 2*var(--panel-gap))/3),calc((100cqh - var(--footer-space))/1.4)); }
 }
 @media (orientation:landscape) and (max-height:650px) {
   .app.club-shell.pok-shell .pok-game.dealer-arena .table[data-layout='large'] .pok-opponents .arena-seat { --footer-space:23px; padding:2px 4px; border-width:1px; gap:1px 2px; }
