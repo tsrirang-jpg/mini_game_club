@@ -9,7 +9,7 @@ export interface RoomRules {
 }
 export const DEFAULT_RULES: RoomRules = {
   actionMs: 30_000, dealMs: 900, revealMs: 1800, settlementMs: 500,
-  reconnectSeconds: 60, initialPoints: 1000, maxPlayers: 6,
+  reconnectSeconds: 60, initialPoints: 1000, maxPlayers: 10,
   bets: [10, 20, 50], pairMultiplier: 2, suitedTwoMultiplier: 2, suitedThreeMultiplier: 3,
   yellowMultiplier: 3, tripleMultiplier: 5, straightMultiplier: 3, straightFlushMultiplier: 5,
 };
@@ -88,7 +88,8 @@ export function makeLedger(roundId: number, dealerId: string,
   hands: Record<string, Card[]>, bets: Record<string, number>, rules = DEFAULT_RULES,
   caughtDealerHands: Record<string, Card[]> = {}): { ledger: RoundLedger; results: Result[] } {
   const dealer = evaluate(hands[dealerId], rules);
-  const recompareCatches = hands[dealerId].length === 3 && dealer.score >= 8 && !dealer.special;
+  // Every caught match is recalculated from the dealer's final three-card hand.
+  const recompareCatches = hands[dealerId].length === 3;
   const entries: Record<string, number> = { [dealerId]: 0 };
   const results: Result[] = [];
   for (const [id, cards] of Object.entries(hands)) {

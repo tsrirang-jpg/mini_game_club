@@ -2,6 +2,7 @@ import { ClientRateLimiter, SnapshotPublisher, claimRoomCode, roomCodes } from '
 import { Room, Client, ServerError } from '@colyseus/core';
 import { Game, GameError } from './game.js';
 import type { GameHooks } from './game.js';
+import { DEFAULT_RULES } from '../../../packages/shared/src/index.js';
 
 export class PokRoom extends Room {
   static codes = roomCodes;
@@ -13,13 +14,13 @@ export class PokRoom extends Room {
 
   onCreate(options: { botCount?: unknown } = {}) {
     const count = options.botCount ?? 0;
-    if (typeof count !== 'number' || !Number.isInteger(count) || count < 0 || count > 5) {
-      throw new ServerError(400, 'เลือกจำนวนบอท 0–5 ตัว');
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 0 || count >= DEFAULT_RULES.maxPlayers) {
+      throw new ServerError(400, `เลือกจำนวนบอท 0–${DEFAULT_RULES.maxPlayers - 1} ตัว`);
     }
     this.initialBots = count;
     const code = claimRoomCode();
     this.roomId = code;
-    this.maxClients = 6;
+    this.maxClients = DEFAULT_RULES.maxPlayers - count;
     this.game = this.makeGame(code, {
       changed: () => this.publish(),
       privateHand: (id, cards) => {
@@ -55,6 +56,7 @@ export class PokRoom extends Room {
       throw new ServerError(400, 'ชื่อยาว 1–20 ตัวอักษร');
     }
     if (!['LOBBY', 'ROUND_END'].includes(this.game.phase)) throw new ServerError(409, 'กรุณารอรอบนี้จบก่อน');
+    if (this.game.players.size >= this.game.rules.maxPlayers) throw new ServerError(409, 'ห้องเต็มแล้ว');
     return true;
   }
   onJoin(client: Client, options: { name: string }) {
@@ -74,7 +76,9 @@ export class PokRoom extends Room {
     if (!this.game) return;
     this.broadcast('snapshot', this.game.snapshot());
     const active = !['LOBBY', 'ROUND_END'].includes(this.game.phase);
-    if (active || this.game.players.size >= this.maxClients) void this.lock();
+    // Bots occupy game seats but do not have transport clients. Reopen a human slot after removing a bot.
+    this.maxClients = this.game.rules.maxPlayers - [...this.game.players.values()].filter(p => p.isBot).length;
+    if (active || this.game.players.size >= this.game.rules.maxPlayers) void this.lock();
     else void this.unlock();
   }
   async onDrop(client: Client) {

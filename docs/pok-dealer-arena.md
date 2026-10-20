@@ -20,8 +20,8 @@ Portrait uses a compact grid; short landscape preserves the arena arrangement wh
 
 ## Validation
 
-- Production build and typecheck pass; 332 unit/network tests pass.
-- `npm run test:pok-layout`: 19 viewports, 2-6 players, every phase, three cards, long names, catch/recomparison, public Pok reveal, private hands, rules/settings and exit. Bounds, card ranks/suits and player overlap are checked.
+- Production build and typecheck pass; 350 unit/network tests pass.
+- `npm run test:pok-layout`: 20 viewports, 2-6 players, every phase, three cards, long names, catch/recomparison, public Pok reveal, private hands, rules/settings and exit. Bounds, card ranks/suits and player overlap are checked.
 - `npm run test:browser`: actual host/friend/bot gameplay, draw/stand, refresh, return/resume, bot add/remove and conserved points.
 - `npm run test:pok-catch`, also with `DESKTOP_UI=1`: actual multi-client catch actions, refreshed private cards, timer reset and dealer draw/recomparison.
 - `ONLY_GAME=pok npm run test:desktop-ui`: 8 desktop viewports up to 2560x1440.
@@ -36,7 +36,7 @@ The play page uses the original plain green reference palette: a radial shell gr
 
 arena-seat-layout.css owns the Clean Panel composition at every breakpoint. Names and balances occupy the left column, cards the right, with a divider and full-width status/result footer. Both numeric and special hand values share that footer; settlement keeps the hand name, multiplier and outcome separate. Hand labels do not split inside a word. Container queries stack balance units inside narrow opponent stations so cards cannot cover them. Frames reserve card space before dealing and retain their dimensions across phases.
 
-The layout test explicitly covers three-yellow-card hands during play and settlement at all 19 viewports, including 1920x1080, 1920x1200 and 2560x1440. It checks one-line Thai labels, no overlaps or overflow, card legibility and the selected background. Updated browser captures are named pok-clean-panel-* under artifacts/previews/.
+The layout test explicitly covers three-yellow-card hands during play and settlement at all 20 viewports, including 1920x1080, 1920x1200 and 2560x1440. It checks one-line Thai labels, no overlaps or overflow, card legibility and the selected background. Updated browser captures are named pok-clean-panel-* under artifacts/previews/.
 
 ## Clean Panel without player portraits
 
@@ -47,3 +47,27 @@ PokSeat retains the original private/public card selection, status, results, chi
 arena-seats.css contains station positioning and shared card primitives. arena-seat-layout.css owns all panel content, sizing, typography, chip/role accents and responsive frame adaptations; obsolete avatar and score-column styles were removed. arena-responsive.css handles the surrounding game layout and controls.
 
 The browser layout regression checks no portraits, a gold dealer outline, balance text never covered by cards, intact Thai special names, all card faces visible and no page overflow. Existing actual multiplayer smoke tests and desktop room tests still pass.
+
+## Fixed-height dealer action dock
+
+The dealer-action reference is artifacts/pokdeng-ui-concepts/compact-dealer-v1/compact-dealer-mobile.png. arena-dealer-dock.css owns the compact timer-left, actions-right composition. The top row selects a three-card player and catches with two cards; the bottom row draws or stands. The role summary and extra caption are absent from this dock. No game/session handler or timing rule changes.
+
+All phases use the same --dock-height at each breakpoint; the former has-catch height overrides were removed. Container-relative font/icon sizing keeps both rows within short landscape windows. Dropdown selection uses the original accessible portal menu.
+
+The layout suite checks equal dock, table and player-frame sizes between round-end and dealer-action snapshots at all 20 viewports, including 420x750. It also checks row ordering and that controls fill the right column. Actual browser screenshots are artifacts/previews/pok-compact-dealer-WIDTHxHEIGHT.png.
+
+## Final-hand catch settlement
+
+Catch results during DEALER_ACTION are provisional. A final catch always restarts the dealer decision timer; catching all five opponents does not reveal or settle the round. Draw, stand or the deadline ends the dealer turn.
+
+When the dealer draws, makeLedger recalculates every caught result from the final three cards for every score and special-hand rank, including the final winning multiplier. catchRecompared is set and dealerCards/dealerValue describe that final hand. Standing or timing out uses the final two cards. Settlement remains a single conserved ledger, never a separate payment at catch time.
+
+tests/pok-final-catch.test.ts covers all scores 0-9, final multipliers/specials, six players with five catches, draw/stand/timeout, reconnect and duplicate actions. The network suite also exercises six real WebSocket clients: all catch results remain provisional after the fifth catch, and the dealer can reconnect, draw to seven, and broadcast the corrected payout to all clients. The layout suite verifies draw/stand remain visible after five catches at all 20 viewports.
+
+## Ten-player tables
+
+Pok Deng supports 2–10 players. Room creation offers 0–9 bots, with the creator counting as the remaining seat; the option label shows the total player count. Both seat allocation and transport capacity include bots, and removing a bot reopens a human slot. Bots have nine distinct names.
+
+Tables with 7–10 players use arena-large-table.css: a five-column opponent grid on wide screens and three columns on portrait phones, with the local player below the roster. Frame geometry remains stable between dealing and results. The ready counter fits 10/10 inside its column.
+
+Validation: pok-capacity.test.ts deals all 30 unique cards, catches every opponent and settles once for each table size 2–10. network.test.ts covers ten human clients, a creator plus nine bots, full-room rejection and replacing a bot with a human. pok-layout-browser.mjs covers 7–10 players across 20 viewports in lobby, dealing, player/dealer actions and results.

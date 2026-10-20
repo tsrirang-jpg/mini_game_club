@@ -45,7 +45,7 @@ export class Game {
     return id;
   }
   addBot(): string {
-    const names = ['บอทมะลิ', 'บอทใบชา', 'บอทข้าวปั้น', 'บอทสายลม', 'บอทดาว'];
+    const names = ['บอทมะลิ', 'บอทใบชา', 'บอทข้าวปั้น', 'บอทสายลม', 'บอทดาว', 'บอทน้ำค้าง', 'บอทตะวัน', 'บอทภูผา', 'บอทฟ้า'];
     const name = names.find(name => ![...this.players.values()].some(p => p.isBot && p.name === name)) ?? 'บอท';
     return this.add(name, `bot-${randomUUID()}`, true);
   }
@@ -144,8 +144,8 @@ export class Game {
       const { results } = makeLedger(this.roundId, id, { [id]: dealerCards, [a.value]: this.hands[a.value] },
         { [a.value]: this.players.get(a.value)!.bet }, this.rules, { [a.value]: dealerCards });
       this.catches.set(a.value, results.find(r => r.id === a.value)!);
-      if (this.catches.size === this.players.size - 1) { p.acted = true; this.reveal(); }
-      else this.beginDealerAction();
+      // Catch results are provisional; even the last catch leaves draw/stand available.
+      this.beginDealerAction();
     } else if (a.type === 'draw' || a.type === 'stand') {
       requireCondition((this.phase === 'PLAYER_ACTIONS' && id !== this.dealerId)
         || (this.phase === 'DEALER_ACTION' && id === this.dealerId), 'WRONG_PHASE', 'ยังไม่ถึงจังหวะเล่นของคุณ');

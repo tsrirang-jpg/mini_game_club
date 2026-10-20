@@ -49,7 +49,7 @@ describe('state machine', () => {
   });
   it('supports six seats, deals unique cards and resolves dealer pok without actions', () => {
     for (let n = 0; n < 4; n++) game.add(`Friend ${n}`, `f${n}`);
-    expect(() => game.add('Seventh', 'extra')).toThrow('ห้องเต็ม');
+    expect(game.players.size).toBe(6);
     for (const p of game.players.values()) if (p.id !== 'd') act(p.id, 'setReady', true);
     act('d', 'startRound');
     expect(Object.values(privateHands).flat()).toHaveLength(12);

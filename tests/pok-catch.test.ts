@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { Game } from '../apps/server/src/game';
-import { DEFAULT_RULES } from '../packages/shared/src/index';
+import { DEFAULT_RULES, makeLedger } from '../packages/shared/src/index';
 import type { Card, Suit, ActionType } from '../packages/shared/src/index';
 import { dealRandom } from './pok-test-deck';
 const c = (rank: number, suit: Suit = 'clubs'): Card => ({ rank, suit });
@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 afterEach(() => { game.dispose(); vi.useRealTimers(); });
 describe('dealer catch', () => {
-  it('locks a three-card match against two dealer cards, then draws for remaining players', () => {
+  it('previews a two-card catch and recomputes it when the dealer draws', () => {
     dealerTurn(); const two = hands.d.map(c => ({ ...c })); const deadline = game.deadline;
     vi.advanceTimersByTime(400);
     act('d','catch','p',game.roundId,'once');
@@ -39,12 +39,12 @@ describe('dealer catch', () => {
     act('d','draw'); expect(hands.d).toHaveLength(3);
     const s = game.snapshot();
     expect(s.results.find(r => r.id === 'd')!.score).toBe(4);
-    expect(s.results.find(r => r.id === 'p')).toMatchObject({ caught: true, delta: -20, dealerCards: two });
+    expect(s.results.find(r => r.id === 'p')).toMatchObject({ caught: true, catchRecompared:true, delta:0, outcome:'TIE', dealerCards:hands.d, dealerValue:{score:4,multiplier:1} });
     expect(s.results.find(r => r.id === 'q')).toMatchObject({ delta: 10, outcome: 'WIN' });
     vi.advanceTimersByTime(200);
     expect(game.phase).toBe('ROUND_END');
-    expect(Object.fromEntries([...game.players].map(([id,p]) => [id,p.points]))).toEqual({ d: 1010, p: 980, q: 1010 });
-    vi.advanceTimersByTime(5000); expect(game.players.get('d')!.points).toBe(1010);
+    expect(Object.fromEntries([...game.players].map(([id,p]) => [id,p.points]))).toEqual({ d: 990, p: 1000, q: 1010 });
+    vi.advanceTimersByTime(5000); expect(game.players.get('d')!.points).toBe(990);
     act('d','prepareRound'); expect(game.snapshot().catches).toEqual([]);
   });
   it('cancels the old timeout and auto-stands only at the reset deadline', () => {
@@ -93,7 +93,8 @@ describe('dealer catch', () => {
   it('catches multiple three-card players separately before ending the round', () => {
     start(); act('p','draw'); act('q','draw');
     act('d','catch','p'); expect(game.phase).toBe('DEALER_ACTION');
-    act('d','catch','q'); expect(game.phase).toBe('REVEAL');
+    act('d','catch','q'); expect(game.phase).toBe('DEALER_ACTION');
+    expect(game.snapshot().results).toEqual([]); act('d','stand'); expect(game.phase).toBe('REVEAL');
     expect(game.snapshot().catches).toHaveLength(2); expect(hands.d).toHaveLength(2);
     expect(game.snapshot().results.find(r => r.id === 'q')).toMatchObject({ caught:true,delta:0,outcome:'TIE' });
     vi.advanceTimersByTime(200); expect(game.players.get('d')!.points).toBe(1020);
@@ -123,7 +124,7 @@ describe('dealer catch', () => {
     expect(game.players.has('p')).toBe(false);
     expect(game.snapshot().results.find(r => r.id === 'p')!.delta).toBe(-20);
   });
-  it('ends when everyone has been caught, without drawing or paying twice', () => {
+  it('waits for an explicit stand after everyone is caught and never pays twice', () => {
     game.dispose(); hands = {};
     game = new Game('ALL', { changed() {}, privateHand(id,cards) { hands[id] = [...cards]; } },
       { ...DEFAULT_RULES, dealMs: 100, actionMs: 1000, revealMs: 100, settlementMs: 100 },
@@ -131,9 +132,31 @@ describe('dealer catch', () => {
     game.add('Dealer','d'); game.add('Draws','p');
     game.action('p',{ type:'setReady', value:true, roundId:0, actionId:'ready' });
     act('d','startRound'); vi.advanceTimersByTime(100); act('p','draw');
-    act('d','catch','p',game.roundId,'all-once'); expect(game.phase).toBe('REVEAL');
+    act('d','catch','p',game.roundId,'all-once'); expect(game.phase).toBe('DEALER_ACTION');
+    expect(game.snapshot().results).toEqual([]); expect(game.players.get('d')!.points).toBe(1000);
     act('d','catch','p',game.roundId,'all-once');
+    expect(game.phase).toBe('DEALER_ACTION'); act('d','stand');
     vi.advanceTimersByTime(200); expect(hands.d).toHaveLength(2);
     expect(game.players.get('d')!.points).toBe(1020); expect(game.players.get('p')!.points).toBe(980);
+  });
+});
+
+describe('reported two-card catch screenshots', () => {
+  it.each([
+    { name:'dealer draws from three to seven', dealer:[c(8,'hearts'),c(5,'clubs'),c(4,'hearts')], player:[c(10,'clubs'),c(4,'diamonds'),c(13,'clubs')], finalScore:7 },
+    { name:'dealer draws from three to six', dealer:[c(3,'hearts'),c(11,'diamonds'),c(3,'diamonds')], player:[c(4,'spades'),c(9,'diamonds'),c(1,'diamonds')], finalScore:6 },
+  ])('$name recalculates the caught four-point hand against the final dealer total', ({dealer,player,finalScore}) => {
+    const two = dealer.slice(0,2);
+    const hands = {d:dealer,p:player};
+    const atCatch=makeLedger(1,'d',{d:two,p:player},{p:10},DEFAULT_RULES,{p:two});
+    expect(atCatch.results.find(r=>r.id==='p')).toMatchObject({score:4,outcome:'WIN',delta:10,caught:true,dealerValue:{score:3},dealerCards:two});
+    const settled=makeLedger(1,'d',hands,{p:10},DEFAULT_RULES,{p:two});
+    expect(settled.results.find(r=>r.id==='p')).toMatchObject({score:4,outcome:'LOSE',delta:-10,caught:true,catchRecompared:true,dealerValue:{score:finalScore},dealerCards:dealer});
+    expect(atCatch.results.find(r=>r.id==='p')).toMatchObject({delta:10,dealerValue:{score:3},dealerCards:two});
+    expect(settled.results.find(r=>r.id==='d')).toMatchObject({score:finalScore,delta:10});
+    expect(settled.ledger.entries).toEqual({d:10,p:-10});
+    // Catching must not change the payout compared with an uncaught final hand.
+    const uncaught=makeLedger(1,'d',hands,{p:10});
+    expect(uncaught.ledger).toEqual(settled.ledger);
   });
 });

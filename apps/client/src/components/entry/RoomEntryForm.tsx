@@ -4,7 +4,7 @@ import type { SessionState } from '../../session';
 import { SpyfallSelect } from '../../SpyfallSelect';
 import { navigate } from '../../router';
 
-const botOptions = new Map([6, 8].map(limit => [limit, Array.from({ length: limit }, (_, value) => ({ value, label: value ? `บอท ${value} ตัว` : 'ไม่เพิ่มบอท (เล่นกับเพื่อน)' }))]));
+const botOptions = new Map([6, 8, 10].map(limit => [limit, Array.from({ length: limit }, (_, value) => ({ value, label: value ? `บอท ${value} ตัว${limit === 10 ? ` (รวม ${value + 1} คน)` : ''}` : 'ไม่เพิ่มบอท (เล่นกับเพื่อน)' }))]));
 function savedName() { try { return localStorage.getItem('pok.name') ?? ''; } catch { return ''; } }
 export function RoomEntryTabs({ basePath, join }: { basePath: string; join: boolean }) {
   return <div className="tabs"><button className={!join ? 'selected' : ''} onClick={() => navigate(basePath + '/create')}>สร้างห้อง</button><button className={join ? 'selected' : ''} onClick={() => navigate(basePath + '/join')}>เข้าห้องเพื่อน</button></div>;
@@ -18,7 +18,7 @@ export function EntryFacts({ items }: { items: readonly (readonly [string, strin
 interface Props {
   join: boolean; status: SessionState['status']; createText: string; joinText: string;
   connect(name: string, code: string | undefined, botCount: number): void | Promise<void>;
-  defaultBots?: number; botLimit?: 6 | 8; createSettings?: ReactNode; facts?: ReactNode; factsOnJoin?: boolean; joinHint?: ReactNode;
+  defaultBots?: number; botLimit?: 6 | 8 | 10; createSettings?: ReactNode; facts?: ReactNode; factsOnJoin?: boolean; joinHint?: ReactNode;
   namePlaceholder?: string; codePlaceholder?: string;
 }
 export function RoomEntryForm({ join, status, createText, joinText, connect, defaultBots = 0, botLimit, createSettings, facts, factsOnJoin = true, joinHint, namePlaceholder, codePlaceholder }: Props) {

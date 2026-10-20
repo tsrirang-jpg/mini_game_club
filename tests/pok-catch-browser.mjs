@@ -77,14 +77,11 @@ try {
   const finalCaught = ended.results.find(r => r.id === caught.id);
   const finalDealer = ended.results.find(r => r.outcome === 'DEALER');
   assert.deepEqual(ended.catches[0],finalCaught);
-  if (finalDealer.score >= 8 && !finalDealer.special) {
-    assert.equal(finalCaught.catchRecompared,true);
-    assert.deepEqual(finalCaught.dealerCards,finalDealer.cards);
-    if (!finalCaught.special && finalCaught.score === finalDealer.score) { assert.equal(finalCaught.outcome,'TIE'); assert.equal(finalCaught.delta,0); }
-  } else {
-    assert.equal(finalCaught.delta,caught.delta);
-    assert.deepEqual(finalCaught.dealerCards,caught.dealerCards);
-  }
+  assert.equal(finalCaught.catchRecompared,true);
+  assert.deepEqual(finalCaught.dealerCards,finalDealer.cards);
+  assert.equal(finalCaught.dealerValue.score,finalDealer.score);
+  assert.equal(finalCaught.dealerValue.multiplier,finalDealer.multiplier);
+  if (!finalCaught.special && !finalDealer.special && finalCaught.score === finalDealer.score) { assert.equal(finalCaught.outcome,'TIE'); assert.equal(finalCaught.delta,0); }
   assert.equal(finalDealer.cards.length,3);
   assert.equal(ended.players.reduce((sum,p) => sum + p.points,0),3000);
   for (const page of [a,b,c]) assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight),true);

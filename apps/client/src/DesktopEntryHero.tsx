@@ -9,13 +9,14 @@ const introductions = {
   oldmaid: { eyebrow: 'OLD MAID · อีแก่กินน้ำ', lines: ['จับคู่ให้หมดมือ', 'ใครจะเหลือใบสุดท้าย?'], title: 'อีแก่กินน้ำ', description: ['ผลัดกันจั่ว จับคู่ แล้วทิ้งอัตโนมัติ', 'เพื่อนและบอทรวม 3–8 คน'] },
 };
 
-export function DesktopEntryHero({ game, children }: { game: keyof typeof introductions; children: ReactNode }) {
+export function DesktopEntryHero({ game, children, showMobileNavigation = false }: { game: keyof typeof introductions; children: ReactNode; showMobileNavigation?: boolean }) {
   const desktop = useDesktopLayout();
-  if (!desktop) return children;
+  const navigation = <nav className="entry-navigation" aria-label="เลือกเกม"><GameSwitch/></nav>;
+  if (!desktop) return <>{showMobileNavigation && navigation}{children}</>;
   const intro = introductions[game];
   const image = entryImages[game];
   return <>
-    <nav className="entry-navigation" aria-label="เลือกเกม"><GameSwitch/></nav>
+    {navigation}
     <section className="intro entry-hero">
       <span className="eyebrow">{intro.eyebrow}</span>
       <h1>{intro.lines.map(line => <span className="entry-headline" key={line}>{line}</span>)}<span>{intro.title}</span></h1>

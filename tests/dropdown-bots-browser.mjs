@@ -10,7 +10,7 @@ async function until(fn,timeout=15000){const end=Date.now()+timeout;while(!await
 const combo=label=>page.getByRole('combobox',{name:label,exact:true});
 async function fitsMenu(label){const r=await page.getByRole('listbox',{name:label,exact:true}).evaluate(e=>{const r=e.getBoundingClientRect();return{fits:r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1,overflow:e.scrollWidth>e.clientWidth+1};});assert.deepEqual(r,{fits:true,overflow:false});}
 try{
- for(const[route,count,initial]of[['/rooms/create',6,0],['/poker/rooms/create',6,1],['/oldmaid/rooms/create',8,2]]){
+ for(const[route,count,initial]of[['/rooms/create',10,0],['/poker/rooms/create',6,1],['/oldmaid/rooms/create',8,2]]){
   await page.goto(url+route);await page.getByLabel('ชื่อของคุณ').fill('Dropdown Test');
   assert.match(await combo('จำนวนบอท').textContent(),initial?new RegExp(`บอท ${initial} ตัว`):/ไม่เพิ่มบอท/);
   for(const[width,height]of[[320,480],[375,667],[568,320],[844,390],[1366,768]]){
@@ -21,8 +21,26 @@ try{
    await selectOption(page,'จำนวนบอท',initial);assert.ok(page.url().endsWith(route));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }
  }
- await page.setViewportSize({width:375,height:667});await page.goto(url+'/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Dealer Select');await selectOption(page,'จำนวนบอท',2);await page.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click();await combo('เจ้ามือ').waitFor();
+ await page.setViewportSize({width:375,height:667});await page.goto(url+'/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Dealer Select');await selectOption(page,'จำนวนบอท',9);assert.match(await combo('จำนวนบอท').textContent(),/รวม 10 คน/);await page.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click();await combo('เจ้ามือ').waitFor();
  await combo('เจ้ามือ').click();await fitsMenu('เจ้ามือ');const dealer=await page.getByRole('listbox').getByRole('option').last().textContent();await page.getByRole('listbox').getByRole('option').last().click();await until(async()=>(await combo('เจ้ามือ').textContent()).includes(dealer));
+
+ assert.equal(await page.locator('.pok-game .seat').count(),10);
+ assert.equal(await combo('เจ้ามือ').count(),1);
+ await combo('เจ้ามือ').click();assert.equal(await page.getByRole('listbox').getByRole('option').count(),10);await page.keyboard.press('Escape');
+ assert.match(await page.locator('.pok-clock').textContent(),/10\/10 คน/);
+ await page.getByRole('button',{name:'จัดการโต๊ะป๊อกเด้ง',exact:true}).click();
+ assert.equal(await page.locator('.bot-row').count(),9);assert.equal(await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).isDisabled(),true);
+ await page.locator('.bot-row button').last().click();await until(async()=>await page.locator('.bot-row').count()===8);
+ await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).click();await until(async()=>await page.locator('.bot-row').count()===9);
+ await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
+ await selectOption(page,'เจ้ามือ','Dealer Select');
+ await page.getByRole('button',{name:'เริ่มรอบ',exact:true}).click();
+ await until(async()=>await page.evaluate(async()=>{const {session}=await import('/src/session.ts');return session.getSnapshot().snapshot.phase==='DEALER_ACTION'||session.getSnapshot().snapshot.phase==='ROUND_END';}));
+ if(await page.getByRole('button',{name:'จั่วอีกใบ',exact:true}).count())await page.getByRole('button',{name:'จั่วอีกใบ',exact:true}).click();
+ await page.getByRole('button',{name:'เตรียมรอบใหม่',exact:true}).waitFor();
+ const final=await page.evaluate(async()=>{const {session}=await import('/src/session.ts');return session.getSnapshot().snapshot;});
+ assert.equal(final.players.length,10);assert.equal(final.results.length,10);assert.equal(final.players.reduce((sum,p)=>sum+p.points,0),10000);
+ await page.screenshot({path:previewPath('pok-ten-bots-round-375x667.png'),scale:'css'});
  await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
  await page.goto(url+'/poker/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Card Select');await selectOption(page,'จำนวนบอท',1);await page.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
  await combo('ขนาดไพ่บนจอคอม').click();await fitsMenu('ขนาดไพ่บนจอคอม');assert.equal(await page.getByRole('listbox').evaluate(e=>!!e.closest('dialog')),true);
@@ -42,5 +60,5 @@ try{
  await page.getByRole('button',{name:'จัดการโต๊ะ Old Maid',exact:true}).click();await page.locator('.bot-row button').last().click();await until(async()=>await page.locator('.bot-row').count()===1);await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();assert.equal(await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isDisabled(),true);
  await page.getByRole('button',{name:'จัดการโต๊ะ Old Maid',exact:true}).click();for(let i=1;i<7;i++){await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).click();await until(async()=>await page.locator('.bot-row').count()===i+1);}assert.equal(await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).isDisabled(),true);await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();assert.equal(await page.locator('.oldmaid-seat').count(),7);
  await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();assert.deepEqual(errors,[]);
- console.log('PASS: shared popovers across 3 creation pages at 5 sizes, touch/keyboard/Escape/outside, dealer/string choices, modal-safe card-size persistence, Old Maid 1 human + 2 bots full round and 7-bot capacity/management');
+ console.log('PASS: shared popovers across 3 creation pages at 5 sizes, touch/keyboard/Escape/outside, ten-player Pok round and bot capacity/management, dealer/string choices, modal-safe card-size persistence, Old Maid 1 human + 2 bots full round and 7-bot capacity/management');
 }catch(e){console.error('Browser errors:',errors);await page.screenshot({path:previewPath('preview-dropdown-bots-debug.png'),fullPage:true});throw e;}finally{await browser.close();}

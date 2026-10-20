@@ -9,7 +9,7 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 const url = process.env.GAME_URL || 'http://127.0.0.1:5188';
-const sizes = [[1672,941],[1147,795],[952,442],[1920,1080],[2560,1440],[1920,1200],[320,480],[320,568],[360,640],[375,667],[390,844],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
+const sizes = [[1672,941],[1147,795],[952,442],[1920,1080],[2560,1440],[1920,1200],[320,480],[320,568],[360,640],[375,667],[390,844],[420,750],[768,1024],[568,320],[667,375],[740,360],[844,390],[932,430],[1024,600],[1366,768]];
 
 // Deterministic public/private snapshots cover three cards and every UI phase.
 // Real room actions and reconnection are covered by browser-smoke.mjs.
@@ -26,7 +26,7 @@ async function fixture(phase, count = 6, dealer = 'p1', host = 'p0', disconnecte
       hostId: host, dealerId: dealer, players, settled: phase === 'ROUND_END',
       results: revealed ? players.map(p => ({ id: p.id, cards, ...value, outcome: p.id === dealer ? 'DEALER' : 'WIN', delta: p.id === dealer ? -750 : 150 })) : [],
       catches: players.filter(p => p.id !== dealer).slice(0,catchCount).map(p => ({ id:p.id, cards, ...value,outcome:'WIN',delta:50,caught:true,dealerCards:cards.slice(0,2),dealerValue:{score:0,pok:false,multiplier:1} })),
-      rules: { actionMs: 30000, dealMs: 900, revealMs: 1800, settlementMs: 500, reconnectSeconds: 60, initialPoints: 1000, maxPlayers: 6, bets: [10,20,50], pairMultiplier: 2, suitedTwoMultiplier: 2, suitedThreeMultiplier: 3, yellowMultiplier:3,tripleMultiplier:5,straightMultiplier:3,straightFlushMultiplier:5 },
+      rules: { actionMs: 30000, dealMs: 900, revealMs: 1800, settlementMs: 500, reconnectSeconds: 60, initialPoints: 1000, maxPlayers: 10, bets: [10,20,50], pairMultiplier: 2, suitedTwoMultiplier: 2, suitedThreeMultiplier: 3, yellowMultiplier:3,tripleMultiplier:5,straightMultiplier:3,straightFlushMultiplier:5 },
     } });
     navigate('/play/ABCDEF0123');
   }, { phase, count, dealer, host, disconnected, catchCount, special });
@@ -56,7 +56,7 @@ async function fits(label) {
   const report = await page.evaluate(() => {
     const box = e => e.getBoundingClientRect();
     const table = box(document.querySelector('.pok-game .table'));
-    const clipped = [...document.querySelectorAll('.pok-game .room-bar,.pok-game .seat,.pok-game .hand,.pok-game .points,.pok-game .result,.pok-game .pok-own-value,.pok-game .player-status,.pok-action-dock,.pok-action-dock button,.pok-action-dock select')].filter(e => {
+    const clipped = [...document.querySelectorAll('.pok-game .arena-dock-clock,.pok-game .room-bar,.pok-game .seat,.pok-game .hand,.pok-game .points,.pok-game .result,.pok-game .pok-own-value,.pok-game .player-status,.pok-action-dock,.pok-action-dock button,.pok-action-dock select')].filter(e => {
       const r = box(e); return r.width && r.height && (r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || r.bottom > innerHeight + 1);
     }).map(e => e.className || e.tagName);
     const outside = [...document.querySelectorAll('.pok-game .seat,.pok-game .hand,.pok-game .card')].filter(e => {
@@ -71,7 +71,7 @@ async function fits(label) {
       const hit = document.elementFromPoint((rank.left + rank.right) / 2, (rank.top + rank.bottom) / 2);
       if (rank.bottom > glyph.top + 1 || rank.left < c.left || rank.right > c.right || rank.top < c.top || glyph.bottom > c.bottom || glyph.left < c.left || glyph.right > c.right || !label.contains(hit)) cardErrors.push({ label: card.getAttribute('aria-label'), rank: rank.toJSON(), suit: glyph.toJSON(), card: c.toJSON(), hit: hit?.className || hit?.tagName });
     }
-    const contentOverflow = [...document.querySelectorAll('.pok-game .seat,.pok-game .hand,.pok-action-dock')].filter(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).map(e => ({ element: e.className, width: e.clientWidth, scrollWidth: e.scrollWidth, height: e.clientHeight, scrollHeight: e.scrollHeight }));
+    const contentOverflow = [...document.querySelectorAll('.pok-game .seat,.pok-game .hand,.pok-action-dock,.pok-game:has(.table[data-layout="large"]) .is-waiting .arena-dock-clock')].filter(e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1).map(e => ({ element: e.className, width: e.clientWidth, scrollWidth: e.scrollWidth, height: e.clientHeight, scrollHeight: e.scrollHeight }));
     const balanceCardOverlaps=[];
     for(const seat of document.querySelectorAll('.pok-game .seat')) {
       const range=document.createRange();range.selectNodeContents(seat.querySelector('.points'));
@@ -118,6 +118,24 @@ async function fits(label) {
 
 try {
   await page.goto(url + '/rooms/create');
+  for(const count of [7,8,9,10]) for(const phase of ['LOBBY','DEALING','PLAYER_ACTIONS','DEALER_ACTION','ROUND_END']) {
+    await fixture(phase,count,phase==='DEALER_ACTION'?'p0':'p1');
+    for(const [width,height] of sizes){
+      await page.setViewportSize({width,height});await fits(count+' players '+phase+' '+width+'x'+height);
+      if(count===10&&phase==='ROUND_END'&&[320,390,568,1366].includes(width))await page.screenshot({path:previewPath('pok-ten-players-'+width+'x'+height+'.png'),scale:'css'});
+    }
+    console.log('PASS: '+count+' players '+phase+' at '+sizes.length+' viewports');
+  }
+  await fixture('DEALER_ACTION',10,'p0','p0',false,9);
+  for(const [width,height] of sizes){
+    await page.setViewportSize({width,height});await fits('ten players after nine catches '+width+'x'+height);
+    assert.equal(await page.locator('.pok-catch-controls').count(),0);
+    assert.equal(await page.getByRole('button',{name:'จั่วอีกใบ',exact:true}).isVisible(),true);
+    assert.equal(await page.getByRole('button',{name:'อยู่',exact:true}).isVisible(),true);
+  }
+  await fixture('ROUND_END',10,'p0','p0',false,0,'yellow');
+  for(const [width,height] of sizes){await page.setViewportSize({width,height});await fits('ten players three yellow cards '+width+'x'+height);}
+  console.log('PASS: ten players, nine catches and long special-hand labels at '+sizes.length+' viewports');
   for (const phase of ['LOBBY','DEALING','PLAYER_ACTIONS','DEALER_ACTION','REVEAL','SETTLEMENT','ROUND_END']) {
     await fixture(phase, 6, phase === 'DEALER_ACTION' ? 'p0' : 'p1');
     for (const [width, height] of sizes) {
@@ -150,8 +168,31 @@ try {
     }
   }
   console.log('PASS: immediate Pok8/9 faces, private other hands and reported re-compared catch at '+sizes.length+' viewports');
+  // Dealer controls must fit the exact same dock/table/frame geometry as round end.
+  for(const [width,height] of sizes) {
+    await page.setViewportSize({width,height});
+    await fixture('ROUND_END',6,'p0');
+    const before=await page.locator('.pok-action-dock,.pok-game .table,.pok-game .seat').evaluateAll(nodes=>nodes.map(e=>({width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height})));
+    await fixture('DEALER_ACTION',6,'p0');
+    await fits('compact dealer dock '+width+'x'+height);
+    const after=await page.locator('.pok-action-dock,.pok-game .table,.pok-game .seat').evaluateAll(nodes=>nodes.map(e=>({width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height})));
+    assert.deepEqual(after,before,'dealer catch UI must not resize the dock, table or player frames: '+width+'x'+height);
+    const rows=await page.locator('.pok-action-dock').evaluate(dock=>{const top=dock.querySelector('.pok-catch-controls').getBoundingClientRect();const bottom=dock.querySelector('.action-bar').getBoundingClientRect();const timer=dock.querySelector('.arena-dock-clock').getBoundingClientRect();return {stacked:top.bottom<=bottom.top,left:timer.right<top.left,fullWidth:Math.abs(top.right-dock.querySelector('.arena-control-content').getBoundingClientRect().right)<1&&Math.abs(top.right-bottom.right)<1};});
+    assert.ok(rows.stacked&&rows.left&&rows.fullWidth,'catch controls above draw/stand and fill the right column, timer at left');
+    if([390,420,844,1366].includes(width)) await page.screenshot({path:previewPath('pok-compact-dealer-'+width+'x'+height+'.png'),scale:'css'});
+  }
+  console.log('PASS: fixed-height two-row dealer dock at '+sizes.length+' viewports');
   await fixture('DEALER_ACTION',6,'p0','p0',false,2);
   for (const [width,height] of sizes) { await page.setViewportSize({width,height}); await fits('partial catches ' + width + 'x' + height); }
+  // After every opponent is caught, the dealer still has both final decisions.
+  await fixture('DEALER_ACTION',6,'p0','p0',false,5);
+  for(const [width,height] of sizes){
+    await page.setViewportSize({width,height});await fits('dealer after all five catches '+width+'x'+height);
+    assert.equal(await page.locator('.pok-catch-controls').count(),0);
+    assert.equal(await page.getByRole('button',{name:'จั่วอีกใบ',exact:true}).isVisible(),true);
+    assert.equal(await page.getByRole('button',{name:'อยู่',exact:true}).isVisible(),true);
+  }
+  await fixture('DEALER_ACTION',6,'p0','p0',false,2);
   assert.equal(await countOptions(page,'จับผู้เล่น 3 ใบ'),3);
   await page.getByRole('button',{name:'ดูผลจับ ผู้เล่น 1',exact:true}).click();
   assert.equal(await page.locator('.pok-catch-detail').count(),2);
@@ -198,7 +239,7 @@ try {
   assert.equal(await page.locator('.pok-shell').count(), 0);
   assert.equal(await page.locator('.top').isVisible(), true);
   assert.deepEqual(errors, []);
-  console.log('PASS: 2–6 players, all phases, three cards, no page scrolling or overlapping ranks/suits, settings/rules dialogs and exit');
+  console.log('PASS: 2–10 players, all phases, three cards, no page scrolling or overlapping ranks/suits, settings/rules dialogs and exit');
 } catch (error) {
   await page.screenshot({ path: previewPath('preview-pok-debug.png'), fullPage: true });
   throw error;

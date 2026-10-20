@@ -2,7 +2,7 @@
 @media (orientation:landscape) and (max-height:650px) {
  .app.club-shell.pok-shell:has(.dealer-arena) { padding:4px 8px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:72px; gap:4px; }
- .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:104px; }
+
  .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:32px; padding-bottom:4px; gap:6px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:19px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { font-size:6px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:30px; height:30px; }
@@ -39,12 +39,11 @@
  .app.club-shell.pok-shell .pok-game.dealer-arena .arena-control-content { gap:4px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls { gap:5px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls > button { min-height:30px; padding:4px 8px; font-size:10px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls .spy-select-trigger { min-height:30px; }
- .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-note { font-size:8px; }
 }
 @media (orientation:portrait) and (max-width:800px) {
  .app.club-shell.pok-shell:has(.dealer-arena) { padding:6px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:clamp(98px,16dvh,160px); gap:5px; }
- .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:clamp(128px,21dvh,205px); }
+
  .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:46px; padding-bottom:5px; gap:4px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar .brand-logo-compact { margin:0; gap:4px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:18px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { font-size:6px; letter-spacing:.8px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:30px; height:30px; }
@@ -90,10 +89,9 @@
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-dealer-control { width:100%; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls { gap:4px; align-items:end; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls > button { min-height:30px; padding:4px; font-size:9px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-controls .spy-select { flex:1; min-width:0; }
- .app.club-shell.pok-shell .pok-game.dealer-arena .pok-catch-note { font-size:8px; }
 }
 @media (orientation:portrait) and (max-height:600px) {
- .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:92px; gap:3px; } .app.club-shell.pok-shell .pok-game.dealer-arena.has-catch { --dock-height:124px; }
+ .app.club-shell.pok-shell .pok-game.dealer-arena { --dock-height:92px; gap:3px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar { min-height:36px; padding-bottom:2px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-descriptor { display:none; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-name { font-size:16px; } .app.club-shell.pok-shell .pok-game.dealer-arena .brand-mark { width:25px; height:25px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar strong { font-size:11px; } .app.club-shell.pok-shell .pok-game.dealer-arena .room-bar button { width:27px; min-height:28px; padding:4px; } .app.club-shell.pok-shell .pok-game.dealer-arena .phase { min-height:16px; font-size:9px; } .app.club-shell.pok-shell .pok-game.dealer-arena .pok-clock { font-size:9px; }
  .app.club-shell.pok-shell .pok-game.dealer-arena .pok-table-seats { padding:5px; gap:3px; }

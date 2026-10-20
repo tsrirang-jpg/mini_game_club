@@ -6,8 +6,8 @@ import type { PlayerView, Snapshot } from '../../../../../packages/shared/src/in
 import type { SessionState } from '../../session';
 export type ArenaPosition = 'top'|'left-top'|'left-bottom'|'right-top'|'right-bottom';
 
-export function PokSeat({player:p,s,state,showCatches,position}: {
-  player:PlayerView; s:Snapshot; state:SessionState; showCatches:()=>void; position?:ArenaPosition;
+export function PokSeat({player:p,s,state,showCatches,position,gridSlot}: {
+  player:PlayerView; s:Snapshot; state:SessionState; showCatches:()=>void; position?:ArenaPosition; gridSlot?:number;
 }) {
   const catches=s.catches??[], result=s.results.find(r=>r.id===p.id)??catches.find(r=>r.id===p.id);
   const revealed=s.revealedHands?.find(r=>r.id===p.id), own=p.id===state.playerId, dealer=p.id===s.dealerId;
@@ -16,8 +16,17 @@ export function PokSeat({player:p,s,state,showCatches,position}: {
   const ownValue=own&&p.cardCount>=2&&cards.length>=2?evaluate(cards,s.rules):null;
   const handCount=Math.max(2,p.cardCount);
   const winner=!!result&&result.delta>0;
+  // Keep the featured seat centered in both the five-column and three-column grids.
+  const wideSlot=gridSlot === 1 ? 2 : gridSlot === 2 ? 1 : gridSlot;
+  const seatStyle={
+    '--hand-count':handCount,
+    ...(gridSlot !== undefined && wideSlot !== undefined ? {
+      '--seat-row':Math.floor(wideSlot/5)+1, '--seat-column':wideSlot%5+1,
+      '--mobile-seat-row':Math.floor(gridSlot/3)+1, '--mobile-seat-column':gridSlot%3+1,
+    } : {}),
+  } as CSSProperties;
   return <article aria-label={'ผู้เล่น '+p.name} data-position={position} data-card-count={p.cardCount}
-    style={{'--hand-count':handCount} as CSSProperties}
+    style={seatStyle} data-grid-slot={gridSlot}
     className={'seat arena-seat '+(own?'own ':'')+(dealer?'is-dealer ':'')+(winner?'is-winner ':'')+(!p.connected?'disconnected ':'')+(ownValue?.special?'has-special-hand ':'')+(result?'has-result ':'')+(s.phase==='DEALER_ACTION'&&!dealer&&p.cardCount===3&&!result?'catchable':'')}>
     <div className="player-name" title={p.name}><span className="pok-player-label">{p.name}</span>{own&&<span className="pok-own-badge">คุณ</span>}{p.isBot&&<span className="bot-badge">บอท</span>}{dealer&&<span className="dealer">เจ้ามือ</span>}</div>
     <div className="points"><PokChip/><span className="pok-balance">{p.points.toLocaleString()} <small>แต้ม</small></span></div>

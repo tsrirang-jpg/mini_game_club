@@ -1,3 +1,9 @@
+/* Poker, Spyfall and Old Maid share one top-level game switch at every breakpoint. */
+.club-shell :is(.poker-welcome,.spy-welcome,.oldmaid-welcome) > .entry-navigation { grid-column:1/-1; justify-self:start; margin:0; }
+@media (max-width:999px), (max-height:650px) {
+  .club-shell :is(.poker-welcome,.spy-welcome,.oldmaid-welcome) > .entry-navigation { margin-bottom:12px; }
+  .club-shell :is(.poker-welcome,.spy-welcome,.oldmaid-welcome) > .entry-navigation .entry-game-switch { display:inline-flex; align-items:center; min-height:44px; margin:0; padding:8px 12px; border:1px solid var(--club-edge); border-radius:10px; color:var(--club-muted); font-size:13px; font-weight:600; background:transparent; }
+}
 /* Approved entry screens only. Pok Deng and game boards keep their own layout. */
 @media(min-width:1000px) and (min-height:651px) {
   body:has(.theme-poker > .desktop-entry-welcome) { background:radial-gradient(ellipse at 18% 8%,#14517a,#071d30 85%); }
