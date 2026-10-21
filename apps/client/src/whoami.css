@@ -5,31 +5,12 @@
 .who-artwork { display:block; width:100%; height:auto; object-fit:contain; pointer-events:none; }
 .app.club-shell.theme-whoami:not(.club-playing) { max-width:1480px; min-height:100dvh; display:flex; flex-direction:column; }
 .theme-whoami:not(.club-playing) > footer { margin-top:0; padding:16px 0; }
-.who-welcome { flex:1; display:grid; grid-template-columns:1fr minmax(340px,.95fr); grid-template-areas:"nav nav" "intro entry"; grid-template-rows:44px auto; align-items:center; gap:24px 56px; padding:24px 0; }
-.who-entry-navigation { grid-area:nav; }
-.who-entry-navigation .entry-game-switch { min-height:44px; }
-.who-intro { grid-area:intro; min-width:0; }
-.who-intro h1 { margin:10px 0; font-size:clamp(40px,4.5vw,72px); line-height:1.25; }
-.who-intro h2 { margin:12px 0; font-size:clamp(17px,1.9vw,26px); line-height:1.5; }
-.who-intro p { color:var(--club-muted); font-size:14px; }
-.who-intro .who-artwork { max-width:580px; margin:16px auto 0; }
-.club-shell .who-entry { grid-area:entry; min-width:0; padding:22px; border-radius:18px; }
-.club-shell .who-entry > h2 { text-align:left; font-size:24px; margin:0 0 14px; }
-.who-entry .tabs { margin-bottom:14px; }
-.who-entry .tabs button { padding:9px 10px; }
-.who-entry form > label { margin:0 0 12px; }
-.who-entry input { min-height:44px; padding:9px 12px; margin-top:4px; }
 .who-settings { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 12px; margin-bottom:12px; }
 .who-settings .spy-select,.who-settings label { margin:0; min-width:0; }
 .who-settings label { margin-bottom:4px; font-size:12px; }
 .club-shell .who-settings .spy-select-trigger { min-height:44px; padding:9px 11px; }
 .who-settings .spy-select-value { min-width:0; }
 .who-settings .spy-select-value strong { font-size:14px; overflow-wrap:anywhere; }
-.who-entry .entry-facts { margin-bottom:12px; }
-.who-entry .entry-facts > span { display:flex; justify-content:center; align-items:center; gap:8px; padding:7px; }
-.who-entry .entry-facts strong { margin:0; }
-.who-entry .full { margin-bottom:0; }
-.who-entry .who-rules { margin-top:12px; padding-top:10px; }
 .who-rules ol { padding-left:20px; }
 .who-rules li + li { margin-top:6px; }
 .who-rules summary { min-height:28px; }
@@ -131,12 +112,6 @@
   .who-history-shortcut { display:flex; flex:none; justify-content:space-between; align-items:center; min-height:38px; padding:6px 12px; font-size:12px; }
 }
 @media(max-width:999px) and (orientation:portrait) {
-  .who-welcome { width:min(620px,100%); margin:auto; grid-template-columns:1fr; grid-template-areas:"nav" "intro" "entry"; gap:14px; padding:16px 0; }
-  .who-intro { display:flex; flex-direction:column-reverse; text-align:center; }
-  .who-intro .who-artwork { height:180px; margin:0 auto 8px; }
-  .who-intro h1 { font-size:40px; margin:6px 0; }
-  .who-intro h2 { font-size:18px; margin:6px 0; }
-  .who-intro p { margin:4px 0; font-size:12px; }
   .who-dashboard { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(65px,19%) minmax(0,1fr); gap:8px; }
   .who-roster { padding:8px; }
   .who-roster > h2 { display:none; }
@@ -148,16 +123,6 @@
 }
 @media(max-width:600px) {
   .app.club-shell.theme-whoami:not(.club-playing) { padding:0 12px; }
-  .who-welcome { gap:10px; padding:10px 0; grid-template-rows:36px auto auto; }
-  .who-entry-navigation .entry-game-switch { min-height:36px; padding:6px 12px; font-size:12px; }
-  .who-intro .who-artwork { height:125px; margin:0 auto 4px; }
-  .who-intro h1 { font-size:32px; }
-  .who-intro h2 { font-size:15px; }
-  .who-intro p { font-size:11px; }
-  .club-shell .who-entry { padding:14px; }
-  .club-shell .who-entry > h2 { font-size:21px; margin-bottom:10px; }
-  .who-entry .tabs { margin-bottom:10px; }
-  .who-entry label { font-size:12px; }
   .who-settings { gap:9px; }
   .who-settings label { font-size:11px; }
   .who-settings .spy-select-value strong { font-size:13px; }
@@ -206,33 +171,11 @@
 }
 @media(max-width:600px) and (max-height:740px) and (orientation:portrait) {
   .theme-whoami:not(.club-playing) > footer { display:none; }
-  .who-intro { flex-direction:row-reverse; gap:10px; align-items:center; justify-content:center; }
-  .who-intro .who-artwork { width:100px; height:65px; margin:0; }
-  .who-intro h1 { font-size:27px; }
-  .who-intro h2,.who-intro p { display:none; }
-  .who-welcome { gap:8px; padding:8px 0; }
-  .club-shell .who-entry { padding:12px; }
-  .who-entry .who-rules { margin-top:8px; padding-top:6px; }
 }
 @media(max-width:600px) and (max-height:600px) and (orientation:portrait) {
   .theme-whoami:not(.club-playing) > .top { height:44px; }
-  .who-intro .who-artwork { height:40px; width:75px; }
-  .who-intro h1 { font-size:24px; margin:0; }
-  .who-intro .eyebrow { font-size:8px; }
-  .who-welcome { padding:6px 0; gap:6px; }
-  .club-shell .who-entry { padding:10px; }
-  .club-shell .who-entry > h2 { font-size:18px; margin-bottom:7px; }
-  .who-entry .tabs { margin-bottom:7px; }
-  .who-entry .tabs button { min-height:36px; padding:5px; font-size:12px; }
-  .who-entry form > label { margin-bottom:8px; }
-  .who-entry input { min-height:38px; margin-top:3px; padding:6px 9px; font-size:14px; }
   .who-settings { gap:6px; margin-bottom:8px; }
   .club-shell .who-settings .spy-select-trigger { min-height:38px; padding:6px 8px; }
-  .who-entry .entry-facts { margin-bottom:7px; }
-  .who-entry .entry-facts > span { padding:4px; }
-  .who-entry .primary { min-height:40px; padding:7px; font-size:13px; }
-  .who-entry .who-rules { margin-top:6px; padding-top:5px; }
-  .who-entry .who-rules summary { min-height:24px; }
   .who-dashboard { grid-template-rows:62px minmax(0,1fr); }
   .who-stage { gap:5px; padding:8px; }
   .who-mystery { padding:6px; }
@@ -249,28 +192,10 @@
   .theme-whoami:not(.club-playing) .brand span { font-size:17px; }
   .theme-whoami:not(.club-playing) .brand small { display:none; }
   .theme-whoami:not(.club-playing) > footer { display:none; }
-  .who-welcome { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); grid-template-areas:"nav entry" "intro entry"; grid-template-rows:32px minmax(0,1fr); gap:6px 12px; padding:7px 0; min-height:0; }
-  .who-entry-navigation .entry-game-switch { min-height:32px; padding:4px 10px; font-size:11px; }
-  .who-intro { align-self:center; text-align:center; display:flex; flex-direction:column-reverse; }
-  .who-intro .who-artwork { height:clamp(55px,28dvh,110px); margin:0; }
-  .who-intro h1 { font-size:28px; margin:4px 0; }
-  .who-intro h2 { font-size:12px; margin:4px 0; }
-  .who-intro p { display:none; }
-  .club-shell .who-entry { padding:10px; max-height:100%; overflow:auto; }
-  .club-shell .who-entry > h2 { font-size:18px; margin-bottom:6px; }
-  .who-entry .tabs { margin-bottom:6px; }
-  .who-entry .tabs button { min-height:32px; padding:4px; font-size:11px; }
-  .who-entry form > label { font-size:10px; margin-bottom:6px; }
-  .who-entry input { min-height:32px; margin-top:2px; padding:5px 8px; font-size:12px; }
   .who-settings { gap:5px 8px; margin-bottom:6px; }
   .who-settings label { font-size:10px; margin-bottom:2px; }
   .club-shell .who-settings .spy-select-trigger { min-height:32px; padding:5px 8px; }
   .who-settings .spy-select-value strong { font-size:11px; }
-  .who-entry .entry-facts { margin-bottom:6px; }
-  .who-entry .entry-facts > span { padding:3px; font-size:10px; }
-  .who-entry .primary { min-height:34px; padding:5px; font-size:12px; }
-  .who-entry .who-rules { margin-top:5px; padding-top:4px; }
-  .who-entry .who-rules summary { min-height:24px; font-size:10px; }
   .who-dashboard { grid-template-columns:minmax(125px,.55fr) minmax(0,1.5fr); gap:6px; }
   .who-history { display:none; }
   .who-history-shortcut { display:flex; min-height:28px; padding:3px 9px; font-size:10px; }
@@ -312,33 +237,6 @@
   .who-lobby p { margin:4px 0; font-size:10px; }
   .who-lobby .who-settings { margin-top:6px; }
   .who-lobby .full { min-height:32px; padding:5px; font-size:12px; }
-}
-@media(max-height:340px) and (min-width:500px) {
-  .who-entry form { display:grid; grid-template-columns:80px minmax(0,1fr); gap:4px 6px; }
-  .who-entry form > label,.who-entry .who-settings { grid-column:1/-1; margin-bottom:0; }
-  .who-entry .entry-facts { grid-column:1; margin:0; }
-  .who-entry .entry-facts > span { gap:3px; flex-direction:column; padding:2px; font-size:8px; }
-  .who-entry .entry-facts strong { font-size:10px; }
-  .who-entry form > button { grid-column:2; }
-  .who-entry .who-rules { font-size:10px; }
-  .who-intro h2 { display:none; }
-}
-@media(max-width:600px) and (max-height:510px) and (orientation:portrait) {
-  .who-welcome { grid-template-areas:"nav" "entry"; grid-template-rows:32px auto; gap:5px; }
-  .who-welcome .who-intro { display:none; }
-  .who-entry-navigation .entry-game-switch { min-height:32px; }
-  .who-entry .who-rules summary { min-height:22px; }
-}
-/* Match the shared entry selector's specificity when compacting form spacing. */
-.club-shell .who-entry .tabs { margin-bottom:12px; }
-@media(max-width:600px) { .club-shell .who-entry .tabs { margin-bottom:8px; } }
-@media(max-height:500px) and (min-width:500px) {
-  .club-shell .who-entry { padding:7px; }
-  .club-shell .who-entry .tabs { margin-bottom:4px; }
-  .club-shell .who-entry > h2 { font-size:17px; line-height:1.2; margin-bottom:4px; }
-  .who-entry form > label { line-height:1.2; }
-  .who-entry .who-settings { gap:4px 8px; }
-  .who-entry .who-settings label { line-height:1.2; }
 }
 @media(max-width:600px) and (max-height:600px) and (orientation:portrait) {
   .who-lobby > .who-artwork { display:none; }

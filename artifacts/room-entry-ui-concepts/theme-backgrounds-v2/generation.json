@@ -1,0 +1,37 @@
+{
+  "tool": "built-in image_gen",
+  "intent": "precise-object-edit",
+  "encoding": "WebP quality .92, original generated dimensions, no resizing or color transforms",
+  "assets": [
+    {
+      "game": "undercover",
+      "file": "undercover-charcoal-v2.webp",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a15827-b5c0-7a00-8b60-82e94c49eecc\\exec-3d5a623f-6c82-4472-b46e-717a5e0601d3.png",
+      "prompt": "Use case: precise-object-edit. Asset type: existing pixel-art game illustration used in an Undercover create/join webpage. Input image 1 is the EDIT TARGET. Change ONLY the blue city background and blue ambient background pixels to match the webpage's charcoal and warm gold theme. Background palette: almost-black charcoal #17181B, dark graphite #222327, raised charcoal #2D2E32; subdued warm gold #E6C582 in the small city windows and very restrained background accents. Keep the existing city silhouettes and blocky pixel texture, but remove the saturated blue sky and blue buildings. Preserve the exact three characters, their faces, sunglasses, hats, hair, coat colors, poses, relative size, arrangement and foreground outlines. Preserve the original ivory coat, peach skin, black sunglasses, brown fedora and brown central coat, black right-hand character, and square composition. Keep the same chunky retro pixel-art style, crisp blocks and original framing. No extra characters, no typography, no logo, no chips, no border. Opaque square artwork, not a website screenshot. Do not tint or recolor the characters. The result should look like the same illustration with only its background recolored to charcoal/gold.",
+      "width": 1254,
+      "height": 1254,
+      "output": "apps/client/public/images/menu/pixel-scene-v1/undercover-charcoal-v2.webp",
+      "bytes": 69376
+    },
+    {
+      "game": "poker",
+      "file": "poker-navy-v2.webp",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a15827-b5c0-7a00-8b60-82e94c49eecc\\exec-928f956c-b288-4a34-beff-7331310e8a2d.png",
+      "prompt": "Use case: precise-object-edit. Asset type: existing pixel-art Poker game illustration for a navy-blue create/join webpage. Input image 1 is the EDIT TARGET. Recolor ONLY the emerald-green felt background and its decorative floating club-suit motifs into a deep navy-blue theme. Felt/background palette: #071D30 darkest navy, #10334F blue-navy panel, #17445F slightly lighter blue texture; motifs in muted navy/cyan, with restrained #83C7EE blue accents. Keep the same pixelated felt texture and existing motif positions. Preserve both ivory playing cards EXACTLY: A of spades on the left, K of hearts with the same black-haired crowned character on the right. Preserve their ranks, suits, cream paper, angles, scale and arrangement. Preserve all chip stacks in their original red/green/blue/white colors, locations and proportions; do not tint the foreground blue. Square image with original framing and chunky pixel-art blocks, same shadows and main composition. No added cards, no new objects, no words beyond existing A and K ranks, no border or webpage UI. This must look like the original image with only the green felt and floating background symbols recolored navy blue to match the Poker page.",
+      "width": 1254,
+      "height": 1254,
+      "output": "apps/client/public/images/menu/pixel-scene-v1/poker-navy-v2.webp",
+      "bytes": 126604
+    },
+    {
+      "game": "liar",
+      "file": "liar-violet-v2.webp",
+      "source": "C:\\Users\\AZC002\\.codex\\generated_images\\01a15827-b5c0-7a00-8b60-82e94c49eecc\\exec-4b2dab1b-3e6b-46e4-b00c-e5e45274e125.png",
+      "prompt": "Use case: precise-object-edit. Asset type: existing pixel-art Liar's Card game illustration for a dark violet create/join webpage. Input image 1 is the EDIT TARGET. Change ONLY the emerald-green felt BACKGROUND outside the playing cards and the floating decorative suit motifs to the game's dark violet/lavender theme. Background palette: #141024 deep violet, #241D38 purple-black panel, #322448 subdued violet felt texture, floating suit motifs in muted lavender #786197 with restrained #D2B5F4 accents. Keep the existing pixelated felt texture and positions of the background suit motifs. Preserve all THREE playing cards exactly: two green patterned card backs to the left and the ivory A of clubs tilted on the right; keep the green designs ON THE CARD BACKS green, while recoloring ONLY the surrounding background. Keep the ivory paper edges, black A and club symbol, card angles, sizes, overlaps, shadows, arrangement and original square composition. Same chunky retro pixel-art style and block size. No chips, no coins, no money, no faces, no extra cards, no added lettering, no border or webpage UI. This is the original scene with only the surrounding felt and decorative background symbols recolored deep violet to blend into the Liar game's purple page.",
+      "width": 1254,
+      "height": 1254,
+      "output": "apps/client/public/images/menu/pixel-scene-v1/liar-violet-v2.webp",
+      "bytes": 106218
+    }
+  ]
+}

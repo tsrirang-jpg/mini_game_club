@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {previewPath} from './helpers/preview-path.mjs';
+import {checkRoomEntryLayout} from './helpers/room-entry-layout.mjs';
 const url=process.env.GAME_URL||'http://127.0.0.1:5188';
 const browser=await chromium.launch({channel:'msedge',headless:true});
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[844,390],[667,375],[568,320]];
@@ -19,7 +20,7 @@ try{
   if(join)await page.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();
   await page.getByLabel('ชื่อของคุณ',{exact:true}).fill('มะนาว');
   if(join)await page.getByLabel('รหัสห้อง',{exact:true}).fill('ABCDEF0123');
-  for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(60);await fit(page,`${join?'join':'create'} ${width}x${height}`,'.liar-entry-layout,.liar-entry-hero,.liar-entry-hero img,.liar-entry-form,.liar-entry-form input,.liar-entry-form .spy-select-trigger,.liar-entry-form .primary');if([1366,390,568].includes(width))await page.screenshot({path:previewPath(`preview-liar-real-${join?'join':'create'}-${width}x${height}.png`),fullPage:true});}
+  for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(60);await checkRoomEntryLayout(page,`${join?'join':'create'} ${width}x${height}`);if([1366,390,568].includes(width))await page.screenshot({path:previewPath(`preview-liar-real-${join?'join':'create'}-${width}x${height}.png`),fullPage:true});}
  }
  if(!process.env.GAME_URL){
   for(const phase of ['LOBBY','PLAYING','RESPONSE','REVEAL','RESULTS']){
@@ -39,8 +40,8 @@ try{
  }
  await page.close();
  const a=await pageAt(),b=await pageAt(390,844),c=await pageAt(568,320);
- await a.goto(url+'/liar/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Alpha');await a.getByRole('button',{name:'สร้างห้อง Liar’s Card →',exact:true}).click();await a.locator('.liar-room-code').waitFor();const code=await a.locator('.liar-room-code').textContent();
- for(const[p,name]of[[b,'Beta'],[c,'Gamma']]){await p.goto(url+'/liar/rooms/join?code='+code);await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByRole('button',{name:'เข้าห้อง Liar’s Card →',exact:true}).click();await p.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();}
+ await a.goto(url+'/liar/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Alpha');await a.getByRole('button',{name:'สร้างห้อง ไพ่ตอแหล',exact:true}).click();await a.locator('.liar-room-code').waitFor();const code=await a.locator('.liar-room-code').textContent();
+ for(const[p,name]of[[b,'Beta'],[c,'Gamma']]){await p.goto(url+'/liar/rooms/join?code='+code);await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByRole('button',{name:'เข้าร่วมห้อง ไพ่ตอแหล',exact:true}).click();await p.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();}
  await until(()=>a.getByRole('button',{name:'▶ เริ่มเกม',exact:true}).isEnabled());await a.getByRole('button',{name:'▶ เริ่มเกม',exact:true}).click();const pages=[a,b,c];await until(async()=>(await Promise.all(pages.map(p=>p.locator('.liar-hand button').count()))).reduce((x,y)=>x+y,0)===52);
  const opening=pages[(await Promise.all(pages.map(p=>p.getByRole('button',{name:'เปิด A♣',exact:true}).isEnabled()))).indexOf(true)];await opening.getByRole('button',{name:'เปิด A♣',exact:true}).click();await until(async()=>(await a.locator('.liar-required strong').textContent())==='2');
  // Skip through all three seats: rank remains 2, result scores match hand rules.

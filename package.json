@@ -42,7 +42,8 @@
     "test:undercover-voting": "node tests/undercover-voting-browser.mjs",
     "test:poker-clean-row": "node tests/poker-clean-row-browser.mjs",
     "test:poker-deal": "node tests/poker-deal-browser.mjs",
-    "test:roadfighter": "node tests/roadfighter-browser.mjs"
+    "test:roadfighter": "node tests/roadfighter-browser.mjs",
+    "test:room-entry": "node tests/room-entry-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

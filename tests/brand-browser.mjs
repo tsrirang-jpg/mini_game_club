@@ -28,7 +28,8 @@ try{
    await images.evaluateAll(es=>Promise.all(es.map(async e=>{e.loading='eager';await e.decode();})));
    for(const game of ['roadfighter','pok','poker','spyfall','oldmaid','whoami','liar','undercover']){
     const art=page.locator('[data-game="'+game+'"] .menu-game-artwork');
-    assert.equal(await art.getAttribute('src'),'/images/menu/pixel-scene-v1/'+game+'.webp');
+    const file={poker:'poker-navy-v2.webp',liar:'liar-purple-gold-v3.webp',undercover:'undercover-charcoal-v2.webp'}[game]||game+'.webp';
+    assert.equal(await art.getAttribute('src'),'/images/menu/pixel-scene-v1/'+file);
     assert.ok(await art.evaluate(e=>e.naturalWidth>0&&e.naturalHeight>0));
    }
    assert.equal(await page.locator('.brand-mark').evaluate(e=>getComputedStyle(e).filter),'none','original gold emblem is not grayscale');

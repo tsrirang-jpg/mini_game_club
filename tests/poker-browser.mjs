@@ -17,7 +17,7 @@ try{
   await a.getByRole('button',{name:/เลือก Poker/}).click();assert.equal(new URL(a.url()).pathname,'/poker/rooms/create');
   await a.getByLabel('ชื่อของคุณ').fill('Poker Host');await selectOption(a,'จำนวนบอท','0');
   await a.screenshot({path:previewPath('preview-poker-create.png'),fullPage:true});
-  await a.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();await a.locator('.room-bar strong').waitFor();
+  await a.getByRole('button',{name:'สร้างห้อง Poker',exact:true}).click();await a.locator('.room-bar strong').waitFor();
   const code=await a.locator('.room-bar strong').textContent();
   await a.getByRole('button',{name:'กติกา Poker',exact:true}).click();
   await a.locator('.poker-rules summary').click();
@@ -28,7 +28,7 @@ try{
   await a.screenshot({path:previewPath('preview-poker-rules.png'),fullPage:true});
   await a.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
   await b.goto(url);await b.getByRole('button',{name:/เลือก Poker/}).click();await b.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();
-  await b.getByLabel('ชื่อของคุณ').fill('Poker Friend');await b.getByLabel('รหัสห้อง').fill(code);await b.getByRole('button',{name:'เข้าร่วมโต๊ะ Poker →',exact:true}).click();
+  await b.getByLabel('ชื่อของคุณ').fill('Poker Friend');await b.getByLabel('รหัสห้อง').fill(code);await b.getByRole('button',{name:'เข้าร่วมห้อง Poker',exact:true}).click();
   await b.locator('.room-bar strong').waitFor();await b.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();
   await wait(()=>a.getByRole('button',{name:'เริ่มรอบ Poker',exact:true}).isEnabled());await a.getByRole('button',{name:'เริ่มรอบ Poker',exact:true}).click();
   await wait(()=>a.getByRole('button',{name:/^Call /}).isVisible());
@@ -43,7 +43,7 @@ try{
   await a.getByRole('button',{name:'Raise เพิ่ม 20',exact:true}).click();
   assert.equal(await a.getByLabel('Raise รวมเป็น').inputValue(),'40');
   assert.equal(await b.locator('.poker-opponents .card.back').count(),2);
-  assert.equal(await a.locator('.welcome').count(),0);
+  assert.equal(await a.locator('.room-entry-page').count(),0);
   const original=await b.locator('.poker-self .card').allTextContents();await b.reload();
   await wait(async()=>await b.locator('.poker-self .card:not(.back)').count()===2&&await b.locator('.connection').textContent()==='เชื่อมต่อแล้ว');
   assert.deepEqual(await b.locator('.poker-self .card').allTextContents(),original);

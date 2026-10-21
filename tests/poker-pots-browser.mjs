@@ -32,13 +32,13 @@ const numbers = async () => Promise.all(['A','B','C','D','E','F'].map(async name
 try {
   await a.goto(url + '/poker/rooms/create');
   await a.getByLabel('ชื่อของคุณ').fill('Player A'); await selectOption(a,'จำนวนบอท','0');
-  await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
+  await a.getByRole('button', { name: 'สร้างห้อง Poker', exact: true }).click();
   await a.locator('.room-bar strong').waitFor(); const code = await a.locator('.room-bar strong').textContent();
   for (let i = 1; i < pages.length; i++) {
     const page = pages[i]; await page.goto(url + '/poker/rooms/join');
     await page.getByLabel('ชื่อของคุณ').fill('Player ' + ['A','B','C','D','E','F'][i]);
     await page.getByLabel('รหัสห้อง').fill(code);
-    await page.getByRole('button', { name: 'เข้าร่วมโต๊ะ Poker →', exact: true }).click();
+    await page.getByRole('button', { name: 'เข้าร่วมห้อง Poker', exact: true }).click();
     await page.locator('.room-bar strong').waitFor();
   }
   await start();

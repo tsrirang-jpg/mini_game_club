@@ -1,35 +1,36 @@
-# Desktop entry illustrations — 17 October 2026
+# Room-entry assets and current architecture
 
-Generated with the built-in `image_gen` tool from the approved Poker, Spyfall and Old Maid desktop mockups. Pok Deng was excluded. The final transparent WebP assets are:
+All seven multiplayer create/join pages now share `RoomEntryPage`, `RoomEntryHeader`, `RoomEntryForm`, `room-entry-config.ts` and one responsive stylesheet. See [shared room entry](room-entry.md) for routes, settings, breakpoints and validation.
 
-- `apps/client/public/images/entry/poker-hero-v1.webp` (1535×658)
-- `apps/client/public/images/entry/spyfall-hero-v1.webp` (1527×680)
-- `apps/client/public/images/entry/oldmaid-hero-v1.webp` (1459×681)
+## Runtime illustrations
 
-These decorative images load only in the desktop entry composition, not on phone layouts or game boards. Browser canvas exports retain transparency, remove empty alpha margins and encode WebP. Source PNGs remain in the image-generation library.
+`MenuGameArtwork` renders `apps/client/public/images/menu/pixel-scene-v1/`, reusing the existing game-selection pixel art for Pok Deng, Poker, Spyfall, Old Maid, Who am I, Liar and Undercover. Each entry page loads one eager image. Titles, forms and instructions remain HTML.
 
-## Shared generation prompt
+The official gold/cream brand image remains `apps/client/public/images/brand/wong-sian-yinyang-04-v1.png`. All widths share the artwork and retain each game's theme; no desktop-only hero is needed.
 
-Use case: compositing. Asset type: production website hero illustration, transparent PNG, landscape 1536x1024. The supplied image is a visual reference of the approved website. Create ONLY the standalone game objects seen below the left-hand headline, recreating their style and material quality. Remove all website UI, words, logos, backdrop and form. Do not render a website screenshot. Transparent alpha background, genuinely clear pixels around the entire object cluster; no solid rectangle, no ground plane, no vignette. Subtle soft contact shadows only directly beneath the objects, all edges unclipped. Premium softly realistic 3D game illustration matching the reference, crisp ivory surfaces and rich game colors. Center the cluster, with 5% clear margin on left/right and 12% clear margin top/bottom. Wide balanced composition, width-to-height approximately 1.8:1. Do not introduce captions, UI, watermarks or props other than those requested.
+## Removed entry-only assets
 
-## Poker prompt addition
+These files no longer have runtime consumers and were removed with `DesktopEntryHero.tsx` and `club-entry-desktop.css`:
 
-Poker illustration: five fanned ivory playing cards A♠ K♠ Q♠ J♠ 10♠ on the left, royal flush clearly readable. Rank and suit appear in separate positions with no collision, correct black spades. Three stacks and a few laid-down premium blue-and-ivory poker chips on the right, one upright chip engraved with a spade symbol. Blue rim lighting and gentle navy shadows. Preserve the arrangement and visual appeal of the card fan and chips in the lower left of the reference.
+- `images/entry/poker-hero-v1.webp`
+- `images/entry/spyfall-hero-v1.webp`
+- `images/entry/oldmaid-hero-v1.webp`
+- `images/entry/liar-hero-v2.png`
+- `images/menu/undercover-trio-v2.png`
 
-## Spyfall prompt addition
+This removes 2,599,838 bytes of duplicate image data. Generated room-entry mockups/prompts remain under `artifacts/room-entry-ui-concepts/road-layout-v1/` as design references; they are not shipped as UI backgrounds.
 
-Spyfall illustration: textured midnight-blue fedora hat to the left, stylish black sunglasses in front, folded blue city map extends behind toward the right, a metal magnifying glass rests diagonally on the map, a small blue identification card with a simple silhouette of a spy in a fedora in the foreground. No words or numbers on the map or card. Elegant light blue edge lighting, cinematic mystery but friendly casual game aesthetic. Match the lower-left illustration from the supplied approved design.
+## Gameplay assets retained
 
-## Old Maid prompt addition
+- `images/entry/whoami-hero-v1.webp` stays registered in `src/assets/images.ts`. `WhoAmIArtwork` uses it in the Who am I play lobby; create/join uses the shared pixel art.
+- `images/undercover/role-reveal-v1.png` remains the shared role sprite.
+- `SpyArtwork` remains in `GameArtwork.tsx` for Spyfall gameplay; unused entry-art branches were removed.
+- Native playing cards and their graphics remain unchanged.
 
-Old Maid illustration: premium tilted ivory cards in a staggered fan, a matched pair 7♥ and 7♠ toward the left, one K♣ face card raised slightly in front center, two patterned purple and lavender card backs fanned behind toward the right. Clear nonoverlapping card rank and suit labels. Tasteful classic king court illustration. Lavender edge highlights, soft dimensional depth, no gold outer frame or gold ground. Match the lower-left card cluster from the supplied approved design.
+See [game-selection.md](game-selection.md) for catalogue artwork provenance. Check all consumers before replacing versioned assets; do not duplicate the same illustration for create and join.
 
-## Who am I production illustration — 17 October 2026
+## Theme-matched background edits
 
-- `apps/client/public/images/entry/whoami-hero-v1.webp` (1680×936, alpha, approximately 142 kB).
-- Generated with the built-in `image_gen` tool using the approved Who am I mockup as a style reference; encoded to WebP at quality .88 with dimensions/alpha preserved. Referenced through `src/assets/images.ts`, used on the game menu and Who am I entry/lobby only.
-- Source PNG stays in the image-generation library. No existing game's artwork was replaced.
+Poker uses `poker-navy-v2.webp`, Liar uses `liar-purple-gold-v3.webp`, and Undercover uses `undercover-charcoal-v2.webp`. Their backgrounds match the page themes; card faces, chip colors and character identities retain the original subjects. Menu and create/join share these versioned assets. Original superseded files are removed. The edited images are 1254×1254, encoded as WebP without resizing. Prompts and provenance: [generation.json](../artifacts/room-entry-ui-concepts/theme-backgrounds-v2/generation.json).
 
-Final generation prompt:
-
-> Use case: compositing. Create ONLY the standalone fanned identity-card illustration from the supplied Who am I website reference, as a production website hero asset. Reference is style/composition only; remove ALL website, typography, background and forms. Transparent background with real alpha. Five softly dimensional ivory identity/name cards in a gently fanned horizontal cluster, rounded corners, warm amber edges and restrained contact shadows. The front central card is largest: a dark brown anonymous head-and-shoulders silhouette and a large crisp amber question mark. Two cards each side behind it display friendly stylized avatar portraits, e.g. woman, man, pilot and chef. Premium cheerful family party-game look, soft realistic 3D paper/material shading matching the reference. No words, no card ranks, no suits, no watermark, no casino chips, no solid backdrop or floor. Center composition with margin on every side and no clipped corners. Wide standalone object cluster, roughly 1.8:1 aspect, high detail, suitable on a dark espresso-brown UI. Preserve transparent negative space outside the objects.
+Liar card backs now use deep purple with warm gold patterns, retaining the violet felt and ivory A of clubs. The v3 image replaces v2 in the shared asset map. Built-in imagegen prompt and provenance: [generation.json](../artifacts/room-entry-ui-concepts/liar-purple-gold-v3/generation.json).

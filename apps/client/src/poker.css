@@ -48,10 +48,6 @@
   border-color: #3c5d6d;
 }
 
-.poker-welcome .intro h1 span {
-  color: #b7d8e9;
-}
-
 @media (max-width:720px) {
 
   .game-select {
@@ -144,15 +140,6 @@
 .rank-example p {
   font-size: 11px;
   margin: 6px 0 0;
-}
-
-.poker-welcome .hand-rank-list {
-  max-height: 470px;
-}
-
-.poker-welcome .rank-cards .card {
-  width: 40px;
-  height: 57px;
 }
 
 @media (max-width:720px) {

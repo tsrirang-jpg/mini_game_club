@@ -23,7 +23,7 @@ try {
   await page.goto(url + '/poker/rooms/create');
   await page.getByLabel('ชื่อของคุณ').fill('ผู้เล่นชื่อยาวทดสอบ');
   await selectOption(page,'จำนวนบอท','1');
-  await page.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click();
+  await page.getByRole('button', { name: 'สร้างห้อง Poker', exact: true }).click();
   await page.locator('.poker-seat').nth(1).waitFor();
   for (let count = 2; count <= 6; count++) {
     for (const [width, height] of [[568,320],[844,390],[1147,795],[1366,768]]) {

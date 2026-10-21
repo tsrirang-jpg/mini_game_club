@@ -1,31 +1,4 @@
-.liar-entry-page { max-width:1160px; margin:32px auto 50px; }
-body:has(.club-shell.theme-liar > .liar-entry-page) { background:radial-gradient(ellipse at 12% 5%,#28203b,#171225 80%); }
-.club-shell.theme-liar:has(> .liar-entry-page) { --club-bg:#171225; --club-panel:#29213c; --club-muted:#cbbce0; }
-.club-shell.theme-liar:has(> .liar-entry-page) > footer { border-color:var(--club-edge); color:var(--club-muted); }
-.liar-entry-page nav { margin-bottom:28px; }
-.liar-entry-layout { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:clamp(28px,4vw,64px); align-items:start; }
-.liar-entry-hero { min-width:0; display:flex; flex-direction:column; gap:20px; padding-top:22px; }
-.liar-entry-hero > img { display:block; width:100%; height:auto; object-fit:contain; }
-.liar-entry-hero h1 { font-size:clamp(38px,4.4vw,62px); line-height:1.2; color:#faf6ee; margin:0 0 16px; }
-.liar-entry-hero h1 > span { display:block; color:#f3d287; }
-.liar-entry-hero h2 { font-size:clamp(18px,1.8vw,25px); color:#cdb5ee; margin:0 0 12px; line-height:1.5; }
-.liar-entry-hero p { font-size:15px; line-height:1.8; color:var(--club-muted); margin:0; }
-.club-shell .liar-entry-form { min-width:0; background:#29213c; border:0; border-radius:18px; padding:28px; box-shadow:0 16px 40px #0002; }
-.club-shell .liar-entry-form > h2 { text-align:left; font-size:clamp(20px,2vw,28px); line-height:1.4; margin:0 0 18px; }
-.liar-entry-form > .eyebrow { display:none; }
-.liar-entry-form > form { display:grid; grid-template-columns:minmax(0,1fr); }
-.club-shell .liar-entry-form input,.club-shell .liar-entry-form .spy-select-trigger { background:#120e20; border:1px solid transparent; }
-.club-shell .liar-entry-form .tabs button { border-color:transparent; background:#1c152d; }
-.club-shell .liar-entry-form .tabs button.selected { color:#27182f!important; background:linear-gradient(#ffe1a1,#eab66a)!important; border-color:transparent!important; }
 .club-shell.theme-liar .primary { background:linear-gradient(#ffdfa0,#e8b363); color:#261b32; border-color:#ffe5b4; }
-.club-shell .liar-entry-form .primary { border-color:transparent; }
-.liar-entry-hint { margin:0 0 18px; color:#e0d4f0; font-size:14px; line-height:1.8; }
-.liar-entry-hint small { font-size:12px; }
-.liar-entry-form .spy-select-trigger { width:100%; display:flex; align-items:center; justify-content:space-between; text-align:left; }
-.liar-entry-form > .rules { border:0; padding:0; margin:10px 0 0; }
-.liar-entry-form > .rules summary { display:flex; align-items:center; gap:8px; padding:10px 12px; min-height:44px; border-radius:9px; background:#1c152d; }
-.liar-entry-form > .rules summary::before { content:'▸'; }
-.liar-entry-form > .rules[open] summary::before { content:'▾'; }
 .spy-select-menu.theme-liar { background:#241b36; color:#f4eafd; border-color:#9679b9; color-scheme:dark; }
 .spy-select-menu.theme-liar [role=option]:is(.is-active,.is-selected) { background:#50386c; color:#fff; box-shadow:none; }
 .liar-dashboard { flex:1; min-height:0; display:flex; flex-direction:column; gap:10px; }
@@ -85,20 +58,7 @@ body:has(.club-shell.theme-liar > .liar-entry-page) { background:radial-gradient
   .liar-board { grid-template-columns:minmax(0,1fr); }
   .liar-recent { display:none; }
 }
-@media(max-width:999px) and (orientation:portrait) {
-  .liar-entry-page { max-width:600px; margin:22px auto 32px; }
-  .liar-entry-layout { grid-template-columns:minmax(0,1fr); gap:20px; }
-  .liar-entry-hero { padding:0; gap:12px; }
-  .liar-entry-hero > img { width:min(100%,480px); align-self:center; }
-}
 @media(max-width:600px) and (orientation:portrait) {
-  .liar-entry-page { margin:18px 0 24px; }
-  .liar-entry-page nav { margin-bottom:12px; }
-  .liar-entry-hero h1 { font-size:clamp(32px,10vw,42px); margin:0 0 10px; }
-  .liar-entry-hero h2 { font-size:clamp(16px,4.5vw,20px); margin-bottom:6px; }
-  .liar-entry-hero p { font-size:13px; }
-  .liar-entry-hero > img { width:min(100%,350px); }
-  .club-shell .liar-entry-form { padding:18px; }
   .liar-dashboard { gap:5px; }
   .liar-board { border-radius:18px; padding:8px; gap:6px; }
   .liar-opponents { grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; }
@@ -131,26 +91,6 @@ body:has(.club-shell.theme-liar > .liar-entry-page) { background:radial-gradient
   .liar-result-list strong,.liar-result-list b { font-size:12px; }
 }
 @media(orientation:landscape) and (max-height:650px) {
-  .liar-entry-page { margin:18px auto 24px; }
-  .liar-entry-page nav { margin-bottom:16px; }
-  .liar-entry-layout { grid-template-columns:minmax(0,.9fr) minmax(260px,1fr); gap:16px; }
-  .liar-entry-hero { padding:0; gap:8px; }
-  .liar-entry-hero h1 { font-size:clamp(24px,4vw,42px); margin:0 0 8px; }
-  .liar-entry-hero h2 { font-size:clamp(13px,1.8vw,18px); margin-bottom:6px; }
-  .liar-entry-hero p { font-size:12px; }
-  .club-shell .liar-entry-form { padding:14px; }
-  .club-shell .liar-entry-form > h2 { font-size:20px; margin-bottom:12px; }
-  .liar-entry-form .tabs { margin-bottom:12px; gap:5px; }
-  .liar-entry-form .tabs button { padding:7px; font-size:11px; }
-  .liar-entry-form > form { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-  .liar-entry-form > form > label,.liar-entry-form > form > .spy-select { margin:0; }
-  .liar-entry-form label,.liar-entry-form .spy-select > label { font-size:11px; margin-bottom:5px; }
-  .club-shell .liar-entry-form input,.club-shell .liar-entry-form .spy-select-trigger { min-height:44px; padding:8px; font-size:13px; }
-  .liar-entry-form .spy-select-value > strong { font-size:13px; }
-  .liar-entry-form > form > .primary { grid-column:1/-1; margin:0; }
-  .liar-entry-form[data-mode=join] .liar-entry-hint { grid-column:1/-1; }
-  .liar-entry-form .liar-entry-hint { margin:0; padding:0; font-size:11px; align-self:center; }
-  .liar-entry-form .liar-entry-hint small { font-size:10px; }
   .liar-dialog { padding:14px 20px; }
   .liar-dialog .dialog-close { position:absolute; top:7px; right:7px; min-height:30px; width:30px; padding:2px; }
   .liar-dialog h2 { font-size:18px; margin:0 32px 8px; }
@@ -188,10 +128,8 @@ body:has(.club-shell.theme-liar > .liar-entry-page) { background:radial-gradient
   .liar-lobby .liar-player { padding:5px; gap:2px; }
   .liar-lobby .club-avatar { width:24px; height:24px; font-size:14px; }
   .liar-lobby .liar-player strong { font-size:11px; }
-  .liar-entry-hint { padding:6px; }
 }
 @media(orientation:portrait) and (max-height:600px) and (max-width:600px) {
-  .liar-entry-hero > img { width:min(100%,270px); }
   .liar-board { padding:6px; gap:4px; }
   .liar-opponents .liar-player { padding:3px; line-height:1.25; }
   .liar-center { grid-template-rows:minmax(0,1fr) auto; align-content:stretch; gap:2px; }

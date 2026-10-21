@@ -42,11 +42,11 @@ try{
   await combo(a,'โหวต').click();assert.equal(await a.getByRole('option',{name:'2 นาที',exact:true}).getAttribute('aria-selected'),'true');
   await a.locator('.entry h2').click();assert.equal(await a.getByRole('listbox').count(),0);
   await combo(a,'โหวต').focus();await a.keyboard.press('ArrowDown');await a.keyboard.press('Tab');assert.equal(await a.getByRole('listbox').count(),0);
-  await a.getByRole('button',{name:'สร้างห้อง Spyfall →',exact:true}).click();await a.locator('.room-bar strong').waitFor();
+  await a.getByRole('button',{name:'สร้างห้อง Spyfall',exact:true}).click();await a.locator('.room-bar strong').waitFor();
   const code=await a.locator('.room-bar strong').textContent();
   for(const[page,name]of[[b,'Settings B'],[c,'Settings C']]){
     await page.goto(url);await page.getByRole('button',{name:/เลือก Spyfall/}).click();await page.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();
-    await page.getByLabel('ชื่อของคุณ').fill(name);await page.getByLabel('รหัสห้อง').fill(code);await page.getByRole('button',{name:'เข้าร่วมภารกิจ →',exact:true}).click();await page.locator('.room-bar strong').waitFor();
+    await page.getByLabel('ชื่อของคุณ').fill(name);await page.getByLabel('รหัสห้อง').fill(code);await page.getByRole('button',{name:'เข้าร่วมห้อง Spyfall',exact:true}).click();await page.locator('.room-bar strong').waitFor();
   }
   await until(async()=>await a.locator('.spy-player').count()===3);
   for(const page of pages){assert.match(await page.locator('.spy-settings-readonly').textContent(),/ถาม 7 นาที · โหวต 2 นาที/);assert.match(await page.locator('.spy-settings-readonly').textContent(),/ตอบ 3 นาที · สูงสุด 8 คน/);}

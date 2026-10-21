@@ -11,6 +11,7 @@ import {RoadTrack} from './RoadTrack';
 import {RoadControlsGuide,RoadHelp} from './RoadHelp';
 import type {RaceView} from './engine';
 import './roadfighter.css';
+import './road-play-layout.css';
 const score=(n:number)=>String(Math.floor(n)).padStart(6,'0').replace(/(\d)(?=(\d{3})+$)/g,'$1,');
 const clock=(n:number)=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(Math.floor(n%60)).padStart(2,'0');
 function RaceHud({view,best,name,max}:{view:RaceView;best:number;name:string;max:number}){return <aside className="road-hud" aria-label="สถานะการแข่งขัน"><div className="road-profile road-panel"><RoadIcon name="user"/>{name} · คุณ</div><div className="road-instruments road-panel"><section className="road-speed"><h2>ความเร็ว</h2><Gauge kind="speed" value={view.speed} max={max}/></section><section className={'road-fuel'+(view.fuel<20?' low-fuel':'')}><h2><RoadIcon name="fuel"/>FUEL</h2><Gauge kind="fuel" value={view.fuel}/></section><section className="road-score"><h2><RoadIcon name="cup"/>SCORE</h2><strong className="road-number" data-testid="road-score">{score(view.score)}</strong></section><section className="road-time"><h2><RoadIcon name="clock"/>TIME</h2><strong className="road-number">{clock(view.time)}</strong></section><section className="road-best"><h2><RoadIcon name="cup"/>BEST</h2><strong className="road-number">{score(Math.max(best,view.score))}</strong></section></div></aside>;}

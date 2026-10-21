@@ -21,7 +21,7 @@ try{
    await selectOption(page,'จำนวนบอท',initial);assert.ok(page.url().endsWith(route));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   }
  }
- await page.setViewportSize({width:375,height:667});await page.goto(url+'/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Dealer Select');await selectOption(page,'จำนวนบอท',9);assert.match(await combo('จำนวนบอท').textContent(),/รวม 10 คน/);await page.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click();await combo('เจ้ามือ').waitFor();
+ await page.setViewportSize({width:375,height:667});await page.goto(url+'/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Dealer Select');await selectOption(page,'จำนวนบอท',9);assert.match(await combo('จำนวนบอท').textContent(),/รวม 10 คน/);await page.getByRole('button',{name:'สร้างห้อง ป๊อกเด้ง',exact:true}).click();await combo('เจ้ามือ').waitFor();
  await combo('เจ้ามือ').click();await fitsMenu('เจ้ามือ');const dealer=await page.getByRole('listbox').getByRole('option').last().textContent();await page.getByRole('listbox').getByRole('option').last().click();await until(async()=>(await combo('เจ้ามือ').textContent()).includes(dealer));
 
  assert.equal(await page.locator('.pok-game .seat').count(),10);
@@ -42,12 +42,12 @@ try{
  assert.equal(final.players.length,10);assert.equal(final.results.length,10);assert.equal(final.players.reduce((sum,p)=>sum+p.points,0),10000);
  await page.screenshot({path:previewPath('pok-ten-bots-round-375x667.png'),scale:'css'});
  await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
- await page.goto(url+'/poker/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Card Select');await selectOption(page,'จำนวนบอท',1);await page.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
+ await page.goto(url+'/poker/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Card Select');await selectOption(page,'จำนวนบอท',1);await page.getByRole('button',{name:'สร้างห้อง Poker',exact:true}).click();await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
  await combo('ขนาดไพ่บนจอคอม').click();await fitsMenu('ขนาดไพ่บนจอคอม');assert.equal(await page.getByRole('listbox').evaluate(e=>!!e.closest('dialog')),true);
  await page.getByRole('option',{name:'ปกติ',exact:true}).tap();assert.match(await combo('ขนาดไพ่บนจอคอม').textContent(),/ปกติ/);
  await combo('ขนาดไพ่บนจอคอม').click();await page.keyboard.press('Escape');assert.equal(await page.locator('dialog:modal').count(),1);assert.equal(await page.getByRole('listbox').count(),0);
  await page.keyboard.press('Escape');await page.reload();await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();assert.match(await combo('ขนาดไพ่บนจอคอม').textContent(),/ปกติ/);await selectOption(page,'ขนาดไพ่บนจอคอม','high');await page.keyboard.press('Escape');await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
- await page.goto(url+'/oldmaid/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Bot Host');assert.match(await combo('จำนวนบอท').textContent(),/บอท 2 ตัว/);await page.getByRole('button',{name:'สร้างห้อง Old Maid →',exact:true}).click();await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).waitFor();assert.equal(await page.locator('.oldmaid-seat').count(),2);assert.equal(await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isEnabled(),true);
+ await page.goto(url+'/oldmaid/rooms/create');await page.getByLabel('ชื่อของคุณ').fill('Bot Host');assert.match(await combo('จำนวนบอท').textContent(),/บอท 2 ตัว/);await page.getByRole('button',{name:'สร้างห้อง อีแก่กินน้ำ',exact:true}).click();await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).waitFor();assert.equal(await page.locator('.oldmaid-seat').count(),2);assert.equal(await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).isEnabled(),true);
  await page.getByRole('button',{name:'จัดการโต๊ะ Old Maid',exact:true}).click();assert.equal(await page.locator('.bot-row').count(),2);await page.getByRole('button',{name:'เพิ่มบอท',exact:true}).click();await until(async()=>await page.locator('.bot-row').count()===3);await page.locator('.bot-row button').last().click();await until(async()=>await page.locator('.bot-row').count()===2);await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
  await page.getByRole('button',{name:'เริ่มเกม Old Maid',exact:true}).click();await page.locator('.oldmaid-draw-card').first().waitFor();
  let draws=0;const finish=Date.now()+180000;

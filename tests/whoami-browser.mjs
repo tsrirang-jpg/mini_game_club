@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {previewPath} from './helpers/preview-path.mjs';
+import {checkRoomEntryLayout} from './helpers/room-entry-layout.mjs';
 const url=process.env.GAME_URL||'http://127.0.0.1:5188';
 const browser=await chromium.launch({channel:'msedge',headless:true}),errors=[];
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[844,390],[667,375],[568,320]];
@@ -16,7 +17,7 @@ try{
   await page.getByRole('combobox',{name:label}).click();assert.deepEqual(await page.getByRole('listbox',{name:label}).getByRole('option').allTextContents(),values);await page.keyboard.press('Escape');
  }
  await select(page,'รอบการถาม','6 รอบ');await select(page,'รอบการเล่นเกม','5 รอบ');
- for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(40);assert.match(await page.getByRole('combobox',{name:'รอบการถาม'}).textContent(),/6 รอบ/);assert.match(await page.getByRole('combobox',{name:'รอบการเล่นเกม'}).textContent(),/5 รอบ/);await fit(page,`create ${width}x${height}`,'.who-entry-navigation,.who-entry input,.who-settings .spy-select-trigger,.who-entry .primary',true);await page.screenshot({path:previewPath(`preview-whoami-create-${width}x${height}.png`)});}
+ for(const[width,height]of sizes){await page.setViewportSize({width,height});await pause(40);assert.match(await page.getByRole('combobox',{name:'รอบการถาม'}).textContent(),/6 รอบ/);assert.match(await page.getByRole('combobox',{name:'รอบการเล่นเกม'}).textContent(),/5 รอบ/);await checkRoomEntryLayout(page,`create ${width}x${height}`);await page.screenshot({path:previewPath(`preview-whoami-create-${width}x${height}.png`)});}
  await page.setViewportSize({width:1366,height:768});await select(page,'รอบการถาม','4 รอบ');await select(page,'รอบการเล่นเกม','3 รอบ');
  if(!process.env.GAME_URL){
   for(const phase of ['LOBBY','PLAYING','ANSWERING','GAME_END','RESULTS']){
@@ -39,8 +40,8 @@ try{
  await context.close();
  const contexts=await Promise.all([[1366,768],[375,667],[568,320]].map(async([width,height])=>browser.newContext({viewport:{width,height}})));
  const pages=await Promise.all(contexts.map(c=>c.newPage())),[a,b,c]=pages;for(const p of pages)p.on('pageerror',error=>errors.push(error.message));
- await a.goto(url+'/whoami/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Alpha');await a.getByRole('button',{name:'สร้างห้อง Who am I →',exact:true}).click();await a.locator('.who-room-code').waitFor();const code=await a.locator('.who-room-code').textContent();
- for(const[p,name]of [[b,'Beta'],[c,'Gamma']]){await p.goto(url+'/whoami/rooms/join?code='+code);await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByRole('button',{name:'เข้าห้อง Who am I →',exact:true}).click();await p.locator('.who-dashboard').waitFor();await p.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();}
+ await a.goto(url+'/whoami/rooms/create');await a.getByLabel('ชื่อของคุณ').fill('Alpha');await a.getByRole('button',{name:'สร้างห้อง Who am I',exact:true}).click();await a.locator('.who-room-code').waitFor();const code=await a.locator('.who-room-code').textContent();
+ for(const[p,name]of [[b,'Beta'],[c,'Gamma']]){await p.goto(url+'/whoami/rooms/join?code='+code);await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByRole('button',{name:'เข้าร่วมห้อง Who am I',exact:true}).click();await p.locator('.who-dashboard').waitFor();await p.getByRole('button',{name:'พร้อมเล่น',exact:true}).click();}
  await until(()=>a.getByRole('button',{name:'เริ่มเกม',exact:true}).isEnabled());await a.getByRole('button',{name:'เริ่มเกม',exact:true}).click();await a.locator('.who-turn-title').waitFor();
  for(let game=1;game<=3;game++){
   // Different clients can receive the next deal at different times over WSS.
@@ -55,7 +56,7 @@ try{
   await a.locator('.who-results').waitFor();assert.equal(await a.locator('.who-reveals article').count(),3);if(game<3){await a.getByRole('button',{name:'เริ่มเกมถัดไป →',exact:true}).click();await a.locator('.who-turn-title').waitFor();}else assert.match(await a.locator('.who-results').textContent(),/ผู้ชนะ: Alpha, Beta, Gamma/);
  }
  await a.getByRole('button',{name:'เตรียมเล่นชุดใหม่',exact:true}).click();await a.getByRole('button',{name:'เริ่มเกม',exact:true}).waitFor();await a.getByRole('button',{name:'กติกา',exact:true}).click();assert.equal(await a.getByRole('dialog').locator('details').getAttribute('open')!==null,true);await a.keyboard.press('Escape');
- for(const p of [c,b,a]){await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await p.locator('.who-entry').waitFor();}
+ for(const p of [c,b,a]){await p.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();await p.locator('.room-entry-form').waitFor();}
  for(const c of contexts)await c.close();assert.deepEqual(errors,[]);
  console.log(process.env.GAME_URL ? 'PASS: Who am I production settings at 11 create viewports, all-unknown answer counts, own-only history/empty popup/reload, three real players, private words, answer lock/reconnect, next-turn guesses, 3-game scores and exit' : 'PASS: Who am I settings, mixed/all-unknown/pending answer history, own-only history/popup/counter, large text-only words at 11 viewports in all phases, modal/resize, three real players, private words, answer lock/reconnect, next-turn guesses, 3-game scores and exit');
 }catch(error){if(!page.isClosed())await page.screenshot({path:previewPath('preview-whoami-debug.png'),fullPage:true});throw error;}finally{await browser.close()}

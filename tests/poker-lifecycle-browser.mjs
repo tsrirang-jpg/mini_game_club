@@ -36,10 +36,10 @@ async function closePanel(page) { await page.getByRole('button', { name: 'ปิ
 try {
   await a.goto(url + '/poker/rooms/create');
   await a.getByLabel('ชื่อของคุณ').fill('Original Host'); await selectOption(a,'จำนวนบอท','1');
-  await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
+  await a.getByRole('button', { name: 'สร้างห้อง Poker', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
   const code = await a.locator('.room-bar strong').textContent();
   await b.goto(url + '/poker/rooms/join?code=' + code); await b.getByLabel('ชื่อของคุณ').fill('New Host');
-  await b.getByRole('button', { name: 'เข้าร่วมโต๊ะ Poker →', exact: true }).click();
+  await b.getByRole('button', { name: 'เข้าร่วมห้อง Poker', exact: true }).click();
   await b.getByRole('button', { name: 'พร้อมเล่น', exact: true }).click();
   await wait(() => a.getByRole('button', { name: 'เริ่มรอบ Poker', exact: true }).isEnabled());
   await a.getByRole('button', { name: 'เริ่มรอบ Poker', exact: true }).click();
@@ -90,7 +90,7 @@ try {
   await rejectsJoin(code);
   // A deliberate exit while an SDK reconnect is queued must not reopen the room.
   await selectOption(a,'จำนวนบอท','2');
-  await a.getByRole('button', { name: 'สร้างโต๊ะ Poker →', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
+  await a.getByRole('button', { name: 'สร้างห้อง Poker', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
   const emptyCode = await a.locator('.room-bar strong').textContent();
   await a.evaluate(() => window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010)));
   await a.getByRole('button', { name: 'กลับหน้าแรก', exact: true }).click(); await pause(2500);

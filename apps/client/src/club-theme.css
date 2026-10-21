@@ -41,13 +41,7 @@ body:has(.club-shell.theme-undercover) { background:#17181b; }
 .club-shell .entry { position:relative; overflow:hidden; padding:24px; }
 .club-shell .entry > .eyebrow,.club-shell .entry > h2 { text-align:center; }
 .club-shell .entry h2 { font-size:25px; margin:0 0 18px; }
-.club-shell .welcome .entry > .game-artwork { display:none; }
-.club-shell .entry > .entry-game-switch { display:none; }
-.club-shell .intro .game-artwork { margin:25px 0; width:280px; height:210px; }
 .club-shell .intro h1 span { color:var(--club-accent); }
-.entry-facts { display:flex; gap:7px; margin:2px 0 18px; }
-.entry-facts > span { flex:1; text-align:center; padding:10px 4px; min-width:0; border:1px solid var(--club-edge); border-radius:9px; background:var(--club-bg); font-size:10px; color:var(--club-muted); }
-.entry-facts strong { display:block; color:#f5f3eb; font-size:13px; margin-top:3px; }
 .club-shell .spy-select .spy-select-trigger { display:flex; width:100%; min-height:50px; padding:11px 14px; text-align:left; align-items:center; justify-content:space-between; color:#f7f6ef; background:var(--club-bg); border:1px solid var(--club-edge); box-shadow:inset 0 1px 0 #ffffff10; }
 .club-shell .spy-select .spy-select-trigger:hover:not(:disabled) { background:var(--club-panel); color:#fff; border-color:var(--club-accent); }
 .club-shell .spy-select .spy-select-trigger:disabled { background:var(--club-panel); color:var(--club-muted); opacity:.6; }
@@ -64,39 +58,13 @@ body:has(.club-shell.theme-undercover) { background:#17181b; }
 .spy-select-menu [role="option"].is-active { background:var(--club-panel,#19486a); box-shadow:inset 0 0 0 1px var(--club-accent,#8ed3fa); }
 .spy-select-menu [role="option"].is-selected.is-active { background:var(--club-felt,#225d80); }
 .spy-select-menu [aria-disabled="true"] { color:var(--club-muted,#c6deef); opacity:.5; }
-.game-artwork { position:relative; display:flex; align-items:center; justify-content:center; width:170px; height:140px; color:var(--club-accent); pointer-events:none; }
-.art-leaf { position:absolute; z-index:0; font-size:132px; line-height:1; opacity:.12; color:var(--club-accent); }
-.leaf-left { left:-12px; bottom:-3px; transform:rotate(-25deg); }
-.leaf-right { right:-12px; bottom:-3px; transform:rotate(25deg) scaleX(-1); }
-/* Hide ornaments on phone layouts so the artwork remains unobstructed. */
-@media(max-width:720px), (orientation:landscape) and (max-width:1000px) and (max-height:650px) {
-  .game-artwork .art-leaf { display:none; }
-}
-.art-cards { display:flex; position:relative; align-items:center; justify-content:center; }
-.game-artwork .card { width:73px!important; height:104px!important; border-radius:7px; animation:none; box-shadow:0 8px 15px #0005; transform:rotate(-12deg); padding:7px!important; }
-.game-artwork .card + .card { margin-left:-15px; transform:translateY(7px) rotate(12deg); }
-.game-artwork .card > span:not(.bottom) { position:relative!important; display:block; font-size:22px!important; line-height:1!important; }
-.game-artwork .card > span small { display:block; font-size:18px!important; line-height:1.1; margin-top:2px; }
-.game-artwork .card > b { display:grid; inset:auto 8px 8px auto; font-size:29px; }
-.game-artwork .card .bottom { display:none; }
 .court-art { display:none; pointer-events:none; }
-.game-artwork .card .court-art { display:block; position:absolute; width:65%; height:88%; right:0; bottom:0; }
-.game-artwork .card:has(.court-art) > b { display:none; }
-.artwork-oldmaid .card:first-of-type { transform:rotate(-20deg) translateX(-3px); background-color:#4b2b61; }
-.artwork-oldmaid .card:nth-child(2) { z-index:1; margin-left:-42px; transform:rotate(-7deg); width:80px!important; height:114px!important; }
-.artwork-oldmaid .card:nth-child(3) { width:73px!important; height:104px!important; margin-left:-10px; transform:translateY(12px) rotate(14deg); }
-.artwork-liar .card.back { background-color:#4b2b61; }
-.artwork-liar .card:first-child { transform:rotate(-20deg); }
-.artwork-liar .card:nth-child(2) { margin-left:-44px; transform:rotate(-5deg); z-index:1; }
-.artwork-liar .card:nth-child(3) { margin-left:-14px; transform:translateY(12px) rotate(14deg); z-index:2; }
-.artwork-liar .card:not(.back) > b { inset:30px 0 0; font-size:38px; }
 .spy-artwork { width:155px; height:145px; flex:none; color:#87c9f0; }
 .club-shell .game-select { padding:38px 0 28px; min-height:0; }
 .club-shell .game-select > h1 { font-size:clamp(30px,4vw,45px); }
 .club-shell .game-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:28px; }
 .club-shell .game-option { position:relative; isolation:isolate; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:25px 30px; min-height:238px; overflow:hidden; background:linear-gradient(130deg,var(--club-panel),var(--club-bg)); border:1px solid var(--club-edge); box-shadow:0 7px 22px #0002; }
 .club-shell .game-option:hover { border-color:var(--club-accent); box-shadow:0 8px 25px #0004; }
-.club-shell .game-option .game-artwork { position:absolute; right:20px; top:28px; z-index:-1; width:43%; height:150px; }
 .club-shell .game-option h2 { font-size:30px; margin:6px 0; }
 .club-shell .game-option > p { max-width:55%; color:var(--club-muted); font-size:13px; margin:5px 0 15px; line-height:1.8; }
 .game-option-bottom { position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:auto; }
@@ -105,7 +73,6 @@ body:has(.club-shell.theme-undercover) { background:#17181b; }
   background:var(--club-panel); color:#faf8f2;
 }
 .club-shell .game-option.theme-undercover:hover:not(:disabled) { background:var(--club-felt); }
-.artwork-undercover img { display:block; width:100%; height:100%; object-fit:contain; object-position:center; }
 .club-shell .game-option.theme-undercover .player-count-pill { background:var(--under-input); color:var(--club-accent); }
 .player-count-pill { border:1px solid var(--club-edge); border-radius:20px; padding:3px 12px; color:#f5f2e8; font-size:12px; white-space:nowrap; }
 .club-avatar { display:grid; place-items:center; flex:none; width:38px; height:38px; border:1px solid var(--club-accent); border-radius:50%; background:var(--club-felt); color:#fff; font-size:17px; }
@@ -124,7 +91,6 @@ body:has(.club-shell.theme-undercover) { background:#17181b; }
   .club-shell .welcome { display:block; padding:20px 0; }
   .club-shell .welcome .intro { display:none; }
   .club-shell .welcome .entry { max-width:500px; margin:auto; padding:20px; }
-  .club-shell .welcome .entry > .game-artwork { display:flex; margin:0 auto 8px; height:126px; width:205px; }
   .club-shell .entry .tabs { margin-bottom:18px; }
   .club-shell .entry h2 { font-size:23px; }
   .club-shell .game-select { padding:22px 0; }
@@ -136,32 +102,19 @@ body:has(.club-shell.theme-undercover) { background:#17181b; }
   .club-shell .game-option h2 { font-size:25px; margin:2px 0; }
   .club-shell .game-option > .eyebrow { display:none; }
   .club-shell .game-option > p { font-size:11px; line-height:1.6; margin:2px 0 10px; max-width:56%; }
-  .club-shell .game-option .game-artwork { top:5px; right:10px; height:115px; width:42%; }
-  .club-shell .game-option .game-artwork .card { width:57px!important; height:82px!important; padding:4px!important; }
-  .club-shell .game-option .game-artwork .card > span:not(.bottom) { font-size:18px!important; }
-  .club-shell .game-option .game-artwork .card > span small { font-size:15px!important; }
   .club-shell .game-option .spy-artwork { width:130px; height:115px; }
   .club-shell .game-option.theme-undercover h2 { font-size:23px; }
   .player-count-pill { font-size:10px; padding:1px 9px; }
   .game-option-bottom { width:100%; }
   .club-shell footer { margin-top:8px; padding:18px 0; border-color:var(--club-edge); color:var(--club-muted); }
 }
-@media(max-height:700px) and (max-width:720px) {
-  .club-shell .welcome .entry > .game-artwork { height:100px; }
-  .club-shell .welcome .entry > .game-artwork .art-cards { transform:scale(.82); }
-}
 body:has(.club-shell) { min-height:100vh; min-height:100dvh; }
 .club-shell .spy-select .spy-select-value { flex:1; }
 .club-shell .spy-select .spy-select-value > strong { max-width:100%; overflow:hidden; text-overflow:ellipsis; }
-/* Keep the game switch above the form when the desktop introduction is hidden. */
 @media(max-width:720px), (max-width:1000px) and (max-height:650px) and (hover:none) and (pointer:coarse) {
-  .club-shell .entry > .entry-game-switch { display:inline-flex; align-items:center; min-height:44px; margin:0 0 12px; padding:8px 12px; border:1px solid var(--club-edge); border-radius:10px; color:var(--club-muted); font-size:13px; font-weight:600; background:transparent; }
-  .club-shell .entry > .entry-game-switch:hover { color:#fff; background:var(--club-panel); border-color:var(--club-accent); }
   .club-shell .welcome > .pok-home,.club-shell .welcome .intro > button { display:none; }
 }
 
 /* Who am I menu theme; detailed page CSS is loaded with the game. */
 .theme-whoami { --club-bg:#211810; --club-panel:#35271d; --club-felt:#493224; --club-edge:#715039; --club-accent:#f0b75f; --club-primary:#d9943f; --club-muted:#d1bca4; --club-ink:#2d1c0e; }
 body:has(.club-shell.theme-whoami) { background:radial-gradient(ellipse at 20% 5%,#49301c,#211810 80%); }
-.club-shell .artwork-whoami .who-artwork { width:100%; height:100%; object-fit:contain; }
-.artwork-whoami .art-leaf { display:none; }

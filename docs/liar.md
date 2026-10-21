@@ -28,12 +28,6 @@ Create `/liar/rooms/create`, join `/liar/rooms/join`, play `/liar/play/:code`.
 
 `npm test` includes Liar rules and real 2/3/6-client WebSocket tests. `npm run test:liar` checks create/join, five phases and Emergency at 11 viewport sizes, plus a real three-browser opening/skip/scoring/replay/exit flow. `npm run test:copy-room-code` and `test:brand` include Liar alongside the existing games.
 
-## Artwork
+## Entry UI and artwork
 
-`apps/client/public/images/entry/liar-hero-v2.png` is a 1000×666 transparent cutout of a brass lantern, two purple card backs and an ivory A♣. It is registered in the existing image manifest and cached by its versioned filename. Built-in imagegen extracted the artwork from the approved UI; macOS sips optimized its dimensions while preserving alpha. No mockup screen is shipped as the playable UI.
-
-Create/join use a borderless hero and a separate filled purple form panel, with gold actions and readable filled inputs. Desktop and landscape place the illustration beside the form; portrait tablet/mobile stack it above the form. Compact landscape uses a two-column field grid. All sizes reuse one `RoomEntryForm`, so resizing preserves entered data and settings. Navigation, bot count and 15/30/60-second turn settings keep the existing behavior. Game-board styles and rule logic are unchanged.
-
-At widths of at least 1000px and heights of at least 651px, entry uses the same `desktop-entry-welcome` grid as Spyfall. The existing content wrapper becomes `display:contents`, sharing shell width, navigation position, hero/form columns and compact desktop spacing without remounting the form. Its purple palette and borderless artwork remain game-specific; smaller screens retain their entry layouts.
-
-The reference boards and prompts are in `artifacts/previews/preview-liar-borderless-entry-prompts-v1.md`; the production extraction prompt is in `artifacts/previews/preview-liar-entry-artwork-prompt-v2.md`.
+Create/join now use the shared [room-entry components](room-entry.md) and the cached `images/menu/pixel-scene-v1/liar-purple-gold-v3.webp` illustration, with no casino chips. The violet theme, bot selection and 15/30/60-second turn settings remain. The retired lantern hero and its entry-only CSS were removed. Gameplay layout and rules are unchanged.

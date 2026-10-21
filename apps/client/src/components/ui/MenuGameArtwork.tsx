@@ -1,15 +1,17 @@
 import type {GameKind} from '../../games';
 
-const dimensions: Record<GameKind, readonly [number, number]> = {
-  roadfighter: [444, 444], pok: [443, 444], poker: [444, 444], spyfall: [443, 444],
-  oldmaid: [444, 443], whoami: [443, 443], liar: [444, 443], undercover: [443, 443],
+const artwork: Record<GameKind, readonly [file: string, width: number, height: number]> = {
+  roadfighter: ['roadfighter.webp', 444, 444], pok: ['pok.webp', 443, 444],
+  poker: ['poker-navy-v2.webp', 1254, 1254], spyfall: ['spyfall.webp', 443, 444],
+  oldmaid: ['oldmaid.webp', 444, 443], whoami: ['whoami.webp', 443, 443],
+  liar: ['liar-purple-gold-v3.webp', 1254, 1254], undercover: ['undercover-charcoal-v2.webp', 1254, 1254],
 };
 
-// Catalogue art is separate from the native cards used in the actual games.
-export function MenuGameArtwork({game}: {game: GameKind}) {
-  const [width, height] = dimensions[game];
+// Menu and room entry share each versioned asset; native game cards stay separate.
+export function MenuGameArtwork({game, eager = false}: {game: GameKind; eager?: boolean}) {
+  const [file, width, height] = artwork[game];
   return <img className="menu-game-artwork"
-    src={`/images/menu/pixel-scene-v1/${game}.webp`}
+    src={'/images/menu/pixel-scene-v1/' + file}
     width={width} height={height} alt="" aria-hidden="true"
-    loading={game === 'roadfighter' ? 'eager' : 'lazy'} decoding="async"/>;
+    loading={eager || game === 'roadfighter' ? 'eager' : 'lazy'} decoding="async"/>;
 }

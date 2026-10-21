@@ -25,6 +25,7 @@ const LiarPlayPage = lazy(() => import('./LiarPlayPage').then(m => ({ default: m
 const UndercoverCreatePage = lazy(() => import('./UndercoverCreatePage').then(m => ({ default: m.UndercoverCreatePage })));
 const UndercoverPlayPage = lazy(() => import('./UndercoverPlayPage').then(m => ({ default: m.UndercoverPlayPage })));
 import './style.css';
+import './arcade-fonts.css';
 import './pok-rules.css';
 import './pok-layout.css';
 import './pok-player-layout.css';
@@ -37,7 +38,6 @@ import './club-theme.css';
 import './club-play.css';
 import './oldmaid.css';
 import './club-desktop.css';
-import './club-entry-desktop.css';
 import './poker-midnight.css';
 import './pok-dealer-arena.css';
 
@@ -46,8 +46,8 @@ function GameShell({ kind, playing = false, children, state, controls }: {
   state?: Pick<SessionState, 'status' | 'error'>; controls?: { leave(): void; clearError(): void };
 }) {
   const metadata = games[kind];
-  return <div className={`app club-shell theme-${kind}${playing ? ' club-playing' : ''}${kind === 'oldmaid' ? ' oldmaid-shell' : ''}${kind === 'spyfall' ? ' spy-shell' : ''}${playing && kind === 'poker' ? ' poker-shell' : ''}${playing && kind === 'pok' ? ' pok-shell' : ''}`}>
-    <header className="top"><a className="brand" href="/games" onClick={event => { event.preventDefault(); navigate('/games'); }} aria-label="วงเซียน · Mini Game Club"><BrandLogo/></a><span className="tag">{metadata.tag}</span></header>
+  return <div className={`app club-shell theme-${kind}${playing ? ' club-playing' : ' room-entry-shell'}${kind === 'oldmaid' ? ' oldmaid-shell' : ''}${kind === 'spyfall' ? ' spy-shell' : ''}${playing && kind === 'poker' ? ' poker-shell' : ''}${playing && kind === 'pok' ? ' pok-shell' : ''}`}>
+    {playing && <header className="top"><a className="brand" href="/games" onClick={event => { event.preventDefault(); navigate('/games'); }} aria-label="วงเซียน · Mini Game Club"><BrandLogo/></a><span className="tag">{metadata.tag}</span></header>}
     {state?.error && <div className="error" role="alert">{state.error}<button aria-label="ปิดข้อความ" onClick={() => controls?.clearError()}>×</button></div>}
     {state?.status === 'reconnecting' && <div className="notice" role="status">กำลังเชื่อมต่อกลับโต๊ะ… <button onClick={() => controls?.leave()}>กลับหน้าแรก</button></div>}
     <Suspense fallback={<main className="page-message"><p>กำลังโหลดเกม…</p></main>}>{children}</Suspense>

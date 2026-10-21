@@ -14,11 +14,11 @@ const snapshot = page => page.evaluate(async () => (await import('/src/session.t
 async function wait(fn,ms = 15000) { const end = Date.now() + ms; while (!await fn()) { if (Date.now() > end) throw new Error('Catch browser timeout'); await pause(60); } }
 try {
   await a.goto(url + '/rooms/create'); await a.getByLabel('ชื่อของคุณ').fill('เจ้ามือจับ'); await selectOption(a,'จำนวนบอท','0');
-  await a.getByRole('button',{name:'สร้างโต๊ะใหม่ →',exact:true}).click(); await a.locator('.room-bar strong').waitFor();
+  await a.getByRole('button',{name:'สร้างห้อง ป๊อกเด้ง',exact:true}).click(); await a.locator('.room-bar strong').waitFor();
   const code = await a.locator('.room-bar strong').textContent();
   for (const [page,name] of [[b,'ผู้เล่นจั่ว'],[c,'ผู้เล่นอยู่']]) {
     await page.goto(url + '/rooms/join'); await page.getByLabel('ชื่อของคุณ').fill(name); await page.getByLabel('รหัสห้อง').fill(code);
-    await page.getByRole('button',{name:'เข้าร่วมโต๊ะ →',exact:true}).click(); await page.locator('.room-bar strong').waitFor();
+    await page.getByRole('button',{name:'เข้าร่วมห้อง ป๊อกเด้ง',exact:true}).click(); await page.locator('.room-bar strong').waitFor();
   }
   let available = false;
   // A Pok ends immediately; retry normal rounds until the dealer can catch.

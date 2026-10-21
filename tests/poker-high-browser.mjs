@@ -34,7 +34,7 @@ try{
   await page.goto(url+'/poker/rooms/create');
   await page.getByLabel('ชื่อของคุณ').fill('High Test');
   await selectOption(page,'จำนวนบอท','0');
-  await page.getByRole('button',{name:'สร้างโต๊ะ Poker →',exact:true}).click();
+  await page.getByRole('button',{name:'สร้างห้อง Poker',exact:true}).click();
   await page.locator('.room-bar strong').waitFor();
   const code=await page.locator('.room-bar strong').textContent();
   for(let i=0;i<5;i++){

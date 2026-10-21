@@ -8,7 +8,7 @@ const page=await browser.newPage({viewport:{width:1366,height:768},reducedMotion
 page.on('pageerror',error=>errors.push(error.message));
 await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async code=>{if(window.__rejectCopy)throw new Error('clipboard denied');window.__copiedCode=code;}}}));
 const sizes=[[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[932,430],[844,390],[667,375],[568,320]];
-const games=[['pok','/rooms/create','สร้างโต๊ะใหม่ →'],['poker','/poker/rooms/create','สร้างโต๊ะ Poker →'],['spyfall','/spyfall/rooms/create','สร้างห้อง Spyfall →'],['oldmaid','/oldmaid/rooms/create','สร้างห้อง Old Maid →'],['whoami','/whoami/rooms/create','สร้างห้อง Who am I →'],['liar','/liar/rooms/create','สร้างห้อง Liar’s Card →'],['undercover','/undercover/rooms/create','สร้างห้อง Undercover →']];
+const games=[['pok','/rooms/create','สร้างห้อง ป๊อกเด้ง'],['poker','/poker/rooms/create','สร้างห้อง Poker'],['spyfall','/spyfall/rooms/create','สร้างห้อง Spyfall'],['oldmaid','/oldmaid/rooms/create','สร้างห้อง อีแก่กินน้ำ'],['whoami','/whoami/rooms/create','สร้างห้อง Who am I'],['liar','/liar/rooms/create','สร้างห้อง ไพ่ตอแหล'],['undercover','/undercover/rooms/create','สร้างห้อง Undercover']];
 const spyLayout=new Map();
 try{
  for(const[game,route,create]of games){

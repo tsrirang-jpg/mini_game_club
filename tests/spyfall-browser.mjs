@@ -59,8 +59,8 @@ async function catchSpy(spyName){
 }
 try{
   await a.goto(url);await a.getByRole('button',{name:/เลือก Spyfall/}).click();await a.getByLabel('ชื่อของคุณ').fill('Agent A');await select(a,'เวลาถามตอบ','10 นาที');await shot(a,'preview-spyfall-create');
-  await a.getByRole('button',{name:'สร้างห้อง Spyfall →',exact:true}).click();await a.locator('.room-bar strong').waitFor();const code=await a.locator('.room-bar strong').textContent();
-  for(const[p,name]of[[b,'Agent B'],[c,'Agent C']]){await p.goto(url);await p.getByRole('button',{name:/เลือก Spyfall/}).click();await p.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByLabel('รหัสห้อง').fill(code);await p.getByRole('button',{name:'เข้าร่วมภารกิจ →',exact:true}).click();await p.locator('.room-bar strong').waitFor();}
+  await a.getByRole('button',{name:'สร้างห้อง Spyfall',exact:true}).click();await a.locator('.room-bar strong').waitFor();const code=await a.locator('.room-bar strong').textContent();
+  for(const[p,name]of[[b,'Agent B'],[c,'Agent C']]){await p.goto(url);await p.getByRole('button',{name:/เลือก Spyfall/}).click();await p.getByRole('button',{name:'เข้าห้องเพื่อน',exact:true}).click();await p.getByLabel('ชื่อของคุณ').fill(name);await p.getByLabel('รหัสห้อง').fill(code);await p.getByRole('button',{name:'เข้าร่วมห้อง Spyfall',exact:true}).click();await p.locator('.room-bar strong').waitFor();}
   await wait(async()=>await a.locator('.spy-player').count()===3);await start();let identity=await identities();
   assert.equal(await identity.spy.locator('.secret-location').textContent(),'Spy');
   for(const p of pages)assert.equal(await p.getByRole('button',{name:'ตอบสถานที่',exact:true}).count(),p===identity.spy?1:0);

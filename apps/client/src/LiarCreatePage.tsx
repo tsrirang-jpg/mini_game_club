@@ -1,38 +1,18 @@
-import { useState } from 'react';
-import type { SessionState } from './session';
-import type { LiarSnapshot } from '../../../packages/shared/src/liar';
-import { LIAR_TURN_SECONDS } from '../../../packages/shared/src/liar';
-import { liarSession } from './session';
-import { entryImages } from './assets/images';
-import { GameSwitch } from './GameSwitch';
-import { SpyfallSelect } from './SpyfallSelect';
-import { RoomEntryForm, RoomEntryTabs, CurrentRoomNotice } from './components/entry/RoomEntryForm';
-import { LiarRules } from './components/entry/LiarRules';
+import {useState} from 'react';
+import {RoomEntryPage} from './components/entry/RoomEntryPage';
+import {LIAR_TURN_SECONDS} from '../../../packages/shared/src/liar';
+import type {LiarSnapshot} from '../../../packages/shared/src/liar';
+import {liarSession} from './session';
+import type {SessionState} from './session';
+import {SpyfallSelect} from './SpyfallSelect';
+import {LiarRules} from './components/entry/LiarRules';
 import './liar.css';
-
-const turnOptions=LIAR_TURN_SECONDS.map(value=>({value,label:`${value} วินาที${value===30?' (แนะนำ)':''}`}));
-export function LiarCreatePage({state,join}:{state:SessionState<LiarSnapshot>;join:boolean}) {
-  const [turnSeconds,setTurnSeconds]=useState<number>(30);
-  return <main className="liar-entry-page desktop-entry-welcome">
-    <nav className="entry-navigation" aria-label="เลือกเกม"><GameSwitch/></nav>
-    <div className="liar-entry-layout desktop-entry-content">
-      <section className="liar-entry-hero entry-hero" aria-label="เกี่ยวกับไพ่ตอแหล">
-        <div><h1>ไพ่ตอแหล<span>Liar’s Card</span></h1><h2>วางไพ่ให้เนียน จับโกหกให้ทัน</h2><p>เล่นกับเพื่อนและบอท 2–6 คน</p></div>
-        <img className="entry-hero-art" {...entryImages.liar} alt="ไพ่ A ดอกจิก ไพ่หลังสีม่วง และโคมไฟ" fetchPriority="high" decoding="async"/>
-      </section>
-      <section className="entry liar-entry-form" data-mode={join?'join':'create'} aria-label={join?'เข้าห้อง Liar’s Card':'สร้างห้อง Liar’s Card'}>
-        <span className="eyebrow">LIAR’S CARD</span>
-        <h2>{join?'เข้าห้อง Liar’s Card':'สร้างห้อง Liar’s Card'}</h2>
-        <RoomEntryTabs basePath="/liar/rooms" join={join}/>
-        <CurrentRoomNotice code={state.snapshot?.code} playPath="/liar/play" leave={()=>liarSession.leave()}/>
-        <RoomEntryForm join={join} status={state.status} createText="สร้างห้อง Liar’s Card →" joinText="เข้าห้อง Liar’s Card →" botLimit={6} defaultBots={0}
-          connect={(name,code,bots)=>liarSession.connect(name,code,bots,{turnSeconds})}
-          codePlaceholder="กรอกรหัสห้อง 10 ตัวอักษร"
-          createSettings={<SpyfallSelect<number> label="เวลาต่อเทิร์น" value={turnSeconds} options={turnOptions} onChange={setTurnSeconds} disabled={state.status!=='idle'}/>}
-          factsOnJoin={false} facts={<p className="liar-entry-hint">ผู้เล่นทั้งหมด 2–6 คน<br/><small>จับโกหกภายใน 5 วินาที</small></p>}
-          joinHint={<p className="liar-entry-hint">เมื่อเข้าห้องแล้ว กรุณากดพร้อมเล่น<br/><small>รอผู้สร้างห้องเริ่มเกมด้วยกัน</small></p>}/>
-        <LiarRules/>
-      </section>
-    </div>
-  </main>;
+const turnOptions = LIAR_TURN_SECONDS.map(value => ({value, label: `${value} วินาที${value === 30 ? ' (แนะนำ)' : ''}`}));
+export function LiarCreatePage({state, join}: {state: SessionState<LiarSnapshot>; join: boolean}) {
+  const [turnSeconds, setTurnSeconds] = useState(30);
+  return <RoomEntryPage game="liar" state={state} join={join} rules={<LiarRules/>}
+    leave={() => liarSession.leave()}
+    connect={(name, code, bots) => liarSession.connect(name, code, bots, {turnSeconds})}
+    createSettings={<SpyfallSelect<number> label="เวลาต่อเทิร์น" value={turnSeconds} options={turnOptions}
+      onChange={setTurnSeconds} disabled={state.status !== 'idle'}/>}/>;
 }

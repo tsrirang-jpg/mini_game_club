@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen",
+  "intent": "precise-object-edit",
+  "input": "liar-violet-v2.webp",
+  "source": "C:/Users/AZC002/.codex/generated_images/01a15827-b5c0-7a00-8b60-82e94c49eecc/exec-2e902fc1-40ef-4f6f-9575-2837b6e78b0a.png",
+  "output": "apps/client/public/images/menu/pixel-scene-v1/liar-purple-gold-v3.webp",
+  "width": 1254,
+  "height": 1254,
+  "bytes": 116438,
+  "encoding": "WebP quality .92, no resizing or color transforms",
+  "prompt": "Use case: precise-object-edit. Asset type: existing pixel-art Liar's Card game illustration used by the website catalogue and create/join pages. Input image 1 is the EDIT TARGET. Change ONLY the green patterned backs of the TWO face-down cards on the left to a purple-and-gold card-back design. Replace their green base with deep royal purple #302043 / #43275E and replace the lighter green decorative geometric pattern and central club emblem with warm restrained metallic gold #E6C47E / #C99B4D. Preserve the exact existing back pattern geometry, border shape, pixel-art block size, overlaps, card angles, sizes, shadows and positions. Keep the outer ivory paper edges. Preserve the ivory FACE-UP A of clubs card on the right EXACTLY: black A, black club, paper shading, orientation and size. Preserve the existing dark violet felt BACKGROUND and floating purple suit motifs unchanged. Keep the same square composition, three cards in total and crisp chunky pixel-art style. No chips, no coins, no extra cards, no extra lettering, no added frame or website UI. The result must be the same original illustration, with only both green card backs recolored rich purple with gold pattern."
+}
