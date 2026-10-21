@@ -267,15 +267,35 @@ describe('real WebSocket clients', () => {
     expect(room.sessionId).toBe(oldId); expect(hand).toEqual(original);
     const end = Date.now() + 5000;
     while (snapshot?.phase !== 'ROUND_END' && Date.now() < end) {
-      if (snapshot?.turnId === room.sessionId && (lastRound !== snapshot.roundId || lastTurn !== snapshot.phase)) {
+      if (snapshot?.turnId === room.sessionId) {
         const me = snapshot.players.find(p => p.id === room.sessionId)!;
-        room.send('action', { type: me.streetBet < snapshot.currentBet ? 'call' : 'check', roundId: snapshot.roundId, actionId: `poker-${++actionId}` });
-        lastRound = snapshot.roundId; lastTurn = snapshot.phase;
+        const turnKey = [snapshot.phase, snapshot.currentBet, me.streetBet].join(':');
+        if (lastRound !== snapshot.roundId || lastTurn !== turnKey) {
+          room.send('action', { type: me.streetBet < snapshot.currentBet ? 'call' : 'check', roundId: snapshot.roundId, actionId: `poker-${++actionId}` });
+          lastRound = snapshot.roundId; lastTurn = turnKey;
+        }
       }
       await sleep(10);
     }
-    expect(snapshot!.phase).toBe('ROUND_END'); expect(snapshot!.board).toHaveLength(5);
-    expect(snapshot!.players.reduce((sum, p) => sum + p.points, 0)).toBe(3000);
+    expect(snapshot!.phase).toBe('ROUND_END');
+    const final = snapshot!;
+    const contenders = final.players.filter(player => player.inHand && !player.folded);
+    if (contenders.length > 1) {
+      // Contested showdown runs out all five board cards and reveals live hands.
+      expect(final.board).toHaveLength(5);
+      for (const player of contenders) expect(final.results.find(result => result.id === player.id)?.cards).toHaveLength(2);
+    } else {
+      // Stronger bots may fold before the river; an uncontested win stays private.
+      expect(contenders).toHaveLength(1);
+      expect([0, 3, 4, 5]).toContain(final.board.length);
+      expect(final.results.every(result => result.cards.length === 0)).toBe(true);
+    }
+    expect(final.results).toHaveLength(3);
+    expect(final.players.every(player => !('cards' in player) && Number.isSafeInteger(player.points) && player.points >= 0)).toBe(true);
+    expect(final.turnId).toBe(''); expect(final.deadline).toBe(0);
+    expect(final.players.reduce((sum, player) => sum + player.points, 0)).toBe(3000);
+    expect(final.results.reduce((sum, result) => sum + result.delta, 0)).toBe(0);
+    expect(final.results.reduce((sum, result) => sum + result.payout, 0)).toBe(final.pot);
     await room.leave();
   });
   it('creates a solo bot room, automatically plays dealer and keeps private bot cards hidden', async () => {

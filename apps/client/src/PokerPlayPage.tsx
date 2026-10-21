@@ -15,13 +15,11 @@ import { navigate } from './router';
 import { Card } from './components';
 import { PokerRules } from './PokerRules';
 import { PokerSeat } from './components/poker/PokerSeat';
+import { PokerPotRail, pokerPotLabel as potLabel } from './components/poker/PokerPotRail';
 import { ChipStack, PokerIcon } from './components/poker/PokerArtwork';
 
 const stages = { LOBBY: 'รอผู้เล่นพร้อม', DEALING: 'กำลังแจกไพ่', PREFLOP: 'Pre-flop', FLOP: 'Flop', TURN: 'Turn', RIVER: 'River', SHOWDOWN: 'Showdown', ROUND_END: 'จบรอบ' };
 type Panel = 'rules' | 'table' | 'results' | 'pots' | 'close';
-const potLabel = (pots: { refund: boolean }[], i: number) => pots[i].refund ? 'คืนชิป' :
-  pots.slice(0, i).filter(p => !p.refund).length === 0 ? 'Main Pot' : 'Side Pot ' + pots.slice(0, i).filter(p => !p.refund).length;
-
 function PokerPanel({ panel, close, children }: { panel: Panel; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => { const dialog = ref.current!; dialog.showModal(); return () => dialog.close(); }, []);
@@ -60,42 +58,41 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   const seconds = Math.max(0, Math.min(Math.ceil(s.turnDurationMs / 1000), Math.ceil((s.deadline - now) / 1000)));
   const bySeat = [...s.players].sort((a, b) => a.seat - b.seat);
   const pots = pokerPotSummaries(s.pots);
+  const contestedPot = s.pot - pots.filter(pot => pot.refund).reduce((sum, pot) => sum + pot.amount, 0);
   const myResult = s.results.find(r => r.id === state.playerId);
   const canShowCards = s.phase === 'ROUND_END' && myResult?.cards.length === 0
     && s.pots.some(pot => !pot.refund && pot.winners.includes(state.playerId));
   const playerName = (id: string) => s.players.find(p => p.id === id)?.name ?? s.results.find(r => r.id === id)?.name ?? 'ผู้เล่นที่ออกแล้ว';
   const playerLabel = (id: string) => { const p = s.players.find(p => p.id === id); return p ? '#' + (p.seat + 1) + ' ' + p.name : playerName(id); };
-  const seatName = (id: string) => { const p = s.players.find(p => p.id === id); return p ? '#' + (p.seat + 1) : playerName(id); };
   const potDetails = <div className="pot-results"><p className="pot-explanation">{s.results.length ? 'แบ่งกองตามเงินที่ลง ผู้ชนะรับเฉพาะกองที่มีสิทธิ์' : 'ยอดแต่ละกองอัปเดตตามเดิมพัน ยังไม่ตัดสินผู้ชนะ'}</p>{pots.map((p, i) => <section className="pot-detail" key={i}>
     <h3>{potLabel(pots, i)} <strong>{p.amount.toLocaleString()} ชิป</strong></h3>
     {p.refund ? <p>เงินเดิมพันส่วนที่ไม่มีคนรับ คืนให้เจ้าของ</p> : <p className="pot-eligible">มีสิทธิ์: {p.eligible.map(playerLabel).join(', ')}</p>}
     {p.winners.length ? <ul className="pot-awards">{p.winners.map(id => <li key={id}><span>{playerLabel(id)}</span><b>{p.refund ? 'คืน ' : 'รับ '}{p.awards[id].toLocaleString()} ชิป</b></li>)}</ul> : <p className="muted">รอเปิดไพ่หรือผู้เล่นคนอื่นหมอบ</p>}
   </section>)}</div>;
+  const currentStreet = ['SHOWDOWN', 'ROUND_END'].includes(s.phase)
+    ? s.board.length === 5 ? 'RIVER' : s.board.length === 4 ? 'TURN' : s.board.length === 3 ? 'FLOP' : 'PREFLOP' : s.phase;
   const playing = !['LOBBY', 'ROUND_END'].includes(s.phase);
   const canStart = active && !s.roomClosing && s.players.filter(p => p.points > 0).length >= 2 && !s.players.some(p => !p.connected || (p.points > 0 && p.id !== s.hostId && !p.ready));
   const ownSeat = me && <div className="poker-self"><PokerSeat player={me} snapshot={s} state={state} now={now} turnLabel={desktop && canAct ? 'ถึงตาคุณ' : undefined}/></div>;
   const turnBanner = s.turnId && <PokerTurnTimer label={canAct ? 'ถึงตาคุณ' : 'รอ ' + playerName(s.turnId)} seconds={seconds} progress={(s.deadline - now) / s.turnDurationMs * 100}/>;
-  return <main className={'game poker-game midnight-arena ' + (desktop ? 'clean-row-desktop ' : '') + 'card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle') + (pots.length > 1 ? ' has-side-pots' : '')}>
+  return <main className={'game poker-game midnight-arena ' + (desktop ? 'clean-row-desktop ' : '') + 'card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle')}>
     <div className="room-bar">
       <div className="poker-room-id"><BrandLogo compact/><span className="room-code-label">รหัสห้อง</span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div>
       <div className="poker-tools"><span className="poker-header-meta">{s.players.length}/6 คน <span>· Blinds 10/20</span></span><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}><PokerIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}><PokerIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}><PokerIcon name="leave"/><span>ออกจากห้อง</span></button></div>
     </div>
     <div className="game-layout"><section className="table-area">
-      <div className="phase"><span>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></span>{!desktop && s.turnId ? turnBanner : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
+      <div className="phase"><span>{s.phase === 'DEALING' ? <span className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</span> : <>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></>}</span>{!desktop && s.turnId ? turnBanner : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>
       <div data-opponents={bySeat.filter(p => p.id !== state.playerId).length} className={'poker-table ' + (s.phase === 'DEALING' ? 'dealing' : '')}>
         {(s.roomClosing || hostNotice) && <div className="poker-room-notice" role="status">{s.roomClosing ? s.closeAt ? 'ปิดห้องใน ' + Math.max(0, Math.ceil((s.closeAt - now) / 1000)) + ' วินาที' : 'Host จะปิดห้องหลังจบรอบนี้' : hostNotice}</div>}
-        <div className="poker-bank">{pots.length > 1 && <section className="pot-breakdown" aria-label="กองเดิมพันแยก"><div className="pot-grid">{pots.map((p, i) => <button key={i} className={'pot-entry ' + (p.refund ? 'pot-refund' : i ? 'pot-side' : 'pot-main')} aria-label={potLabel(pots, i) + ' ' + p.amount + ' ชิป'} title={(p.winners.length ? 'รับ: ' + p.winners.map(id => playerName(id) + ' ' + p.awards[id]).join(', ') : 'มีสิทธิ์: ' + p.eligible.map(playerName).join(', '))} onClick={() => setPanel('pots')}>
-            <span className="pot-title">{potLabel(pots, i)}</span><span className="pot-title-short" aria-hidden="true">{p.refund ? 'คืน' : potLabel(pots, i) === 'Main Pot' ? 'Main' : 'S' + pots.slice(0, i).filter(pot => !pot.refund).length}</span><strong>{p.amount.toLocaleString()}</strong><small className="pot-players">{p.winners.length ? p.winners.map(id => seatName(id) + ' +' + p.awards[id].toLocaleString()).join(' · ') : 'สิทธิ์ ' + p.eligible.map(seatName).join(' ')}</small>
-          </button>)}</div></section>}</div>
         <div className="poker-opponents">{bySeat.filter(p => p.id !== state.playerId).map(p => <PokerSeat key={p.id} player={p} snapshot={s} state={state} now={now}/>)}
 
         </div>
         <section className="poker-center"><div className="arena-stage"><span/>{s.phase === 'LOBBY' ? 'TEXAS HOLD’EM' : s.phase === 'ROUND_END' ? 'รอบจบแล้ว' : stages[s.phase]}</div>
-          <button type="button" className="pot-display" aria-label={'ดูรายละเอียด POT ' + s.pot + ' ชิป'} onClick={() => setPanel('pots')}><ChipStack className="chip-stack"/><span>POT <strong>{s.pot.toLocaleString()}</strong></span></button>
+          <button type="button" className="pot-display" aria-label={'ดูรายละเอียด POT ' + contestedPot + ' ชิป'} onClick={() => setPanel('pots')}><ChipStack className="chip-stack"/><span>POT <strong>{contestedPot.toLocaleString()}</strong></span></button>
           <div className="community" aria-label="ไพ่กลาง">{Array.from({ length: 5 }, (_, i) => s.board[i] ? <div className="board-card" key={s.roundId + '-' + i}><Card card={s.board[i]} index={i}/></div> : <div key={s.roundId + '-' + i} className="card-slot"/>)}</div>
-          {s.phase === 'DEALING' && <div className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</div>}
-          <div className="street-track">{['PREFLOP', 'FLOP', 'TURN', 'RIVER'].map(phase => <span className={s.phase === phase ? 'current' : ''} key={phase}>{phase === 'PREFLOP' ? 'Pre-flop' : phase.charAt(0) + phase.slice(1).toLowerCase()}</span>)}</div>
+          <div className="street-track">{['PREFLOP', 'FLOP', 'TURN', 'RIVER'].map(phase => <span className={currentStreet === phase ? 'current' : ''} key={phase}>{phase === 'PREFLOP' ? 'Pre-flop' : phase.charAt(0) + phase.slice(1).toLowerCase()}</span>)}</div>
         </section>
+        <div className="poker-bank"><PokerPotRail pots={pots} playerName={playerName} onDetails={() => setPanel('pots')}/></div>
         {!desktop && ownSeat}
       </div>
     </section></div>

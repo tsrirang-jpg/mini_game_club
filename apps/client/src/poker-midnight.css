@@ -5,3 +5,6 @@
 @import './components/poker/midnight-responsive.css';
 @import './components/poker/clean-row-desktop.css';
 @import './components/poker/midnight-compact.css';
+@import './components/poker/pot-rail.css';
+@import './components/poker/center-stage.css';
+@import './components/poker/control-spacing.css';

@@ -64,9 +64,10 @@ export function compare(player: HandValue, dealer: HandValue): -1 | 0 | 1 {
   if (player.special && dealer.special) return player.highCard === dealer.highCard ? 0 : (player.highCard ?? 0) > (dealer.highCard ?? 0) ? 1 : -1;
   return player.score === dealer.score ? 0 : player.score > dealer.score ? 1 : -1;
 }
-// A dealer's ordinary three-card 8/9 has Pok priority against player specials,
-// while other ordinary 8/9 hands still compare by points.
+// Ordinary player three-card 8/9 pushes against a dealer special. The dealer's
+// ordinary three-card 8/9 keeps its existing priority over player specials.
 export function compareWithDealer(player: HandValue, dealer: HandValue, dealerCardCount: number): -1 | 0 | 1 {
+  if (dealerCardCount === 3 && dealer.special && !player.special && !player.pok && player.score >= 8) return 0;
   if (dealerCardCount === 3 && dealer.score >= 8 && !dealer.special) {
     if (player.special) return -1;
     return player.score === dealer.score ? 0 : player.score > dealer.score ? 1 : -1;

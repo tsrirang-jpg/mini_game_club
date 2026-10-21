@@ -13,10 +13,6 @@
     gap: 10px;
   }
 
-  .poker-shell .midnight-arena .poker-bank {
-    grid-area: 1/1;
-  }
-
   .poker-shell .midnight-arena .poker-opponents {
     display: grid;
     grid-area: 2/1;
@@ -381,32 +377,6 @@
     font-size: 10px;
   }
 
-  .poker-shell .midnight-arena .pot-grid {
-    gap: 3px;
-  }
-
-  .poker-shell .midnight-arena .pot-entry {
-    padding: 3px 1px;
-    min-height: 36px;
-  }
-
-  .poker-shell .midnight-arena .pot-title {
-    display: none;
-  }
-
-  .poker-shell .midnight-arena .pot-title-short {
-    display: block;
-    font-size: 8px;
-    color: #b6cbea;
-  }
-
-  .poker-shell .midnight-arena .pot-entry strong {
-    font-size: 11px;
-  }
-
-  .poker-shell .midnight-arena .pot-players {
-    display: none;
-  }
 }
 
 /* Short landscape: opponents across the top, board and hero beside each other. */
@@ -509,10 +479,6 @@
 
   .poker-shell .midnight-arena .poker-table::before {
     inset: 9px;
-  }
-
-  .poker-shell .midnight-arena .poker-bank {
-    grid-area: 1/1/2/-1;
   }
 
   .poker-shell .midnight-arena .poker-opponents {
@@ -746,22 +712,6 @@
     font-size: 12px;
   }
 
-  .poker-shell .midnight-arena .pot-entry {
-    min-height: 28px;
-    padding: 2px;
-  }
-
-  .poker-shell .midnight-arena .pot-title {
-    font-size: 8px;
-  }
-
-  .poker-shell .midnight-arena .pot-entry strong {
-    font-size: 11px;
-  }
-
-  .poker-shell .midnight-arena .pot-players {
-    display: none;
-  }
 }
 
 /* On short portrait/zoomed screens, scroll vertically instead of hiding controls. */
@@ -783,10 +733,6 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto;
     min-height: 360px;
-  }
-
-  .poker-shell .midnight-arena .poker-bank {
-    grid-area: 1/1;
   }
 
   .poker-shell .midnight-arena .poker-opponents {
@@ -930,17 +876,6 @@
     grid-template-rows: auto minmax(min-content,1fr) minmax(min-content,1.25fr) minmax(min-content,1fr);
   }
 
-  .poker-shell .midnight-arena.has-side-pots .arena-stage {
-    display: none;
-  }
-
-  .poker-shell .midnight-arena.has-side-pots .pot-display {
-    margin-bottom: 6px;
-  }
-
-  .poker-shell .midnight-arena.has-side-pots .street-track {
-    margin-top: 4px;
-  }
 }
 
 /* The card-size preference also works on desktops with display scaling. */
@@ -1112,21 +1047,6 @@
   .poker-shell .midnight-arena .arena-stage { display:none; }
 }
 /* Preserve a clear ring on short laptops even with all six pot summaries. */
-@media (min-width:1000px) and (min-height:651px) and (max-height:750px) {
-  .poker-shell .midnight-arena.has-side-pots .poker-table { padding:6px 16px; gap:4px 12px; }
-  .poker-shell .midnight-arena.has-side-pots.card-size-high .poker-table { --seat-card:34px; --board-card:48px; --avatar:32px; }
-  .poker-shell .midnight-arena.has-side-pots.card-size-high .poker-self .poker-seat { --seat-card:40px; --avatar:40px; }
-  .poker-shell .midnight-arena.has-side-pots.card-size-normal .poker-table { --seat-card:28px; --board-card:42px; --avatar:32px; }
-  .poker-shell .midnight-arena.has-side-pots.card-size-normal .poker-self .poker-seat { --seat-card:34px; --avatar:40px; }
-  .poker-shell .midnight-arena.has-side-pots .poker-seat { padding:8px 6px; }
-  .poker-shell .midnight-arena.has-side-pots .player-name { font-size:12px; }
-  .poker-shell .midnight-arena.has-side-pots .own .player-name { font-size:14px; }
-  .poker-shell .midnight-arena.has-side-pots .own .points { font-size:20px; }
-  .poker-shell .midnight-arena.has-side-pots .pot-entry { min-height:28px; padding:2px; }
-  .poker-shell .midnight-arena.has-side-pots .pot-title { font-size:8px; }
-  .poker-shell .midnight-arena.has-side-pots .pot-entry strong { font-size:11px; }
-  .poker-shell .midnight-arena.has-side-pots .pot-players { display:none; }
-}
 @media (min-width:500px) and (max-width:999px) and (orientation:portrait) and (max-height:900px) {
   .poker-shell .midnight-arena .poker-table { --avatar:24px; --board-card:clamp(42px,10vw,58px); }
   .poker-shell .midnight-arena .poker-seat { padding:6px 4px; gap:3px; }

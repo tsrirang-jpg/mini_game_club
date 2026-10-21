@@ -43,7 +43,8 @@
     "test:poker-clean-row": "node tests/poker-clean-row-browser.mjs",
     "test:poker-deal": "node tests/poker-deal-browser.mjs",
     "test:roadfighter": "node tests/roadfighter-browser.mjs",
-    "test:room-entry": "node tests/room-entry-browser.mjs"
+    "test:room-entry": "node tests/room-entry-browser.mjs",
+    "test:poker-bots": "vitest run tests/poker-bot.test.ts tests/poker-bot-game.test.ts"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

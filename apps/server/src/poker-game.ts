@@ -5,8 +5,14 @@ import { bestPokerHand, pokerPayout, pokerLivePots, POKER_ACTION_MS, POKER_RECON
 import type { PokerPlayer, PokerPhase, PokerSnapshot, PokerResult, PokerPot, PokerHand } from '../../../packages/shared/src/poker.js';
 import { GameError } from './game.js';
 import type { GameHooks } from './game.js';
+import { choosePokerBotAction } from './poker-bot.js';
+import type { PokerBotAction, PokerBotView, PokerBotDecision } from './poker-bot.js';
 const demand = (ok: unknown, message: string) => { if (!ok) throw new GameError('INVALID_ACTION', message); };
 interface Player extends PokerPlayer { expired: boolean; seen: Set<string> }
+export interface PokerBotRuntime {
+  decide?: typeof choosePokerBotAction;
+  random?: (max: number) => number;
+}
 export class PokerGame {
   players = new Map<string, Player>();
   phase: PokerPhase = 'LOBBY'; roundId = 0; deadline = 0; hostId = ''; buttonId = ''; turnId = '';
@@ -15,6 +21,10 @@ export class PokerGame {
   private results: PokerResult[] = []; private pots: PokerPot[] = [];
   private order: string[] = []; private pending = new Set<string>(); private actedAt = new Map<string, number>();
   private timer?: ReturnType<typeof setTimeout>; private botTimer?: ReturnType<typeof setTimeout>;
+  private botAbort?: AbortController;
+  private botHistory: PokerBotAction[] = [];
+  private readonly botDecide: typeof choosePokerBotAction;
+  private readonly botRandom: (max: number) => number;
   private settled = false;
   private foldOrder: string[] = [];
   private buttonSeat = -1;
@@ -23,7 +33,11 @@ export class PokerGame {
   constructor(public code: string, private hooks: GameHooks,
     private random: (max: number) => number = randomInt,
     public timings = { deal: 1200, turn: POKER_ACTION_MS, reveal: 900, bot: 700 },
-    private closeDelayMs = POKER_CLOSE_DELAY_MS) {}
+    private closeDelayMs = POKER_CLOSE_DELAY_MS, botRuntime: PokerBotRuntime = {}) {
+    this.botDecide = botRuntime.decide ?? choosePokerBotAction;
+    // Bot simulations must never consume or inspect the dealing random stream.
+    this.botRandom = botRuntime.random ?? randomInt;
+  }
   private idle() { return this.phase === 'LOBBY' || this.phase === 'ROUND_END'; }
   add(name: unknown, id: string = randomUUID(), isBot = false) {
     demand(!this.roomClosing, 'ห้องกำลังปิด'); demand(this.idle(), 'กรุณารอรอบนี้จบก่อน'); demand(this.players.size < 6, 'ห้องเต็มแล้ว');
@@ -107,7 +121,7 @@ export class PokerGame {
         demand(id === this.hostId, 'เฉพาะผู้สร้างห้องเท่านั้น');
         if (a.type === 'startRound') this.start();
         else if (a.type === 'prepareRound') {
-          demand(this.phase === 'ROUND_END', 'รอรอบจบก่อน'); this.clearTimers(); this.phase = 'LOBBY'; this.hands = {}; this.board = []; this.results = []; this.pots = [];
+          demand(this.phase === 'ROUND_END', 'รอรอบจบก่อน'); this.clearTimers(); this.phase = 'LOBBY'; this.hands = {}; this.board = []; this.results = []; this.pots = []; this.botHistory = [];
           for (const player of this.players.values()) {
             player.ready = player.isBot; player.inHand = false; player.folded = false; player.allIn = false;
             player.contribution = 0; player.streetBet = 0; player.lastAction = '';
@@ -147,7 +161,7 @@ export class PokerGame {
     this.buttonId = button.id; this.buttonSeat = button.seat;
     this.order = eligible.map(p => p.id);
     this.roundId++; this.settled = false; this.foldOrder = []; this.hands = {}; this.board = []; this.results = []; this.pots = [];
-    this.stock = shuffle(deck(), this.random); this.pending.clear(); this.actedAt.clear();
+    this.stock = shuffle(deck(), this.random); this.pending.clear(); this.actedAt.clear(); this.botHistory = [];
     for (const p of all) {
       p.inHand = p.points > 0; p.folded = false; p.allIn = false; p.ready = false;
       p.streetBet = 0; p.contribution = 0; p.lastAction = ''; p.seen.clear();
@@ -177,6 +191,8 @@ export class PokerGame {
     return acted === undefined || (acted === 0 && this.currentBet > 0) || this.currentBet - acted >= this.minRaise;
   }
   private betAction(p: Player, type: string, value?: unknown) {
+    const previousBet = this.currentBet, contributionBefore = p.contribution;
+    const potBefore = [...this.players.values()].reduce((sum, player) => sum + player.contribution, 0);
     const call = Math.max(0, this.currentBet - p.streetBet);
     if (type === 'fold') { p.folded = true; this.foldOrder.push(p.id); p.lastAction = 'Fold'; }
     else if (type === 'check') { demand(call === 0, 'Check ไม่ได้ ต้อง Call หรือ Fold'); p.lastAction = 'Check'; }
@@ -199,6 +215,10 @@ export class PokerGame {
         p.lastAction = p.allIn ? 'All-in' : 'Raise';
       }
     } else throw new GameError('UNKNOWN_ACTION', 'ไม่รู้จักคำสั่ง');
+    const historyType = type === 'allIn' ? (p.streetBet > previousBet ? 'raise' : 'call') : type;
+    this.botHistory.push({id:p.id, phase:this.phase, type:historyType as PokerBotAction['type'],
+      paid:p.contribution-contributionBefore, to:p.streetBet, potBefore});
+    if (this.botHistory.length > 128) this.botHistory.splice(0, this.botHistory.length - 128);
     this.actedAt.set(p.id, this.currentBet); this.pending.delete(p.id); this.progress(p.id);
   }
   private progress(after: string) {
@@ -217,15 +237,52 @@ export class PokerGame {
     this.timer = setTimeout(() => {
       this.betAction(p, p.streetBet >= this.currentBet ? 'check' : 'fold'); this.changed();
     }, this.timings.turn);
-    if (p.isBot) this.botTimer = setTimeout(() => {
-      // Conservative bot. It uses only its hole cards, visible board and public price.
-      const toCall = Math.max(0, this.currentBet - p.streetBet);
-      const hand = this.hands[p.id];
-      const strong = this.board.length >= 3 ? bestPokerHand([...hand, ...this.board]).rank >= 1
-        : hand[0].rank === hand[1].rank || hand.some(c => c.rank === 1 || c.rank >= 11);
-      this.betAction(p, toCall === 0 ? 'check' : strong || toCall <= this.bigBlind * 2 ? 'call' : 'fold'); this.changed();
-    }, Math.min(this.timings.bot, Math.floor(this.timings.turn / 2)));
+    if (p.isBot) this.scheduleBot(p);
     this.changed();
+  }
+
+  private botView(p: Player): PokerBotView {
+    const state = this.snapshot();
+    return {heroId:p.id, hole:this.hands[p.id].map(card => ({...card})),
+      snapshot:{phase:state.phase, roundId:state.roundId, buttonId:state.buttonId,
+        smallBlindId:state.smallBlindId, bigBlindId:state.bigBlindId, currentBet:state.currentBet,
+        minRaise:state.minRaise, bigBlind:state.bigBlind, players:state.players,
+        board:state.board, raiseAllowedIds:state.raiseAllowedIds},
+      history:this.botHistory.map(action => ({...action}))};
+  }
+  private scheduleBot(p: Player) {
+    const round = this.roundId, phase = this.phase, deadline = this.deadline;
+    const active = () => this.roundId === round && this.phase === phase && this.turnId === p.id
+      && this.deadline === deadline && Date.now() < deadline && this.players.get(p.id) === p
+      && p.connected && !p.expired && !p.folded && !p.allIn && p.inHand;
+    this.botTimer = setTimeout(() => {
+      this.botTimer = undefined;
+      if (!active()) return;
+      const control = new AbortController();
+      this.botAbort = control;
+      const fallback = (): PokerBotDecision => ({type:p.streetBet >= this.currentBet ? 'check' : 'fold'});
+      void (async () => {
+        let decision: PokerBotDecision;
+        try {
+          decision = await this.botDecide(this.botView(p), {random:this.botRandom, signal:control.signal,
+            ...(this.timings.turn < 1000 ? {iterations:48} : {})});
+        } catch {
+          if (control.signal.aborted || !active()) return;
+          decision = fallback();
+        }
+        if (control.signal.aborted || !active()) return;
+        try {
+          // Keep all bot actions behind the same betting validation as human actions.
+          this.betAction(p, decision?.type, decision?.value);
+        } catch {
+          // Invalid strategies must not crash the room or make an illegal wager.
+          if (control.signal.aborted || !active()) return;
+          const safe = fallback();
+          this.betAction(p, safe.type);
+        }
+        this.changed();
+      })();
+    }, Math.min(this.timings.bot, Math.floor(this.timings.turn / 2)));
   }
   private nextStreet() {
     if (this.phase === 'RIVER') { this.finish(true); return; }
@@ -267,6 +324,11 @@ export class PokerGame {
     this.clearTimers(); this.deadline = Date.now() + ms;
     this.timer = setTimeout(() => { this.deadline = 0; fn(); this.changed(); }, ms); this.changed();
   }
-  private clearTimers() { if (this.timer) clearTimeout(this.timer); if (this.botTimer) clearTimeout(this.botTimer); }
+  private clearTimers() {
+    if (this.timer) clearTimeout(this.timer);
+    if (this.botTimer) clearTimeout(this.botTimer);
+    this.timer = undefined; this.botTimer = undefined;
+    this.botAbort?.abort(); this.botAbort = undefined;
+  }
   dispose() { this.clearTimers(); }
 }

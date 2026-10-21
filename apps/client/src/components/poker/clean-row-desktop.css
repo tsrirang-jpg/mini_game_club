@@ -47,8 +47,6 @@
     --seat-card: clamp(32px, 3.35vw, 58px);
     --board-card: clamp(52px, min(5.3vw, 10dvh), 90px);
   }
-  .app.poker-shell .midnight-arena.clean-row-desktop .poker-bank { grid-area: 1 / 1; }
-  .app.poker-shell .midnight-arena.clean-row-desktop .poker-bank:empty { display: none; }
   .app.poker-shell .midnight-arena.clean-row-desktop .poker-opponents {
     --opponent-gap: clamp(14px, 2vw, 34px);
     display: flex;
@@ -112,10 +110,6 @@
   .app.poker-shell .midnight-arena.clean-row-desktop .street-track > span { position: relative; padding-bottom: 20px; }
   .app.poker-shell .midnight-arena.clean-row-desktop .street-track > span::after { content: ''; position: absolute; bottom: 0; left: calc(50% - 4px); width: 8px; height: 8px; border-radius: 50%; background: #7790b4; }
   .app.poker-shell .midnight-arena.clean-row-desktop .street-track > .current::after { background: #92f1ff; box-shadow: 0 0 0 2px #37dfff6b, 0 0 12px #39c7ff; }
-  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .poker-table[data-opponents] .poker-opponents > .poker-seat:nth-child(n) { height: clamp(98px, 17dvh, 180px); }
-  .app.poker-shell .midnight-arena.clean-row-desktop .pot-breakdown { width: min(100%, 1000px); }
-  .app.poker-shell .midnight-arena.clean-row-desktop .pot-entry { min-height: 32px; padding: 3px; }
-  .app.poker-shell .midnight-arena.clean-row-desktop .pot-players { display: none; }
   .app.poker-shell .midnight-arena.clean-row-desktop .poker-room-notice { top: 1px; }
 
   /* Left player + right controls share one anchored interaction area. */
@@ -229,11 +223,6 @@
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-chips { gap: 4px; }
   .app.poker-shell .midnight-arena.clean-row-desktop .chip-choice { border-width: 3px; }
 }
-@media (max-height: 850px) {
-  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .pot-display { margin-bottom: 4px; }
-  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .street-track { margin-top: 4px; }
-  .app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots .street-track > span { padding-bottom: 10px; }
-}
 /* At the reference's full desktop height, align header and console insets. */
 @media (min-width: 1000px) and (min-height: 781px) {
   .app.club-shell.poker-shell:has(.clean-row-desktop) { padding-bottom: 16px; }
@@ -243,9 +232,6 @@
   .app.poker-shell .midnight-arena.clean-row-desktop .room-bar button { min-height: 48px; padding: 9px 14px; font-size: 14px; }
   .app.poker-shell .midnight-arena.clean-row-desktop .poker-console { grid-template-columns: minmax(0, .99fr) minmax(0, 2.09fr); }
   .app.poker-shell .midnight-arena.clean-row-desktop .poker-action-dock { justify-content: flex-start; }
-  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) { grid-template-rows: auto minmax(0, 1fr); }
-  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) .poker-opponents { grid-area: 1 / 1; }
-  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table:not(:has(.pot-breakdown)) .poker-center { grid-area: 2 / 1; }
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input { appearance: textfield; }
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input::-webkit-inner-spin-button,
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input::-webkit-outer-spin-button { appearance: none; margin: 0; }
@@ -268,9 +254,4 @@
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls { gap: 6px; padding-left: 7px; }
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls label { gap: 5px; }
   .app.poker-shell .midnight-arena.clean-row-desktop .raise-controls input { padding: 5px 7px; }
-}
-/* Multiple pots need room above the opponent row, even at intermediate
-   desktop heights where the large single-pot board would overlap seats. */
-.app.poker-shell .midnight-arena.clean-row-desktop.has-side-pots.card-size-high .poker-table {
-  --board-card: clamp(62px, min(6.5vw, 10dvh), 90px);
 }
