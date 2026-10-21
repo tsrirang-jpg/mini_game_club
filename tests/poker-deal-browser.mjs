@@ -55,6 +55,8 @@ try {
       await page.evaluate(()=>window.pokerAnimations=[]);
       await start.click();
       await page.locator('.deal-label').waitFor();
+      assert.equal(await page.locator('.phase .deal-label').count(), 1, label + ': dealing status belongs in the phase bar');
+      assert.equal(await page.locator('.poker-center .deal-label').count(), 0, label + ': dealing status must not overlay the board');
       await page.waitForFunction(()=>document.querySelector('.phase')?.textContent.includes('Pre-flop'));
       await pause(1500);
       const events=await page.evaluate(()=>window.pokerAnimations);

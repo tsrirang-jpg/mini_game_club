@@ -1,0 +1,111 @@
+/* One symmetric spacing scale for POT → board → street progress. */
+.app.poker-shell .midnight-arena .poker-center {
+  --center-gap: clamp(10px, 2vw, 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--center-gap);
+  padding-block: 8px;
+}
+.app.poker-shell .midnight-arena .poker-center .arena-stage { display: none; }
+.app.poker-shell .midnight-arena .poker-center .pot-display,
+.app.poker-shell .midnight-arena .poker-center .street-track { margin: 0; flex: none; }
+.app.poker-shell .midnight-arena .poker-center .community { flex: none; }
+
+/* The phase bar owns the dealing announcement. It never overlays the table. */
+.app.poker-shell .midnight-arena .phase .deal-label {
+  display: inline-flex;
+  align-items: center;
+  color: #8decff;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Size the board inside its own reserved row, rather than estimating the
+   height of the surrounding table. Spacing and card size share this budget. */
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-table {
+  --center-gap: clamp(14px, 2.2dvh, 28px);
+  --center-pot-height: 48px;
+  --center-step-height: 34px;
+  --center-padding: 2px;
+  --board-card: max(28px, min(9vw, calc((100cqh - var(--center-pot-height) - var(--center-step-height) - 2 * var(--center-gap)) / 1.4), 160px));
+  gap: 8px;
+  padding-top: 14px;
+  padding-bottom: 10px;
+}
+.app.poker-shell .midnight-arena.clean-row-desktop.card-size-normal .poker-table {
+  --board-card: max(24px, min(7.4vw, calc((100cqh - var(--center-pot-height) - var(--center-step-height) - 2 * var(--center-gap)) * .82 / 1.4), 132px));
+}
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-center {
+  --center-gap: inherit;
+  gap: var(--center-gap);
+  container-type: size;
+  align-self: stretch;
+  min-height: 0;
+  padding-block: var(--center-padding);
+}
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-center .pot-display { height: var(--center-pot-height); padding-block: 0; }
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-center .pot-display strong { line-height: 1.1; }
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track {
+  height: var(--center-step-height);
+  font-size: 13px;
+  line-height: 16px;
+}
+.app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track > span { padding-bottom: 16px; }
+.app.poker-shell .midnight-arena.clean-row-desktop .community { gap: clamp(10px, 1.25vw, 24px); }
+@media (max-height: 850px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table {
+    --center-gap: clamp(8px, 1.5dvh, 14px);
+    --center-pot-height: 32px;
+    --center-step-height: 24px;
+    --center-padding: 4px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    gap: 6px;
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track { font-size: 10px; line-height: 13px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track > span { padding-bottom: 11px; }
+}
+@media (max-height: 650px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table {
+    --center-gap: clamp(4px, 1dvh, 7px);
+    --center-pot-height: 28px;
+    --center-step-height: 18px;
+    --center-padding: 2px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    gap: 4px;
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track { font-size: 9px; line-height: 10px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track > span { padding-bottom: 8px; }
+}
+@media (max-height: 480px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-table {
+    --center-gap: 4px;
+    --center-pot-height: 22px;
+    --center-step-height: 16px;
+    --center-padding: 0px;
+    padding-top: 6px;
+    padding-bottom: 4px;
+    gap: 3px;
+  }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .pot-display strong { line-height: 1; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track { font-size: 8px; line-height: 9px; }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-center .street-track > span { padding-bottom: 7px; }
+}
+.app.poker-shell .midnight-arena:not(.clean-row-desktop) .community { --board-card: clamp(32px, 12vw, 90px); }
+@media (orientation: landscape) and (max-height: 650px), (orientation: landscape) and (max-width: 999px) and (max-height: 740px) {
+  .app.poker-shell .midnight-arena:not(.clean-row-desktop) .poker-table { grid-template-rows: auto minmax(min-content, 1fr) 32px; }
+  .app.poker-shell .midnight-arena:not(.clean-row-desktop) .poker-center { --center-gap: 4px; padding-block: 0; }
+  .app.poker-shell .midnight-arena:not(.clean-row-desktop) .community { --board-card: clamp(28px, min(9vw, 10.8dvh), 64px); }
+  .app.poker-shell .midnight-arena:not(.clean-row-desktop) .pot-display strong { line-height: 1; }
+  .app.poker-shell .midnight-arena:not(.clean-row-desktop) .street-track { line-height: 1.1; }
+}
+/* Reclaim outer console padding on roomy desktops while keeping the hero
+   panel and action panel at exactly their existing heights. */
+@media (min-height: 851px) {
+  .app.poker-shell .midnight-arena.clean-row-desktop { --console-height: clamp(158px, calc(22.5dvh - 16px), 228px); }
+  .app.poker-shell .midnight-arena.clean-row-desktop .poker-console { padding-block: 6px; }
+}

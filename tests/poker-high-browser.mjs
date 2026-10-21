@@ -10,6 +10,7 @@ const page = await context.newPage(), rooms=[], errors=[];
 page.on('pageerror', e=>errors.push(e.message));
 const url=process.env.GAME_URL||'http://127.0.0.1:2568';
 const endpoint=process.env.GAME_WS||url.replace(/^http/,'ws');
+const desktopSizes = [[900,400],[952,442],[800,400],[1268,590],[1280,700],[1366,768],[1903,885],[1920,1080],[2560,1080],[1024,600],[1280,500],[1366,590],[1147,650],[1024,768],[2560,1440],[3840,2160]];
 let allInMode=false;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(fn){const end=Date.now()+15000;while(!await fn()){if(Date.now()>end)throw new Error('High card test timeout');await pause(80);}}
@@ -62,13 +63,14 @@ try{
   await page.getByRole('button',{name:'จัดการโต๊ะ',exact:true}).click();
   await selectOption(page,'ขนาดไพ่บนจอคอม','high');
   await page.getByRole('button',{name:'ปิดหน้าต่าง',exact:true}).click();
-  for(const [width,height] of [[952,442],[800,400],[1268,590],[1280,700],[1366,768],[1903,885],[2560,1080],[1024,600]]){
+  for(const [width,height] of desktopSizes){
     await page.setViewportSize({width,height});await pause(100);await fits('High '+width+'x'+height);
+    if(width===1366||width===1903||width===952) await page.locator('.poker-action-dock').screenshot({path:previewPath('poker-actions-balanced-'+width+'x'+height+'.png'),scale:'css'});
   }
   allInMode=true;await page.getByRole('button',{name:/^All-in \d/}).click();
   await wait(async()=> (await page.locator('.phase').textContent()).includes('จบรอบ'));
   assert.equal(await page.locator('.poker-seat .card:not(.back)').count(),12);
-  for(const [width,height] of [[952,442],[800,400],[1268,590],[1280,700],[1366,768],[1903,885],[2560,1080],[1024,600]]){
+  for(const [width,height] of desktopSizes){
     await page.setViewportSize({width,height});await pause(100);await fits('Shown cards '+width+'x'+height);
     if(width===952||width===1903) await page.screenshot({path:previewPath('preview-poker-high-'+width+'x'+height+'.png'),...(width===1903?{scale:'css'}:{})});
   }
@@ -76,6 +78,6 @@ try{
   assert.equal(await page.locator('.card-size-high').count(),1,'High preference survives refresh');
   assert.deepEqual(errors,[]);
   await page.getByRole('button',{name:'ออกจากห้อง',exact:true}).click();
-  console.log('PASS: High cards, separate board and own hand, scaled Windows DPR 2 and eight desktop viewports during Raise/showdown, Normal/High preference, 12 shown ranks');
+  console.log('PASS: High cards, separate board and own hand, scaled Windows DPR 2 and sixteen desktop viewports during Raise/showdown, Normal/High preference, 12 shown ranks');
 }catch(error){await page.screenshot({path:previewPath('preview-debug.png')});throw error;}
 finally{for(const room of rooms)await room.leave().catch(()=>{});await browser.close();}
