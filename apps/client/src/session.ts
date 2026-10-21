@@ -1,5 +1,6 @@
 import type { Client, Room } from '@colyseus/sdk';
 import { navigate } from './router';
+import { RoomRecovery } from './connection/room-recovery';
 import type { ActionType, Card, Snapshot } from '../../../packages/shared/src/index';
 import type { PokerSnapshot, PokerAction } from '../../../packages/shared/src/poker';
 import { POKER_RECONNECT_SECONDS } from '../../../packages/shared/src/poker';
@@ -43,6 +44,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   private retryTimer?: ReturnType<typeof setTimeout>;
   private reconnectTimer?: ReturnType<typeof setTimeout>;
   private snapshotRound = -1;
+  private recovery?: RoomRecovery;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.state;
   private update(value: Partial<SessionState<S>>) {
@@ -56,16 +58,16 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   }
   private bind(room: Room, generation: number) {
     this.clearTimers();
+    this.recovery?.dispose();
     this.room = room;
     room.reconnection.minUptime = 0;
-    room.reconnection.maxRetries = 30;
+    room.reconnection.maxRetries = 60;
     room.reconnection.maxEnqueuedMessages = 0;
-    // SDK backoff callbacks can outlive a deliberate exit. Do not reopen their
-    // socket after this session has left or been replaced.
-    const reconnect = room.connection.reconnect.bind(room.connection);
-    room.connection.reconnect = (...args) => {
-      if (generation === this.generation && room.reconnection.enabled) reconnect(...args);
-    };
+    const recovery = this.recovery = new RoomRecovery(room, {
+      isCurrent: () => generation === this.generation && this.room === room,
+      resuming: () => this.update({ status: 'reconnecting' }),
+      ready: () => this.update({ status: 'connected', error: '' }),
+    });
     sessionStorage.setItem(this.key, room.reconnectionToken);
     this.update({ playerId: room.sessionId, status: 'connected', error: '' });
     navigate(`${this.playPath}/${room.roomId}`, location.pathname.startsWith(this.playPath + '/'));
@@ -74,6 +76,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       this.snapshotRound = snapshot.roundId;
       this.update({ snapshot,
         ...(this.state.handRound === snapshot.roundId ? {} : { hand: [] }) });
+      recovery.receivedSnapshot();
     });
     room.onMessage('hand', (message: { roundId: number; cards: Card[]; oldMaid?: OldMaidPrivateState }) => {
       if (generation === this.generation && message.roundId >= this.snapshotRound) {
@@ -108,8 +111,9 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
     });
     room.onDrop(() => {
       if (generation !== this.generation) return;
+      recovery.dropped();
       this.update({ status: 'reconnecting' });
-      if (this.roomName === 'poker' && !this.reconnectTimer) this.reconnectTimer = setTimeout(() => {
+      if (!this.reconnectTimer) this.reconnectTimer = setTimeout(() => {
         if (generation !== this.generation) return;
         this.leave(); this.update({ error: 'หมดเวลาเชื่อมต่อใหม่ กรุณาเข้าห้องอีกครั้ง' });
       }, POKER_RECONNECT_SECONDS * 1000);
@@ -123,12 +127,13 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
       queueMicrotask(() => {
         if (generation !== this.generation || this.room !== room) return;
         sessionStorage.setItem(this.key, room.reconnectionToken);
-        this.update({ status: 'connected', error: '' }); room.send('sync');
+        recovery.reconnected();
       });
     });
     room.onLeave(code => {
       if (generation !== this.generation) return;
       this.clearTimers();
+      recovery.dispose(); this.recovery = undefined;
       this.room = undefined; this.snapshotRound = -1;
       sessionStorage.removeItem(this.key);
       this.update({ status: 'idle', snapshot: null, hand: [], handRound: -1, playerId: '', secret: null, oldMaid:null, whoAmI:null, undercover:null,
@@ -188,6 +193,7 @@ export class GameSession<S extends { code: string; roundId: number } = Snapshot,
   leave(destination = this.entryPath) {
     ++this.generation;
     this.clearTimers();
+    this.recovery?.dispose(); this.recovery = undefined;
     sessionStorage.removeItem(this.key);
     if (this.room) {
       const wasDisconnected = !this.room.connection.isOpen;

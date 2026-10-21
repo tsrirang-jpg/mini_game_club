@@ -18,8 +18,9 @@ if (process.env.POKER_TEST_BUNDLE) {
 await desktop.addInitScript(() => {
   window.testSockets = [];
   window.WebSocket = new Proxy(window.WebSocket, { construct(Target, args) {
-    if (window.testBlockSockets) throw new Error('Simulated temporary network outage');
-    const socket = new Target(...args); window.testSockets.push(socket); return socket;
+    const gameSocket = new URL(args[0]).searchParams.has('sessionId');
+    if (gameSocket && window.testBlockSockets) throw new Error('Simulated temporary network outage');
+    const socket = new Target(...args); if (gameSocket) window.testSockets.push(socket); return socket;
   } });
 });
 const a = await desktop.newPage(), b = await mobile.newPage(), errors = [];
@@ -92,8 +93,17 @@ try {
   await selectOption(a,'จำนวนบอท','2');
   await a.getByRole('button', { name: 'สร้างห้อง Poker', exact: true }).click(); await a.locator('.room-bar strong').waitFor();
   const emptyCode = await a.locator('.room-bar strong').textContent();
-  await a.evaluate(() => window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010)));
-  await a.getByRole('button', { name: 'กลับหน้าแรก', exact: true }).click(); await pause(2500);
+  // Hold the outage until the exit click; foreground recovery now completes
+  // before Playwright can target a transient reconnect notice on a healthy link.
+  await a.evaluate(() => {
+    window.testBlockSockets = true;
+    window.testSockets.filter(s => s.readyState === 1).forEach(s => s.close(4010));
+  });
+  await a.getByRole('button', { name: 'กลับหน้าแรก', exact: true }).waitFor();
+  await a.getByRole('button', { name: 'กลับหน้าแรก', exact: true }).evaluate(button => {
+    window.testBlockSockets = false; button.click();
+  });
+  await pause(2500);
   assert.equal(new URL(a.url()).pathname, '/poker/rooms/create');
   assert.equal(await a.evaluate(() => sessionStorage.getItem('poker.session.v1')), null);
   const count = await a.evaluate(() => window.testSockets.filter(s => s.readyState === 1).length);
