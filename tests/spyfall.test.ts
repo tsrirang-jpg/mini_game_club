@@ -158,9 +158,9 @@ describe('Spyfall custom rules',()=>{
     expect(secrets.b.role).toBeNull();expect(game.snapshot().result).toBeNull();expect(game.snapshot().chat).toEqual([]);
     vi.advanceTimersByTime(600000);expect(game.phase).toBe('LOBBY');start();expect(game.roundId).toBe(2);
   });
-  it('enforces minimum players, readiness, maximum capacity and no active-round joins',()=>{
+  it('enforces minimum players, readiness, maximum capacity and queued active-round joins',()=>{
     game.expire('c');expect(()=>act('a','startRound')).toThrow('3–8');game.add('C','c');expect(()=>act('a','startRound')).toThrow('พร้อม');
-    start();expect(()=>game.add('D','d')).toThrow('รอรอบ');
+    start();game.add('D','d');expect(game.snapshot().players.find(p=>p.id==='d')?.waiting).toBe(true);game.sync('d');expect(secrets.d.role).toBeNull();
   });
   it('preserves disconnected participants until result and transfers host',()=>{
     start();game.disconnect('a');game.expire('a');expect(game.hostId).toBe('b');expect(game.players.has('a')).toBe(true);

@@ -1,3 +1,4 @@
+import { WaitingQueueButton } from './components/room/RoundWaitingRoom';
 import {useCallback,useEffect,useState} from 'react';
 import {underSession} from './session';
 import type {SessionState} from './session';
@@ -23,7 +24,7 @@ export function UndercoverPlayPage({state,code}:{state:SessionState<UnderSnapsho
  const secret:UnderSecret|null=state.undercover?.roundId===s.roundId?state.undercover:null;
  const host=s.hostId===state.playerId,connected=state.status==='connected',own=s.turnId===state.playerId&&s.phase==='DESCRIBE';
  const seconds=Math.max(0,Math.ceil((s.deadline-now)/1000));
- return <main className={`under-game phase-${s.phase}`}><div className="room-bar"><RoomIdentity code={s.code}/><div className="club-room-tools"><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>underSession.leave()}>ออกจากห้อง</button></div></div>
+ return <main className={`under-game phase-${s.phase}`}><div className="room-bar"><RoomIdentity code={s.code}/><div className="club-room-tools"><WaitingQueueButton/><button className="small" onClick={()=>setRules(true)}>กติกา</button><button className="small ghost" onClick={()=>underSession.leave()}>ออกจากห้อง</button></div></div>
  {s.phase==='LOBBY'?<UndercoverLobby s={s} playerId={state.playerId} connected={connected} onSettings={settings=>underSession.send('setSettings',settings)} onReady={ready=>underSession.send('setReady',ready)} onStart={()=>underSession.send('startRound')}/>
  :s.phase==='RESULTS'&&s.result?<UndercoverResults key={s.roundId} s={s} result={s.result} playerId={state.playerId} host={host} connected={connected} onPrepare={()=>underSession.send('prepareRound')}/>
  :s.phase==='WORD'?<><section className="under-banner"><span className="eyebrow">UNDERCOVER · เตรียมเริ่มรอบ</span><h1>คำลับของคุณ</h1><span className="under-clock" role="timer">{seconds} วินาที</span></section><div className="under-dashboard"><aside className="under-roster"><h2>ผู้เล่น ({s.players.filter(p=>p.alive).length}/{s.players.length})</h2><UnderRoster players={s.players} playerId={state.playerId} turnId={s.turnId}/></aside>

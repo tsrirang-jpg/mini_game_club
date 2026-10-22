@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import {randomInt,randomUUID} from 'node:crypto';
 import {UNDER_DEFAULT_SETTINGS,UNDER_MINUTES,UNDER_REVEAL_MS,UNDER_CHAT_LIMIT,UNDER_CHAT_MAX_LENGTH} from '../../../packages/shared/src/undercover.js';
 import type {UnderSettings,UnderPhase,UnderRole,UnderPlayer,UnderSecret,UnderVote,UnderSnapshot,UnderHint,UnderChatMessage,UnderVoteResult,UnderResult} from '../../../packages/shared/src/undercover.js';
@@ -25,7 +26,7 @@ export class UndercoverGame {
  private answer='';private lastGuess:string|null=null;private activityId=0;private timer?:ReturnType<typeof setTimeout>;
  constructor(public code:string,private hooks:UnderHooks,private random:(max:number)=>number=randomInt,private timeScale=1){}
  private ordered(){return [...this.players.values()].sort((a,b)=>a.seat-b.seat);}
- private active(){return this.ordered().filter(p=>p.alive&&!p.expired);}
+ private active(){return this.ordered().filter(p=>!p.waiting&&p.alive&&!p.expired);}
  private clearTimer(){if(this.timer)clearTimeout(this.timer);this.timer=undefined;}
  private arm(ms:number,fn:()=>void){this.clearTimer();this.deadline=Date.now()+ms*this.timeScale;this.timer=setTimeout(()=>{this.timer=undefined;fn();this.changed();},ms*this.timeScale);}
  private changed(){this.hooks.changed();}
@@ -33,10 +34,10 @@ export class UndercoverGame {
  private secret(p:Player){this.hooks.secret(p.id,{roundId:this.roundId,word:this.phase==='LOBBY'?null:p.word,canGuess:this.phase==='GUESS'&&this.guesserId===p.id,vote:this.votes.get(p.id)?{...this.votes.get(p.id)!}:null});}
  private secrets(){for(const p of this.players.values())if(!p.expired)this.secret(p);}
  add(name:unknown,id:string=randomUUID()){
-  demand(this.phase==='LOBBY'||this.phase==='RESULTS','รอรอบนี้จบก่อน');demand(this.players.size<8,'ห้องเต็มแล้ว');
+  demand(this.players.size<8,'ห้องเต็มแล้ว');
   demand(typeof name==='string'&&name.trim().length>0&&name.trim().length<=20,'ชื่อยาว 1–20 ตัวอักษร');demand(!this.players.has(id),'อยู่ในห้องแล้ว');
   const seat=Array.from({length:8},(_,i)=>i).find(i=>!this.ordered().some(p=>p.seat===i))!;
-  this.players.set(id,{id,name:name.trim(),seat,connected:true,ready:false,alive:true,isBot:false,role:'citizen',word:null,expired:false,seen:new Set(),chatTimes:[]});
+  this.players.set(id,{...joinMembership(this.phase),id,name:name.trim(),seat,connected:true,ready:false,alive:true,isBot:false,role:'citizen',word:null,expired:false,seen:new Set(),chatTimes:[]});
   if(!this.hostId)this.hostId=id;this.changed();return id;
  }
  addBot(){throw new GameError('INVALID_ACTION','Undercover เล่นกับผู้เล่นจริง 3–8 คน');}
@@ -44,7 +45,7 @@ export class UndercoverGame {
  disconnect(id:string){const p=this.players.get(id);if(!p)return;p.connected=false;p.ready=false;this.assignHost();this.changed();}
  reconnect(id:string){const p=this.players.get(id);demand(p&&!p.expired,'หมดเวลา reconnect');p.connected=true;if(!this.hostId)this.hostId=id;this.secret(p);if(this.phase==='DISCUSS')this.maybeBeginVote();this.changed();}
  expire(id:string){
-  const p=this.players.get(id);if(!p)return;p.expired=true;p.connected=false;p.alive=false;this.voteReady.delete(id);
+  const p=this.players.get(id);if(!p)return;if(p.waiting){this.players.delete(id);this.assignHost();this.changed();return;}p.expired=true;p.connected=false;p.alive=false;this.voteReady.delete(id);
   if(this.phase==='LOBBY'||this.phase==='RESULTS')this.players.delete(id);
   else if(this.phase==='GUESS'&&this.guesserId===id)this.resolveGuess(false);
   else if(this.phase!=='GUESS'&&this.phase!=='REVEAL'&&!this.checkWin()){
@@ -66,7 +67,7 @@ export class UndercoverGame {
    chat:this.chat.map(m=>({...m})),hints:structuredClone(this.hints),lastVote:this.lastVote?structuredClone(this.lastVote):null,guesserId:this.guesserId,result:this.result?structuredClone(this.result):null};
  }
  action(id:string,raw:unknown){
-  const p=this.players.get(id);demand(p?.connected&&!p.expired,'ไม่พบผู้เล่นที่เชื่อมต่อ');demand(raw&&typeof raw==='object'&&!Array.isArray(raw),'คำสั่งไม่ถูกต้อง');
+  const p=this.players.get(id);demand(p?.connected&&!p.expired,'ไม่พบผู้เล่นที่เชื่อมต่อ');demand(canActInRound(p,this.phase),'คุณกำลังรอเข้าร่วมรอบถัดไป');demand(raw&&typeof raw==='object'&&!Array.isArray(raw),'คำสั่งไม่ถูกต้อง');
   const a=raw as {type:string;value?:unknown;roundId:number;turnNumber?:number;actionId:string};
   demand(a.roundId===this.roundId&&Number.isInteger(a.roundId)&&typeof a.actionId==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(a.actionId),'คำสั่งไม่ถูกต้องหรือรอบเก่า');
   if(p.seen.has(a.actionId))return;demand(p.seen.size<2048,'ส่งคำสั่งมากเกินไป');
@@ -113,6 +114,7 @@ export class UndercoverGame {
   demand(this.phase==='LOBBY','เตรียมรอบใหม่ก่อน');const players=this.ordered(),s=this.settings;
   demand(players.length>=Math.max(3,2*s.undercoverCount+s.whiteCount+1),'จำนวนคนยังไม่พอกับรูปแบบที่เลือก');
   demand(players.every(p=>p.connected&&!p.expired&&(p.ready||p.id===this.hostId)),'รอทุกคนพร้อม');
+  admitWaitingPlayers(this.players.values());
   this.clearTimer();this.roundId++;this.cycle=0;this.hints=[];this.activityId=0;this.chat=[];this.chatId=0;this.result=null;this.lastVote=null;this.guesserId='';this.lastGuess=null;this.acknowledged.clear();this.described.clear();this.voteReady.clear();this.votes.clear();this.runoff=false;this.eligibleIds=[];
   const pair=UNDER_WORD_PAIRS[this.random(UNDER_WORD_PAIRS.length)],flip=this.random(2);this.answer=pair[flip];
   const order=[...players];for(let i=order.length-1;i>0;i--){const j=this.random(i+1);[order[i],order[j]]=[order[j],order[i]];}
@@ -164,16 +166,16 @@ export class UndercoverGame {
   if(this.phase==='LOBBY'||this.phase==='RESULTS')return false;
   const active=this.active(),citizens=active.filter(p=>p.role==='citizen'),under=active.filter(p=>p.role==='undercover'),white=active.filter(p=>p.role==='white');
   if(!active.length){this.finish('not_enough_players',[]);return true;}
-  if(!under.length&&!white.length){this.finish('citizens',this.ordered().filter(p=>p.role==='citizen').map(p=>p.id));return true;}
-  if(under.length>=citizens.length&&under.length){this.finish('undercover',this.ordered().filter(p=>p.role==='undercover').map(p=>p.id));return true;}
+  if(!under.length&&!white.length){this.finish('citizens',this.ordered().filter(p=>!p.waiting&&p.role==='citizen').map(p=>p.id));return true;}
+  if(under.length>=citizens.length&&under.length){this.finish('undercover',this.ordered().filter(p=>!p.waiting&&p.role==='undercover').map(p=>p.id));return true;}
   if(!citizens.length&&!under.length){this.finish('last_white',white.map(p=>p.id));return true;}return false;
  }
  private finish(reason:UnderResult['reason'],winnerIds:string[]){
   this.clearTimer();this.phase='RESULTS';this.deadline=0;this.turnId='';this.guesserId='';
-  this.result={reason,winnerIds:[...winnerIds],words:this.ordered().map(p=>({playerId:p.id,name:p.name,word:p.word})),answer:this.answer||null,guess:this.lastGuess};this.secrets();
+  this.result={reason,winnerIds:[...winnerIds],words:this.ordered().filter(p=>!p.waiting).map(p=>({playerId:p.id,name:p.name,word:p.word})),answer:this.answer||null,guess:this.lastGuess};this.secrets();
  }
  private prepare(){
-  demand(this.phase==='RESULTS','รอรอบนี้จบก่อน');this.clearTimer();this.phase='LOBBY';this.deadline=0;this.turnId='';this.result=null;this.lastVote=null;this.guesserId='';this.answer='';this.lastGuess=null;this.hints=[];this.chat=[];this.chatId=0;this.queue=[];this.votes.clear();this.acknowledged.clear();this.described.clear();this.voteReady.clear();this.eligibleIds=[];this.runoff=false;this.cycle=0;
+  demand(this.phase==='RESULTS','รอรอบนี้จบก่อน');this.clearTimer();this.phase='LOBBY';admitWaitingPlayers(this.players.values());this.deadline=0;this.turnId='';this.result=null;this.lastVote=null;this.guesserId='';this.answer='';this.lastGuess=null;this.hints=[];this.chat=[];this.chatId=0;this.queue=[];this.votes.clear();this.acknowledged.clear();this.described.clear();this.voteReady.clear();this.eligibleIds=[];this.runoff=false;this.cycle=0;
   for(const p of this.players.values()){if(p.expired){this.players.delete(p.id);continue;}p.ready=false;p.alive=true;p.word=null;p.role='citizen';p.seen.clear();p.chatTimes=[];}this.assignHost();this.secrets();
  }
  dispose(){this.clearTimer();this.chat=[];this.voteReady.clear();for(const p of this.players.values())p.chatTimes=[];}

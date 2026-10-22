@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { SPY_QUESTION_MINUTES, SPY_TURN_MINUTES, SPY_PLAYER_COUNTS, SPY_VOTING_MS, SPY_GUESS_MS } from '../../../packages/shared/src/spyfall.js';
 import type { SpyPlayer, SpyRole, SpySecret, SpySnapshot, SpyPhase, SpyResult, ChatMessage } from '../../../packages/shared/src/spyfall.js';
@@ -17,11 +18,11 @@ export class SpyfallGame {
     public timings = { minute: 60_000, voting: SPY_VOTING_MS, guess: SPY_GUESS_MS }) {}
   private idle() { return this.phase === 'LOBBY' || this.phase === 'RESULTS'; }
   add(name: unknown, id: string = randomUUID()) {
-    demand(this.idle(), 'รอรอบนี้จบก่อน'); demand(this.players.size < this.playerCount, `ห้องเต็มแล้ว (สูงสุด ${this.playerCount} คน)`);
+    demand(this.players.size < this.playerCount, `ห้องเต็มแล้ว (สูงสุด ${this.playerCount} คน)`);
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({ length: 8 }, (_, i) => i).find(i => ![...this.players.values()].some(p => p.seat === i))!;
-    this.players.set(id, { id, name: (name as string).trim(), seat, connected: true, ready: false, readyVote: false,
+    this.players.set(id, { ...joinMembership(this.phase), id, name: (name as string).trim(), seat, connected: true, ready: false, readyVote: false,
       hasVoted: false, score: 0, expired: false, seen: new Set(), chatTimes: [] });
     if (!this.hostId) this.hostId = id;
     this.changed(); return id;
@@ -36,7 +37,7 @@ export class SpyfallGame {
   }
   expire(id: string) {
     const p = this.players.get(id); if (!p) return; p.expired = true; p.connected = false;
-    if (this.idle()) this.players.delete(id); this.reassign(); this.changed();
+    if (this.idle() || p.waiting) this.players.delete(id); this.reassign(); this.changed();
   }
   private sendSecret(id: string) {
     const role = this.roles.get(id);
@@ -53,6 +54,7 @@ export class SpyfallGame {
   }
   action(id: string, raw: unknown) {
     const p = this.players.get(id); demand(p?.connected && !p.expired, 'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    demand(canActInRound(p, this.phase), 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     demand(raw && typeof raw === 'object' && !Array.isArray(raw), 'คำสั่งไม่ถูกต้อง');
     const a = raw as { type: string; actionId: string; roundId: number; value?: unknown };
     demand(Number.isInteger(a.roundId) && a.roundId === this.roundId && typeof a.actionId === 'string'
@@ -86,7 +88,7 @@ export class SpyfallGame {
           for (const player of this.players.values()) player.ready = false;
         } else if (a.type === 'startRound') this.start();
         else {
-          demand(this.phase === 'RESULTS', 'รอรอบจบก่อน'); this.clearTimer(); this.phase = 'LOBBY'; this.deadline = 0; this.phaseDurationMs = 0;
+          demand(this.phase === 'RESULTS', 'รอรอบจบก่อน'); this.clearTimer(); this.phase = 'LOBBY'; admitWaitingPlayers(this.players.values()); this.deadline = 0; this.phaseDurationMs = 0;
           this.result = null; this.roles.clear(); this.votes.clear(); this.chat = []; this.participants = []; this.spyId = ''; this.locationIndex = -1;
           for (const player of this.players.values()) { player.ready = false; player.readyVote = false; player.hasVoted = false; this.sendSecret(player.id); }
         }
@@ -118,6 +120,7 @@ export class SpyfallGame {
     const players = [...this.players.values()].sort((a,b) => a.seat - b.seat);
     demand(players.length >= 3 && players.length <= this.playerCount && players.every(p => p.connected && !p.expired), 'ต้องมีผู้เล่นที่เชื่อมต่อ 3–8 คน');
     demand(players.every(p => p.id === this.hostId || p.ready), 'รอทุกคนกดพร้อม');
+    admitWaitingPlayers(this.players.values());
     this.roundId++; this.settled = false; this.result = null; this.roles.clear(); this.votes.clear(); this.chat = [];
     this.participants = players.map(p => p.id); this.spyId = this.participants[this.random(players.length)];
     this.locationIndex = this.random(SPY_LOCATIONS.length); const location = SPY_LOCATIONS[this.locationIndex]; let roleIndex = 0;

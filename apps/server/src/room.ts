@@ -55,7 +55,6 @@ export class PokRoom extends Room {
     if (typeof options?.name !== 'string' || !options.name.trim() || options.name.trim().length > 20) {
       throw new ServerError(400, 'ชื่อยาว 1–20 ตัวอักษร');
     }
-    if (!['LOBBY', 'ROUND_END'].includes(this.game.phase)) throw new ServerError(409, 'กรุณารอรอบนี้จบก่อน');
     if (this.game.players.size >= this.game.rules.maxPlayers) throw new ServerError(409, 'ห้องเต็มแล้ว');
     return true;
   }
@@ -75,10 +74,10 @@ export class PokRoom extends Room {
   private publishSnapshot() {
     if (!this.game) return;
     this.broadcast('snapshot', this.game.snapshot());
-    const active = !['LOBBY', 'ROUND_END'].includes(this.game.phase);
+
     // Bots occupy game seats but do not have transport clients. Reopen a human slot after removing a bot.
     this.maxClients = this.game.rules.maxPlayers - [...this.game.players.values()].filter(p => p.isBot).length;
-    if (active || this.game.players.size >= this.game.rules.maxPlayers) void this.lock();
+    if (this.game.players.size >= this.game.rules.maxPlayers) void this.lock();
     else void this.unlock();
   }
   async onDrop(client: Client) {

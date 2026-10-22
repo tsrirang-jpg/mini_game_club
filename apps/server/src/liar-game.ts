@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { deck, shuffle } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
@@ -34,12 +35,12 @@ export class LiarGame {
     if (!this.players.get(this.hostId)?.connected) this.hostId = this.ordered().find(p => p.connected && !p.expired && !p.isBot)?.id ?? '';
   }
   add(name: unknown, id: string = randomUUID(), isBot = false) {
-    demand(this.phase === 'LOBBY' || this.phase === 'RESULTS', 'รอรอบนี้จบก่อน');
+    demand(!isBot || this.phase === 'LOBBY' || this.phase === 'RESULTS', 'รอรอบนี้จบก่อน');
     demand(this.players.size < LIAR_MAX_PLAYERS, 'ห้องเต็มแล้ว (สูงสุด 6 คน)');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({length:LIAR_MAX_PLAYERS}, (_,i) => i).find(i => !this.ordered().some(p => p.seat === i))!;
-    this.players.set(id, {id, name:name.trim(), seat, connected:true, ready:isBot, isBot, cardCount:0,
+    this.players.set(id, {...joinMembership(this.phase), id, name:name.trim(), seat, connected:true, ready:isBot, isBot, cardCount:0,
       finished:false, wins:0, hand:[], expired:false, seen:new Set()});
     if (!this.hostId && !isBot) this.hostId = id;
     this.changed(); return id;
@@ -54,7 +55,7 @@ export class LiarGame {
   reconnect(id: string) { const p=this.players.get(id); demand(p && !p.expired, 'หมดเวลา reconnect'); p.connected=true; if(!this.hostId)this.hostId=id; this.hand(p); this.changed(); }
   expire(id: string) {
     const p=this.players.get(id); if(!p)return; p.expired=true; p.connected=false;
-    if(this.phase==='LOBBY'||this.phase==='RESULTS')this.players.delete(id);
+    if(this.phase==='LOBBY'||this.phase==='RESULTS'||p.waiting)this.players.delete(id);
     // Keep dealt cards conserved. Expired seats automatically skip (or open A♣).
     else if(this.phase==='PLAYING'&&this.turnId===id)this.scheduleTurn();
     this.assignHost(); this.changed();
@@ -69,6 +70,7 @@ export class LiarGame {
   }
   action(id: string, raw: unknown) {
     const p=this.players.get(id); demand(p?.connected && !p.expired, 'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    demand(canActInRound(p, this.phase), 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     demand(raw && typeof raw==='object' && !Array.isArray(raw), 'คำสั่งไม่ถูกต้อง');
     const a=raw as {type:string; actionId:string; roundId:number; value?:unknown};
     demand(Number.isInteger(a.roundId) && a.roundId===this.roundId && typeof a.actionId==='string' && /^[a-zA-Z0-9-]{1,80}$/.test(a.actionId), 'คำสั่งไม่ถูกต้องหรือมาจากรอบเก่า');
@@ -108,6 +110,7 @@ export class LiarGame {
     demand(this.phase==='LOBBY', 'เตรียมรอบใหม่ก่อน');
     const players=this.ordered(); demand(players.length>=LIAR_MIN_PLAYERS, 'ต้องมีผู้เล่น 2–6 คน');
     demand(players.every(p=>p.connected&&!p.expired&&(p.isBot||p.id===this.hostId||p.ready)), 'รอทุกคนพร้อมก่อน');
+    admitWaitingPlayers(this.players.values());
     this.clearTimers(); this.roundId++; this.phase='PLAYING'; this.requiredRank=1; this.opening=true; this.skipCount=0;
     this.discarded=[]; this.pendingCard=null; this.latest=null; this.result=null; this.history=[]; this.activityId=0;
     for(const p of players){p.hand=[];p.finished=false;p.ready=false;p.seen.clear();}
@@ -117,7 +120,7 @@ export class LiarGame {
     this.scheduleTurn();
   }
   private prepare() {
-    demand(this.phase==='RESULTS', 'รอรอบนี้จบก่อน'); this.clearTimers(); this.phase='LOBBY'; this.turnId=null; this.deadline=0;
+    demand(this.phase==='RESULTS', 'รอรอบนี้จบก่อน'); this.clearTimers(); this.phase='LOBBY'; admitWaitingPlayers(this.players.values()); this.turnId=null; this.deadline=0;
     this.result=null;this.latest=null;this.pendingCard=null;this.discarded=[];this.history=[];this.skipCount=0;this.requiredRank=1;this.opening=true;
     for(const p of this.players.values()) {if(p.expired){this.players.delete(p.id);continue;}p.hand=[];p.finished=false;p.ready=p.isBot;p.seen.clear();this.hand(p);}
     this.assignHost();
@@ -181,7 +184,7 @@ export class LiarGame {
   }
   private finish(reason: LiarResult['reason']) {
     this.clearTimers();this.phase='RESULTS';this.turnId=null;this.deadline=0;
-    const hands=this.ordered().map(p=>({playerId:p.id,cards:p.hand.map(c=>({...c})),points:liarPoints(p.hand),finished:p.finished}));
+    const hands=this.ordered().filter(p=>!p.waiting).map(p=>({playerId:p.id,cards:p.hand.map(c=>({...c})),points:liarPoints(p.hand),finished:p.finished}));
     const max=Math.max(...hands.map(h=>h.points));
     this.result={reason,hands,loserIds:hands.filter(h=>!h.finished&&h.points===max).map(h=>h.playerId)};
   }

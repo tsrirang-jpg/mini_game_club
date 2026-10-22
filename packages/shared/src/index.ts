@@ -1,3 +1,4 @@
+import type { RoundMembership } from './room.js';
 export type Suit = 'clubs' | 'diamonds' | 'hearts' | 'spades';
 export interface Card { rank: number; suit: Suit }
 export type Phase = 'LOBBY' | 'DEALING' | 'PLAYER_ACTIONS' | 'DEALER_ACTION' | 'REVEAL' | 'SETTLEMENT' | 'ROUND_END';
@@ -74,7 +75,7 @@ export function compareWithDealer(player: HandValue, dealer: HandValue, dealerCa
   }
   return compare(player, dealer);
 }
-export interface PlayerView {
+export interface PlayerView extends RoundMembership {
   id: string; name: string; seat: number; points: number; bet: number;
   isBot: boolean;
   ready: boolean; connected: boolean; acted: boolean; cardCount: number;

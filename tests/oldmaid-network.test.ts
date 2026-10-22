@@ -27,7 +27,12 @@ it.each([3,8])('%s real clients keep hands private, reconnect and complete a rou
  await until(()=>group[0].state!.players.filter(p=>p.ready).length===count-1);send(group[0],'startRound');
  await until(()=>group.every(o=>o.state?.phase==='PLAYING'&&o.hand.length===o.state.players.find(p=>p.id===o.room.sessionId)!.cardCount));
  for(const o of group){expect(JSON.stringify(o.state!.players)).not.toContain('"suit"');expect(o.state!.result).toBeNull();expect('removedCard' in o.state!).toBe(false);}
- await expect(new Client(endpoint).joinById(group[0].room.roomId,{name:'Mid-round',game:'oldmaid'})).rejects.toThrow();
+ if(count===8)await expect(new Client(endpoint).joinById(group[0].room.roomId,{name:'Mid-round',game:'oldmaid'})).rejects.toThrow();
+ else {
+  const queued=observe(await new Client(endpoint).joinById(group[0].room.roomId,{name:'Mid-round',game:'oldmaid'}));
+  await until(()=>!!queued.state?.players.some(p=>p.id===queued.room.sessionId&&p.waiting));expect(queued.hand).toEqual([]);await queued.room.leave();
+  await until(()=>group[0].state!.players.length===count);
+ }
  const turn=group.find(o=>o.room.sessionId===group[0].state!.turnId)!,other=group.find(o=>o!==turn)!;
  send(other,'draw',`${other.state!.turnNumber}:0`);await until(()=>other.errors.some(e=>e.includes('ไม่ใช่ตา')));
  const token=other.room.reconnectionToken,id=other.room.sessionId,hand=[...other.hand],deadline=other.state!.deadline;

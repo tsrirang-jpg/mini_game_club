@@ -1,8 +1,9 @@
+import type { RoundMembership } from './room.js';
 import type { Card } from './index.js';
 
 export type OldMaidPhase = 'LOBBY' | 'PLAYING' | 'RESULTS';
 export type OldMaidAction = 'setReady' | 'startRound' | 'draw' | 'prepareRound' | 'addBot' | 'removeBot';
-export interface OldMaidPlayer {
+export interface OldMaidPlayer extends RoundMembership {
   id: string; name: string; seat: number; connected: boolean; ready: boolean;
   cardCount: number; finished: boolean; wins: number; isBot: boolean;
 }

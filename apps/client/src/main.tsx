@@ -1,3 +1,5 @@
+import type { RoomMember } from '../../../packages/shared/src/room';
+import { RoundWaitingRoom, RoundWaitingContext } from './components/room/RoundWaitingRoom';
 import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -56,12 +58,19 @@ function GameShell({ kind, playing = false, children, state, controls }: {
 }
 // Only the selected game subscribes to room messages. Hidden rooms may keep their
 // connection for returning players without re-rendering the current screen.
-function GameScreen<S extends { code: string; roundId: number }, A extends string>({ store, kind, code, children }: {
+function GameScreen<S extends { code: string; roundId: number; phase: string; players: RoomMember[] }, A extends string>({ store, kind, code, children }: {
   store: GameSession<S, A>; kind: GameKind; code?: string; children(state: SessionState<S>): ReactNode;
 }) {
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
   useEffect(() => { void store.restore(); }, [store]);
-  return <GameShell kind={kind} playing={!!code && state.snapshot?.code === code} state={state} controls={store}>{children(state)}</GameShell>;
+  const waiting = state.snapshot?.players.filter(player => player.waiting) ?? [];
+  const waitingForRound = waiting.some(player => player.id === state.playerId);
+  // Waiters have reserved seats, but are not opponents in the current deal.
+  // Keep the board layout/counts unchanged while friends join in the background.
+  const playingState = waiting.length && state.snapshot ? { ...state, snapshot: { ...state.snapshot, players: state.snapshot.players.filter(player => !player.waiting) } } : state;
+  return <RoundWaitingContext.Provider value={waiting}><GameShell kind={kind} playing={!waitingForRound && !!code && state.snapshot?.code === code} state={state} controls={store}>
+    {waitingForRound && state.snapshot ? <RoundWaitingRoom kind={kind} snapshot={state.snapshot} playerId={state.playerId} leave={() => store.leave()}/> : children(playingState)}
+  </GameShell></RoundWaitingContext.Provider>;
 }
 function App() {
   const route = useSyncExternalStore(subscribeRoute, getRoute);

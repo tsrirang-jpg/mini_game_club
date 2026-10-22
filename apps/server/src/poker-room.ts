@@ -33,7 +33,7 @@ export class PokerRoom extends Room {
   private publishSnapshot() {
     if (this.closing) return;
     this.broadcast('snapshot', this.game.snapshot());
-    if (this.game.roomClosing || !['LOBBY', 'ROUND_END'].includes(this.game.phase) || this.game.players.size >= 6) void this.lock(); else void this.unlock();
+    if (this.game.roomClosing || this.game.players.size >= 6) void this.lock(); else void this.unlock();
     if (this.game.closeAt && !this.closeScheduled) {
       this.closeScheduled = true;
       this.clock.setTimeout(() => {
@@ -48,7 +48,7 @@ export class PokerRoom extends Room {
     if (options.game && options.game !== 'poker') throw new ServerError(400, 'ห้องนี้เป็น Poker');
     if (this.game.roomClosing) throw new ServerError(409, 'ห้องกำลังปิด');
     if (typeof options.name !== 'string' || !options.name.trim() || options.name.trim().length > 20) throw new ServerError(400, 'ชื่อยาว 1–20 ตัวอักษร');
-    if (!['LOBBY', 'ROUND_END'].includes(this.game.phase)) throw new ServerError(409, 'รอรอบนี้จบก่อน');
+    if (this.game.players.size >= 6) throw new ServerError(409, 'ห้องเต็มแล้ว');
     return true;
   }
   onJoin(client: Client, options: { name: string }) {

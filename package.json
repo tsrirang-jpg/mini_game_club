@@ -45,7 +45,8 @@
     "test:roadfighter": "node tests/roadfighter-browser.mjs",
     "test:room-entry": "node tests/room-entry-browser.mjs",
     "test:poker-bots": "vitest run tests/poker-bot.test.ts tests/poker-bot-game.test.ts",
-    "test:session-resume": "node tests/session-resume-browser.mjs"
+    "test:session-resume": "node tests/session-resume-browser.mjs",
+    "test:late-join": "node tests/late-join-browser.mjs"
   },
   "devDependencies": {
     "@colyseus/core": "^0.18.18",

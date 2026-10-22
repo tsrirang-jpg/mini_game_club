@@ -1,3 +1,4 @@
+import { WaitingQueueButton } from './components/room/RoundWaitingRoom';
 import { BrandLogo } from './components/ui/BrandLogo';
 import './whoami.css';
 import { useEffect, useMemo, useState } from 'react';
@@ -47,7 +48,7 @@ export function WhoAmIPlayPage({state,code}:{state:SessionState<WhoSnapshot>;cod
   const responders=s.players.filter(p=>p.id!==s.turnId&&p.connected).length;
   const completed=s.phase==='GAME_END'||s.phase==='RESULTS',maxScore=Math.max(0,...s.players.map(p=>p.score));
   return <main className={`who-game phase-${s.phase}`}>
-    <div className="room-bar"><div className="club-room-id"><BrandLogo compact/><strong className="who-room-code">{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="club-room-tools"><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small who-players-button" onClick={()=>setDialog('players')}>ผู้เล่น</button><button className="ghost" onClick={()=>whoAmISession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar"><div className="club-room-id"><BrandLogo compact/><strong className="who-room-code">{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="club-room-tools"><WaitingQueueButton/><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small who-players-button" onClick={()=>setDialog('players')}>ผู้เล่น</button><button className="ghost" onClick={()=>whoAmISession.leave()}>ออกจากห้อง</button></div></div>
     <div className="who-status"><span>{playing?`เกม ${s.gameNumber}/${s.gameRounds} · ถามรอบ ${s.questionRound}/${s.questionRounds}`:s.phase==='LOBBY'?'เตรียมเข้าวง':s.phase==='RESULTS'?'ครบทุกเกมแล้ว':`จบเกม ${s.gameNumber}/${s.gameRounds}`} <small>· {s.players.length}/8 คน</small></span><strong role="timer" aria-label="เวลาที่เหลือ">{s.deadline?time:'—'}</strong></div>
     <div className="who-dashboard">
       <aside className="who-panel who-roster"><h2>เพื่อนในวง <small>{s.players.length}/8</small></h2><Roster s={s} privateState={privateState} playerId={state.playerId}/></aside>

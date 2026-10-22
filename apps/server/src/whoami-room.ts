@@ -28,12 +28,11 @@ export class WhoAmIRoom extends Room {
   protected makeGame(code:string,hooks:WhoHooks){return new WhoAmIGame(code,hooks);}
   private publishSnapshot(){
     this.broadcast('snapshot',this.game.snapshot());
-    if(!['LOBBY','RESULTS'].includes(this.game.phase)||this.game.players.size>=8)void this.lock();else void this.unlock();
+    if(this.game.players.size>=8)void this.lock();else void this.unlock();
   }
   onAuth(_client:Client,options:{name?:unknown;game?:unknown}) {
     if(options.game&&options.game!=='whoami')throw new ServerError(400,'ห้องนี้เป็น Who am I');
     if(typeof options.name!=='string'||!options.name.trim()||options.name.trim().length>20)throw new ServerError(400,'ชื่อยาว 1–20 ตัวอักษร');
-    if(!['LOBBY','RESULTS'].includes(this.game.phase))throw new ServerError(409,'รอเล่นครบชุด หรือให้ผู้สร้างห้องกลับห้องรอก่อน');
     if(this.game.players.size>=8)throw new ServerError(409,'ห้องเต็มแล้ว');return true;
   }
   onJoin(client:Client,options:{name:string}){this.game.add(options.name,client.sessionId);}

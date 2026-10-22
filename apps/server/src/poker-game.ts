@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { deck, shuffle } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
@@ -40,11 +41,11 @@ export class PokerGame {
   }
   private idle() { return this.phase === 'LOBBY' || this.phase === 'ROUND_END'; }
   add(name: unknown, id: string = randomUUID(), isBot = false) {
-    demand(!this.roomClosing, 'ห้องกำลังปิด'); demand(this.idle(), 'กรุณารอรอบนี้จบก่อน'); demand(this.players.size < 6, 'ห้องเต็มแล้ว');
+    demand(!this.roomClosing, 'ห้องกำลังปิด'); demand(!isBot || this.idle(), 'กรุณารอรอบนี้จบก่อน'); demand(this.players.size < 6, 'ห้องเต็มแล้ว');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นอยู่ในห้องแล้ว');
     const seat = Array.from({ length: 6 }, (_, i) => i).find(i => ![...this.players.values()].some(p => p.seat === i))!;
-    this.players.set(id, { id, name: (name as string).trim(), seat, isBot, points: 1000, connected: true, ready: isBot,
+    this.players.set(id, { ...joinMembership(this.phase), id, name: (name as string).trim(), seat, isBot, points: 1000, connected: true, ready: isBot,
       folded: false, allIn: false, inHand: false, streetBet: 0, contribution: 0, lastAction: '', reconnectUntil: 0, expired: false, seen: new Set() });
     if (!this.hostId && !isBot) this.hostId = id;
     this.changed(); return id;
@@ -71,7 +72,7 @@ export class PokerGame {
     this.reassign();
     // Keep committed chips and all-in eligibility until settlement. A permanent
     // departure otherwise folds immediately, including during the deal animation.
-    if (this.idle()) this.players.delete(id);
+    if (this.idle() || p.waiting) this.players.delete(id);
     else if (!this.settled && p.inHand && !p.folded && !p.allIn) {
       if (this.alive().length === 1) this.finish(false);
       else {
@@ -96,6 +97,7 @@ export class PokerGame {
   }
   action(id: string, raw: unknown) {
     const p = this.players.get(id); demand(p?.connected && !p.expired, 'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    demand(canActInRound(p, this.phase), 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     demand(raw && typeof raw === 'object' && !Array.isArray(raw), 'คำสั่งไม่ถูกต้อง');
     const a = raw as { type: string; roundId: number; actionId: string; value?: unknown };
     demand(Number.isInteger(a.roundId) && a.roundId === this.roundId && typeof a.actionId === 'string'
@@ -121,7 +123,7 @@ export class PokerGame {
         demand(id === this.hostId, 'เฉพาะผู้สร้างห้องเท่านั้น');
         if (a.type === 'startRound') this.start();
         else if (a.type === 'prepareRound') {
-          demand(this.phase === 'ROUND_END', 'รอรอบจบก่อน'); this.clearTimers(); this.phase = 'LOBBY'; this.hands = {}; this.board = []; this.results = []; this.pots = []; this.botHistory = [];
+          demand(this.phase === 'ROUND_END', 'รอรอบจบก่อน'); this.clearTimers(); this.phase = 'LOBBY'; admitWaitingPlayers(this.players.values()); this.hands = {}; this.board = []; this.results = []; this.pots = []; this.botHistory = [];
           for (const player of this.players.values()) {
             player.ready = player.isBot; player.inHand = false; player.folded = false; player.allIn = false;
             player.contribution = 0; player.streetBet = 0; player.lastAction = '';
@@ -156,6 +158,7 @@ export class PokerGame {
     const eligible = all.filter(p => p.points > 0);
     demand(eligible.length >= 2, 'ต้องมีผู้เล่นที่มีชิปอย่างน้อย 2 คน รีเซ็ตแต้มได้ใน lobby');
     demand(eligible.every(p => p.id === this.hostId || p.ready), 'รอผู้เล่นกดพร้อม');
+    admitWaitingPlayers(this.players.values());
     // Move button to the next funded seat, preserving seat ordering even after departures.
     const button = eligible.find(p => p.seat > this.buttonSeat) ?? eligible[0];
     this.buttonId = button.id; this.buttonSeat = button.seat;

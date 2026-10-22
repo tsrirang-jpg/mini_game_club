@@ -1,3 +1,4 @@
+import type { RoundMembership } from './room.js';
 export const UNDER_MIN_PLAYERS=3;
 export const UNDER_MAX_PLAYERS=8;
 export const UNDER_MINUTES=[1,2,3] as const;
@@ -8,7 +9,7 @@ export type UnderAction='chat'|'readyVote'|'setReady'|'setSettings'|'startRound'
 export type UnderRole='citizen'|'undercover'|'white';
 export const UNDER_REVEAL_MS=6_000;
 export interface UnderVote { targetId:string }
-export interface UnderPlayer { id:string;name:string;seat:number;connected:boolean;ready:boolean;alive:boolean;isBot:boolean }
+export interface UnderPlayer extends RoundMembership { id:string;name:string;seat:number;connected:boolean;ready:boolean;alive:boolean;isBot:boolean }
 // No role, faction, partner word or correct answer is sent in a private message.
 export interface UnderSecret { roundId:number;word:string|null;canGuess:boolean;vote:UnderVote|null }
 export const UNDER_CHAT_LIMIT=100;

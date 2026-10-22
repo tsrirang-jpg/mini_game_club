@@ -1,3 +1,4 @@
+import { WaitingQueueButton } from './components/room/RoundWaitingRoom';
 import { BrandLogo } from './components/ui/BrandLogo';
 import { useDeadlineNow } from './hooks/useDeadlineNow';
 import { usePokerRaiseInput } from './hooks/usePokerRaiseInput';
@@ -78,7 +79,7 @@ export function PokerPlayPage({ state, code }: { state: SessionState<PokerSnapsh
   return <main className={'game poker-game midnight-arena ' + (desktop ? 'clean-row-desktop ' : '') + 'card-size-' + cardSize + ' ' + (playing ? 'hand-active' : 'hand-idle')}>
     <div className="room-bar">
       <div className="poker-room-id"><BrandLogo compact/><span className="room-code-label">รหัสห้อง</span><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div>
-      <div className="poker-tools"><span className="poker-header-meta">{s.players.length}/6 คน <span>· Blinds 10/20</span></span><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}><PokerIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}><PokerIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}><PokerIcon name="leave"/><span>ออกจากห้อง</span></button></div>
+      <div className="poker-tools"><WaitingQueueButton/><span className="poker-header-meta">{s.players.length}/6 คน <span>· Blinds 10/20</span></span><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span className="connection-label">{active ? 'เชื่อมต่อแล้ว' : 'เชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกา Poker" onClick={() => setPanel('rules')}><PokerIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะ" onClick={() => setPanel('table')}><PokerIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => pokerSession.leave()}><PokerIcon name="leave"/><span>ออกจากห้อง</span></button></div>
     </div>
     <div className="game-layout"><section className="table-area">
       <div className="phase"><span>{s.phase === 'DEALING' ? <span className="deal-label" role="status">♠ กำลังแจกไพ่คนละ 2 ใบ…</span> : <>{stages[s.phase]} <small>· รอบ {s.roundId || '–'} · Host: {s.hostId ? playerName(s.hostId) : 'รอเชื่อมต่อ'}</small></>}</span>{!desktop && s.turnId ? turnBanner : <span className="poker-table-info">{s.players.length}/6 คน · Blinds 10/20</span>}</div>

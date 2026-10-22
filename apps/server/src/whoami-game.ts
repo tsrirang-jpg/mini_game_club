@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { WHO_CATEGORIES, WHO_DEFAULT_SETTINGS, WHO_GAME_ROUNDS, WHO_QUESTION_ROUNDS, WHO_TURN_MINUTES } from '../../../packages/shared/src/whoami.js';
 import type { WhoAnswer, WhoGameResult, WhoGuess, WhoPhase, WhoPlayer, WhoPrivate, WhoQuestion, WhoSettings, WhoSnapshot } from '../../../packages/shared/src/whoami.js';
@@ -30,12 +31,11 @@ export class WhoAmIGame {
   constructor(public code: string, private hooks: WhoHooks, private random: (max:number)=>number = randomInt,
     private minuteMs = 60_000) {}
   add(name: unknown, id: string = randomUUID()) {
-    demand(this.phase === 'LOBBY' || this.phase === 'RESULTS', 'รอเล่นครบชุด หรือให้ผู้สร้างห้องกลับห้องรอก่อน');
     demand(this.players.size < 8 && !this.players.has(id), 'ห้องเต็มแล้ว หรือผู้เล่นนี้อยู่ในห้องแล้ว');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     const seats = new Set([...this.players.values()].map(p=>p.seat));
     const seat = Array.from({length:8},(_,n)=>n).find(n=>!seats.has(n))!;
-    this.players.set(id,{id,name:name.trim(),seat,connected:true,ready:false,score:0,solved:false,expired:false,seen:new Set()});
+    this.players.set(id,{...joinMembership(this.phase),id,name:name.trim(),seat,connected:true,ready:false,score:0,solved:false,expired:false,seen:new Set()});
     if (!this.hostId) this.hostId=id;
     this.changed(); return id;
   }
@@ -50,7 +50,7 @@ export class WhoAmIGame {
   sync(id:string) { demand(this.players.get(id)&&!this.players.get(id)!.expired,'หมดเวลา reconnect');this.sendPrivate(id); }
   expire(id:string) {
     const p=this.players.get(id);if(!p)return;p.connected=false;p.expired=true;p.ready=false;
-    if(this.phase==='LOBBY'||this.phase==='RESULTS')this.players.delete(id);
+    if(this.phase==='LOBBY'||this.phase==='RESULTS'||p.waiting)this.players.delete(id);
     if(this.phase==='PLAYING'&&this.turnId===id)this.advance();
     this.reassign();this.resolveAnswers();this.changed();
   }
@@ -61,7 +61,7 @@ export class WhoAmIGame {
     // Never include this recipient's identity, even after guessing it. Reveal
     // solved/end-of-game identities only through the explicit public result.
     this.hooks.identities(id,{roundId:this.roundId,turnNumber:this.turnNumber,
-      identities:[...this.identities].filter(([pid])=>pid!==id).map(([playerId,w])=>({playerId,word:w.word,icon:w.icon})),
+      identities:[...this.identities].filter(([pid])=>!this.players.get(id)?.waiting&&pid!==id).map(([playerId,w])=>({playerId,word:w.word,icon:w.icon})),
       ownAnswer:this.answers.get(id)??null});
   }
   private allPrivate() { for(const p of this.players.values())if(p.connected&&!p.expired)this.sendPrivate(p.id); }
@@ -77,6 +77,7 @@ export class WhoAmIGame {
   }
   action(id:string,raw:unknown) {
     const p=this.players.get(id);demand(!this.disposed&&p?.connected&&!p.expired,'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    demand(canActInRound(p, this.phase), 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     demand(raw&&typeof raw==='object'&&!Array.isArray(raw),'คำสั่งไม่ถูกต้อง');
     const a=raw as {type:string;actionId:string;roundId:number;turnNumber?:number;value?:unknown};
     demand(a.roundId===this.roundId&&Number.isInteger(a.roundId)&&typeof a.actionId==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(a.actionId),'คำสั่งไม่ถูกต้องหรือมาจากเกมเก่า');
@@ -98,7 +99,7 @@ export class WhoAmIGame {
       this.beginGame();
     } else if(a.type==='prepareRound') {
       demand(id===this.hostId&&(this.phase==='GAME_END'||this.phase==='RESULTS'),'เฉพาะผู้สร้างห้องกลับห้องรอหลังจบเกม');
-      this.clearTimer();this.phase='LOBBY';this.deadline=0;this.turnId='';this.question=null;this.history=[];this.lastGuess=null;
+      this.clearTimer();this.phase='LOBBY';admitWaitingPlayers(this.players.values());this.deadline=0;this.turnId='';this.question=null;this.history=[];this.lastGuess=null;
       this.identities.clear();this.answers.clear();this.participants=[];this.result=null;this.questionRound=0;this.turnNumber=0;this.gameNumber=0;
       for(const [pid,player]of this.players){if(player.expired)this.players.delete(pid);else{player.ready=false;player.solved=false;player.seen.clear();}}
       this.allPrivate();
@@ -140,6 +141,7 @@ export class WhoAmIGame {
     demand(players.every(p=>p.id===this.hostId||p.ready),'รอทุกคนกดพร้อม');
   }
   private beginGame() {
+    admitWaitingPlayers(this.players.values());
     this.clearTimer();this.gameNumber++;this.roundId++;this.turnNumber=0;this.questionRound=1;this.cursor=-1;
     this.participants=[...this.players.values()].filter(p=>!p.expired).sort((a,b)=>a.seat-b.seat).map(p=>p.id);
     this.history=[];this.question=null;this.lastGuess=null;this.result=null;this.answers.clear();this.identities.clear();

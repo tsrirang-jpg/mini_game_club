@@ -1,8 +1,9 @@
+import type { RoundMembership } from './room.js';
 export type SpyPhase = 'LOBBY' | 'QUESTION' | 'VOTING' | 'GUESS' | 'RESULTS';
 export type SpyAction = 'setReady' | 'setQuestionMinutes' | 'setVotingMinutes' | 'setGuessMinutes' | 'setPlayerCount' | 'startRound' | 'readyVote' | 'vote' | 'guess' | 'surrender' | 'chat' | 'prepareRound';
 export interface SpySettings { questionMinutes: number; votingMinutes: number; guessMinutes: number; playerCount: number }
 export type SpySettingKey = keyof SpySettings;
-export interface SpyPlayer {
+export interface SpyPlayer extends RoundMembership {
   id: string; name: string; seat: number; connected: boolean; ready: boolean;
   readyVote: boolean; hasVoted: boolean; score: number;
 }

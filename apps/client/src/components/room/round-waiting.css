@@ -1,0 +1,36 @@
+.club-shell .round-waiting-page { width:100%; max-width:1120px; margin:0 auto; padding:20px 0 32px; }
+.club-shell .round-waiting-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; padding:0 0 20px; border-bottom:1px solid var(--club-edge); }
+.club-shell .round-waiting-tools { display:flex; align-items:center; gap:12px; color:var(--club-muted); }
+.club-shell .round-waiting-layout { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); align-items:start; gap:24px; padding-top:24px; }
+.club-shell .round-waiting-hero,.club-shell .round-waiting-roster { min-width:0; border:1px solid var(--club-edge); border-radius:20px; background:linear-gradient(145deg,var(--club-panel),var(--club-bg)); padding:28px; }
+.club-shell .round-waiting-hero { text-align:center; }
+.club-shell .round-waiting-clock { display:block; width:76px; height:76px; stroke:var(--club-accent); stroke-width:2; stroke-linecap:round; margin:24px auto; }
+.club-shell .round-waiting-hero h1 { font-size:clamp(23px,3vw,34px); margin:0 0 14px; }
+.club-shell .round-waiting-hero p { line-height:1.8; }
+.club-shell .round-waiting-copy { color:var(--club-muted); font-size:14px; }
+.club-shell .round-waiting-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:24px 0; }
+.club-shell .round-waiting-summary>div { display:grid; gap:6px; border:1px solid var(--club-edge); border-radius:12px; padding:16px; }
+.club-shell .round-waiting-summary strong { font-size:30px; color:var(--club-accent); }
+.club-shell .round-waiting-summary span { font-size:12px; color:var(--club-muted); }
+.club-shell .round-waiting-roster h2 { margin:0 0 14px; }
+.club-shell .round-waiting-roster ul,.club-shell .round-queue-list { list-style:none; margin:0; padding:0; }
+.club-shell .round-waiting-roster li,.club-shell .round-queue-list li { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; border-bottom:1px solid var(--club-edge); }
+.club-shell .round-waiting-roster li:last-child,.club-shell .round-queue-list li:last-child { border-bottom:0; }
+.club-shell .round-waiting-roster li>div { min-width:0; overflow-wrap:anywhere; }
+.club-shell .round-waiting-roster small,.club-shell .round-queue-list small { font-size:11px; color:var(--club-muted); flex-shrink:0; }
+.club-shell .round-waiting-roster small.is-waiting { color:var(--club-accent); }
+.club-shell .round-waiting-own { color:var(--club-accent); margin-left:6px; font-size:10px; }
+.club-shell button.round-queue-button { display:inline-flex; align-items:center; justify-content:center; flex:none; gap:5px; min-width:36px; padding:6px; color:var(--club-accent); }
+.club-shell button.round-queue-button>span { font-size:20px; line-height:1; }
+@media(max-width:760px) {
+ .club-shell .round-waiting-layout { grid-template-columns:minmax(0,1fr); gap:16px; padding-top:16px; }
+ .club-shell .round-waiting-hero,.club-shell .round-waiting-roster { padding:20px; }
+ .club-shell .round-waiting-header { gap:12px; padding-bottom:16px; }
+ .club-shell .round-waiting-clock { width:60px; height:60px; margin:20px auto; }
+}
+@media(max-width:420px) {
+ .club-shell .round-waiting-header>.club-room-id { width:100%; }
+ .club-shell .round-waiting-tools { justify-content:space-between; width:100%; }
+ .club-shell .round-waiting-summary { gap:12px; }
+ .club-shell .round-waiting-summary>div { padding:12px 8px; }
+}

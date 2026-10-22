@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { botDecision } from './bot.js';
 import { DEFAULT_RULES, deck, shuffle, evaluate, makeLedger, applyLedger } from '../../../packages/shared/src/index.js';
@@ -32,12 +33,12 @@ export class Game {
     private random: (max: number) => number = randomInt) {}
 
   add(name: unknown, id: string = randomUUID(), isBot = false): string {
-    requireCondition(this.phase === 'LOBBY' || this.phase === 'ROUND_END', 'ROUND_ACTIVE', 'กรุณารอรอบนี้จบก่อน');
+    requireCondition(!isBot || this.idle(), 'ROUND_ACTIVE', 'กรุณารอรอบนี้จบก่อน');
     requireCondition(this.players.size < this.rules.maxPlayers, 'ROOM_FULL', 'ห้องเต็มแล้ว');
     requireCondition(typeof name === 'string' && name.trim().length >= 1 && name.trim().length <= 20, 'INVALID_NAME', 'ชื่อยาว 1–20 ตัวอักษร');
     requireCondition(!this.players.has(id), 'DUPLICATE_PLAYER', 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({ length: this.rules.maxPlayers }, (_, n) => n).find(n => ![...this.players.values()].some(p => p.seat === n))!;
-    this.players.set(id, { id, name: name.trim(), seat, points: this.rules.initialPoints, isBot,
+    this.players.set(id, { ...joinMembership(this.phase), id, name: name.trim(), seat, points: this.rules.initialPoints, isBot,
       bet: this.rules.bets[0], ready: isBot, connected: true, acted: false, cardCount: 0, expired: false, seen: new Set() });
     if (!this.hostId && !isBot) this.hostId = id;
     if (!this.dealerId) this.dealerId = id;
@@ -74,6 +75,7 @@ export class Game {
     const p = this.players.get(id); if (!p) return;
     p.connected = false; p.expired = true; p.ready = false;
     if (this.idle()) { this.players.delete(id); this.reassign(); }
+    else if (p.waiting) this.players.delete(id);
     this.hooks.changed();
   }
   private reassign() {
@@ -93,6 +95,7 @@ export class Game {
   action(id: string, raw: unknown) {
     const p = this.players.get(id);
     requireCondition(p?.connected && !p.expired, 'NO_PLAYER', 'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    requireCondition(canActInRound(p, this.phase), 'WAITING_FOR_ROUND', 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     requireCondition(raw && typeof raw === 'object' && !Array.isArray(raw), 'INVALID_ACTION', 'คำสั่งไม่ถูกต้อง');
     const a = raw as Action;
     requireCondition(typeof a.actionId === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(a.actionId)
@@ -124,7 +127,7 @@ export class Game {
           for (const player of this.players.values()) player.ready = player.isBot;
         } else if (a.type === 'prepareRound') {
           requireCondition(this.phase === 'ROUND_END', 'WRONG_PHASE', 'รอรอบจบก่อน');
-          this.phase = 'LOBBY'; this.results = []; this.catches.clear(); this.hands = {}; this.ledger = undefined;
+          this.phase = 'LOBBY'; admitWaitingPlayers(this.players.values()); this.results = []; this.catches.clear(); this.hands = {}; this.ledger = undefined;
           for (const player of this.players.values()) {
             player.ready = player.isBot; player.acted = false; player.cardCount = 0;
             this.hooks.privateHand(player.id, []);
@@ -169,6 +172,7 @@ export class Game {
       this.rules.yellowMultiplier, this.rules.tripleMultiplier, this.rules.straightMultiplier, this.rules.straightFlushMultiplier);
     requireCondition(players.filter(p => p !== dealer).every(p => p.points >= p.bet * maxMultiplier), 'INSUFFICIENT_POINTS', 'ผู้เล่นมีแต้มไม่พอรับความเสียหายสูงสุด');
     requireCondition(dealer.points >= players.filter(p => p !== dealer).reduce((sum, p) => sum + p.bet * maxMultiplier, 0), 'DEALER_POINTS', 'เจ้ามือมีแต้มไม่พอรองรับเด้งสูงสุด ×' + maxMultiplier + ' กรุณาลดเดิมพันหรือเปลี่ยนเจ้ามือ');
+    admitWaitingPlayers(this.players.values());
     this.roundId++; this.results = []; this.catches.clear(); this.ledger = undefined; this.hands = {};
     this.stock = shuffle(deck(), this.random);
     for (const p of players) { this.hands[p.id] = []; p.seen.clear(); p.ready = false; p.acted = false; }
@@ -189,7 +193,7 @@ export class Game {
     });
   }
   private advanceActions() {
-    if (this.phase === 'PLAYER_ACTIONS' && [...this.players.values()].filter(p => p.id !== this.dealerId).every(p => p.acted)) {
+    if (this.phase === 'PLAYER_ACTIONS' && [...this.players.values()].filter(p => !p.waiting && p.id !== this.dealerId).every(p => p.acted)) {
       this.beginDealerAction();
     } else if (this.phase === 'DEALER_ACTION' && this.players.get(this.dealerId)!.acted) this.reveal();
   }

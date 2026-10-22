@@ -1,3 +1,4 @@
+import { joinMembership, canActInRound, admitWaitingPlayers } from '../../../packages/shared/src/room.js';
 import { randomInt, randomUUID } from 'node:crypto';
 import { deck, shuffle } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
@@ -28,12 +29,12 @@ export class OldMaidGame {
   private changed() { this.hooks.changed(); }
   private assignHost() { if (!this.players.get(this.hostId)?.connected) this.hostId = this.ordered().find(p => p.connected && !p.expired && !p.isBot)?.id ?? ''; }
   add(name: unknown, id: string = randomUUID(), isBot = false) {
-    demand(this.phase !== 'PLAYING', 'รอรอบนี้จบก่อน');
+    demand(!isBot || this.phase !== 'PLAYING', 'รอรอบนี้จบก่อน');
     demand(this.players.size < OLD_MAID_MAX_PLAYERS, 'ห้องเต็มแล้ว (สูงสุด 8 คน)');
     demand(typeof name === 'string' && name.trim().length > 0 && name.trim().length <= 20, 'ชื่อยาว 1–20 ตัวอักษร');
     demand(!this.players.has(id), 'ผู้เล่นนี้อยู่ในห้องแล้ว');
     const seat = Array.from({ length: 8 }, (_, i) => i).find(i => !this.ordered().some(p => p.seat === i))!;
-    this.players.set(id, { id, name: (name as string).trim(), seat, connected: true, ready: isBot,
+    this.players.set(id, { ...joinMembership(this.phase), id, name: (name as string).trim(), seat, connected: true, ready: isBot,
       cardCount: 0, finished: false, wins: 0, isBot, hand: [], expired: false, seen: new Set(), draws: [] });
     if (!this.hostId && !isBot) this.hostId = id;
     this.changed(); return id;
@@ -66,7 +67,7 @@ export class OldMaidGame {
   expire(id: string) {
     const p = this.players.get(id); if (!p) return;
     p.expired = true; p.connected = false;
-    if (this.phase !== 'PLAYING') this.players.delete(id);
+    if (this.phase !== 'PLAYING' || p.waiting) this.players.delete(id);
     // Keep all dealt cards in play; departing seats finish automatically.
     else if (this.turnId === id) this.scheduleTurn();
     this.assignHost(); this.changed();
@@ -87,6 +88,7 @@ export class OldMaidGame {
   }
   action(id: string, raw: unknown) {
     const p = this.players.get(id); demand(p?.connected && !p.expired, 'ไม่พบผู้เล่นที่เชื่อมต่อ');
+    demand(canActInRound(p, this.phase), 'คุณกำลังรอเข้าร่วมรอบถัดไป');
     demand(raw && typeof raw === 'object' && !Array.isArray(raw), 'คำสั่งไม่ถูกต้อง');
     const a = raw as { type: string; actionId: string; roundId: number; value?: unknown };
     demand(a.roundId === this.roundId && Number.isInteger(a.roundId) && typeof a.actionId === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(a.actionId), 'คำสั่งไม่ถูกต้องหรือมาจากรอบเก่า');
@@ -111,7 +113,7 @@ export class OldMaidGame {
       else if (a.type === 'startRound') this.start();
       else if (a.type === 'prepareRound') {
         demand(this.phase === 'RESULTS', 'รอรอบนี้จบก่อน'); this.clearTimer();
-        this.phase = 'LOBBY'; this.turnId = null; this.deadline = 0; this.result = null;
+        this.phase = 'LOBBY'; admitWaitingPlayers(this.players.values()); this.turnId = null; this.deadline = 0; this.result = null;
         this.lastPair = []; this.lastAction = null; this.discardedPairs = 0; this.history = []; this.activityId = 0;
         for (const player of this.players.values()) {
           if (player.expired) { this.players.delete(player.id); continue; }
@@ -138,6 +140,7 @@ export class OldMaidGame {
     const players = this.ordered();
     demand(players.length >= OLD_MAID_MIN_PLAYERS && players.length <= OLD_MAID_MAX_PLAYERS, 'ต้องมีผู้เล่น 3–8 คน');
     demand(players.every(p => p.connected && !p.expired && (p.isBot || p.id === this.hostId || p.ready)), 'รอทุกคนพร้อมก่อน');
+    admitWaitingPlayers(this.players.values());
     const cards = shuffle(deck(), this.random);
     this.removedCard = cards.pop()!; this.roundId++; this.phase = 'PLAYING'; this.result = null;
     this.discardedPairs = 0; this.lastPair = []; this.lastAction = null; this.history = []; this.activityId = 0;
@@ -192,7 +195,7 @@ export class OldMaidGame {
     const loser = remaining[0];
     if (!loser || loser.hand.length !== 1 || !this.removedCard) throw new Error('Old Maid card conservation failed');
     this.clearTimer(); this.phase = 'RESULTS'; this.turnId = null; this.deadline = 0;
-    const winners = this.ordered().filter(p => p.id !== loser.id).map(p => p.id);
+    const winners = this.ordered().filter(p => !p.waiting && p.id !== loser.id).map(p => p.id);
     for (const id of winners) this.players.get(id)!.wins++;
     this.result = {loserId: loser.id, lastCard: {...loser.hand[0]}, removedCard: {...this.removedCard}, winners};
     return true;

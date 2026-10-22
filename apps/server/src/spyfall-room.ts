@@ -40,13 +40,12 @@ export class SpyfallRoom extends Room {
   private publishSnapshot() {
     this.maxClients = this.game.playerCount;
     this.broadcast('snapshot', this.game.snapshot());
-    if (!['LOBBY','RESULTS'].includes(this.game.phase) || this.game.players.size >= this.game.playerCount) void this.lock(); else void this.unlock();
+    if (this.game.players.size >= this.game.playerCount) void this.lock(); else void this.unlock();
   }
   private limit(client: Client) { return this.rates.allow(client); }
   onAuth(_client: Client, options: { name?: unknown; game?: unknown }) {
     if (options.game && options.game !== 'spyfall') throw new ServerError(400, 'ห้องนี้เป็น Spyfall');
     if (typeof options.name !== 'string' || !options.name.trim() || options.name.trim().length > 20) throw new ServerError(400, 'ชื่อยาว 1–20 ตัวอักษร');
-    if (!['LOBBY','RESULTS'].includes(this.game.phase)) throw new ServerError(409, 'รอรอบนี้จบก่อน');
     if (this.game.players.size >= this.game.playerCount) throw new ServerError(409, 'ห้องเต็มแล้ว');
     return true;
   }

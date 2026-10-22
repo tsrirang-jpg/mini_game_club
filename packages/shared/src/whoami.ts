@@ -1,3 +1,4 @@
+import type { RoundMembership } from './room.js';
 export const WHO_QUESTION_ROUNDS = [4, 6, 8, 10] as const;
 export const WHO_GAME_ROUNDS = [3, 5, 7, 10] as const;
 export const WHO_TURN_MINUTES = [1, 2, 3] as const;
@@ -16,7 +17,7 @@ export type WhoPhase = 'LOBBY' | 'PLAYING' | 'GAME_END' | 'RESULTS';
 export type WhoAnswer = 'yes' | 'no' | 'unknown';
 export const WHO_ANSWER_LABELS: Record<WhoAnswer, string> = { yes: 'ใช่', no: 'ไม่ใช่', unknown: 'ไม่แน่ใจ' };
 export type WhoAction = 'setReady' | 'setSettings' | 'startRound' | 'ask' | 'answer' | 'guess' | 'endTurn' | 'nextGame' | 'prepareRound';
-export interface WhoPlayer {
+export interface WhoPlayer extends RoundMembership {
   id: string; name: string; seat: number; connected: boolean; ready: boolean; score: number; solved: boolean;
 }
 export interface WhoIdentity { playerId: string; word: string; icon: string }

@@ -22,7 +22,13 @@ it.each([4,8])('%i clients keep words and votes private, reconnect, catch White 
  for(const o of group.slice(1))send(o,'setReady',true);await until(()=>group[0].state!.players.filter(p=>p.ready).length===count-1);send(group[0],'startRound');await until(()=>group.every(o=>o.state?.phase==='WORD'&&o.secret?.roundId===1));
  for(const o of group){expect(Object.keys(o.secret!).sort()).toEqual(['canGuess','roundId','vote','word']);expect(JSON.stringify(o.state)).not.toMatch(/"role"|"word"|"answer"/);}
  const white=group.find(o=>o.secret!.word===null)!,word=group.map(o=>o.secret!.word).find(word=>word&&group.filter(o=>o.secret!.word===word).length>1)!;
- await expect(new Client(endpoint).joinById(group[0].room.roomId,{name:'Late',game:'undercover'})).rejects.toThrow();for(const o of group)send(o,'acknowledge');await until(()=>group.every(o=>o.state!.phase==='DESCRIBE'));
+ if(count===8)await expect(new Client(endpoint).joinById(group[0].room.roomId,{name:'Late',game:'undercover'})).rejects.toThrow();
+ else {
+  const queued=observe(await new Client(endpoint).joinById(group[0].room.roomId,{name:'Late',game:'undercover'}));
+  await until(()=>!!queued.state?.players.some(p=>p.id===queued.room.sessionId&&p.waiting));expect(queued.secret?.word).toBeNull();await queued.room.leave();
+  await until(()=>group[0].state!.players.length===count);
+ }
+ for(const o of group)send(o,'acknowledge');await until(()=>group.every(o=>o.state!.phase==='DESCRIBE'));
  const beforeChat=group[0].state!;send(group[1],'chat','คุยกันระหว่างรอ');await until(()=>group.every(o=>o.state!.chat.length===1));
  for(const o of group){expect(o.state!.chat[0]).toMatchObject({playerId:group[1].room.sessionId,name:'Friend 1',text:'คุยกันระหว่างรอ'});expect(o.state!.hints).toHaveLength(0);expect(o.state!.turnNumber).toBe(beforeChat.turnNumber);expect(o.state!.deadline).toBe(beforeChat.deadline);}
  for(let i=0;i<count;i++){const s=group[0].state!,actor=group.find(o=>o.room.sessionId===s.turnId)!;send(actor,'hint','คำใบ้ '+i);await until(()=>group.every(o=>o.state!.turnNumber>s.turnNumber));}

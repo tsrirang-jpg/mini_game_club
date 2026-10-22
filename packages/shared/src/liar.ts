@@ -1,3 +1,4 @@
+import type { RoundMembership } from './room.js';
 import type { Card } from './index.js';
 
 export const LIAR_MIN_PLAYERS = 2;
@@ -6,7 +7,7 @@ export const LIAR_TURN_SECONDS = [15, 30, 60] as const;
 export const LIAR_CHALLENGE_MS = 5_000;
 export type LiarPhase = 'LOBBY' | 'PLAYING' | 'RESPONSE' | 'REVEAL' | 'RESULTS';
 export type LiarAction = 'setReady' | 'startRound' | 'prepareRound' | 'addBot' | 'removeBot' | 'play' | 'skip' | 'challenge';
-export interface LiarPlayer {
+export interface LiarPlayer extends RoundMembership {
   id: string; name: string; seat: number; connected: boolean; ready: boolean;
   isBot: boolean; cardCount: number; finished: boolean; wins: number;
 }

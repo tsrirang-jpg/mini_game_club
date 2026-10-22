@@ -1,3 +1,4 @@
+import type { RoundMembership } from './room.js';
 import type { Card } from './index.js';
 export type PokerPhase = 'LOBBY' | 'DEALING' | 'PREFLOP' | 'FLOP' | 'TURN' | 'RIVER' | 'SHOWDOWN' | 'ROUND_END';
 export const POKER_ACTION_MS = 30_000;
@@ -109,7 +110,7 @@ export function pokerPayout(contributions: Record<string, number>, folded: Set<s
   }
   return { payouts, pots };
 }
-export interface PokerPlayer {
+export interface PokerPlayer extends RoundMembership {
   id: string; name: string; seat: number; points: number; isBot: boolean; connected: boolean; ready: boolean;
   folded: boolean; allIn: boolean; inHand: boolean; streetBet: number; contribution: number; lastAction: string;
   reconnectUntil: number;

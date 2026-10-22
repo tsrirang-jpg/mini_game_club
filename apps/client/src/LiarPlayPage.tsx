@@ -1,3 +1,4 @@
+import { WaitingQueueButton } from './components/room/RoundWaitingRoom';
 import { useEffect, useState } from 'react';
 import type { SessionState } from './session';
 import { liarSession } from './session';
@@ -30,7 +31,7 @@ export function LiarPlayPage({state,code}:{state:SessionState<LiarSnapshot>;code
   const send=(type:LiarAction,value?:string|number|boolean)=>{if(!connected||pending)return;liarSession.clearError();setPending(true);liarSession.send(type,value);};
   const play=()=>send('play',`${s.turnNumber}|${s.opening?'1:clubs':selected}`);
   return <main className="liar-dashboard">
-    <div className="room-bar liar-room-bar"><RoomIdentity code={s.code} codeClassName="liar-room-code"/><div className="club-room-tools"><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small" onClick={()=>setDialog('players')}>ผู้เล่น</button><button className="small ghost" onClick={()=>liarSession.leave()}>ออกจากห้อง</button></div></div>
+    <div className="room-bar liar-room-bar"><RoomIdentity code={s.code} codeClassName="liar-room-code"/><div className="club-room-tools"><WaitingQueueButton/><button className="small" onClick={()=>setDialog('rules')}>กติกา</button><button className="small" onClick={()=>setDialog('players')}>ผู้เล่น</button><button className="small ghost" onClick={()=>liarSession.leave()}>ออกจากห้อง</button></div></div>
     {s.phase==='LOBBY'?<LiarLobby s={s} playerId={state.playerId} connected={connected}/>
     :s.phase==='RESULTS'&&s.result?<LiarResults s={s} playerId={state.playerId} connected={connected}/>
     :<section className="liar-board" aria-label="โต๊ะไพ่ตอแหล">

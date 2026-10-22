@@ -1,3 +1,4 @@
+import { WaitingQueueButton } from './components/room/RoundWaitingRoom';
 import { BrandLogo } from './components/ui/BrandLogo';
 import { useDeadlineNow } from './hooks/useDeadlineNow';
 import { CopyRoomCodeButton } from './components/ui/CopyRoomCodeButton';
@@ -46,7 +47,7 @@ export function PlayPage({ state, code }: { state: SessionState; code: string })
   const selectedCatch = catchable.find(p => p.id === catchTarget)?.id ?? catchable[0]?.id;
   const canCatch = canAct && dealer && me?.cardCount === 2 && catchable.length > 0;
   return (<main className={"game pok-game dealer-arena" + (canCatch ? " has-catch" : "")}>
-      <div className="room-bar"><div className="pok-room-id"><BrandLogo compact/><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="pok-navigation"><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span>{active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกาป๊อกเด้ง" onClick={() => setPanel('rules')}><PokIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะป๊อกเด้ง" onClick={() => setPanel('table')}><PokIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => session.leave()}><PokIcon name="leave"/>ออกจากห้อง</button></div></div>
+      <div className="room-bar"><div className="pok-room-id"><BrandLogo compact/><strong>{s.code}</strong><CopyRoomCodeButton code={s.code}/></div><div className="pok-navigation"><WaitingQueueButton/><span className="connection" aria-label={active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}><i className={active ? 'online' : ''}/><span>{active ? 'เชื่อมต่อแล้ว' : 'กำลังเชื่อมต่อใหม่'}</span></span><button className="small" aria-label="กติกาป๊อกเด้ง" onClick={() => setPanel('rules')}><PokIcon name="rules"/>กติกา</button><button className="small" aria-label="จัดการโต๊ะป๊อกเด้ง" onClick={() => setPanel('table')}><PokIcon name="table"/>โต๊ะ</button><button className="ghost small" onClick={() => session.leave()}><PokIcon name="leave"/>ออกจากห้อง</button></div></div>
       <div className="game-layout"><section className="table-area">
         <div className="phase"><span>{canAct && 'ถึงตาคุณ · '}{phaseLabel[s.phase]} · รอบ {s.roundId || '–'}</span><span className="pok-clock">{s.players.length}/{s.rules.maxPlayers} คน</span></div>
         <div className="table" data-layout={largeTable ? 'large' : 'arena'} data-players={s.players.length} data-opponents={opponents.length} data-side-count={sidePlayers.length}>
