@@ -1,6 +1,7 @@
 ﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PokerGame } from '../apps/server/src/poker-game';
 import { choosePokerBotAction } from '../apps/server/src/poker-bot';
+import { dealRandom as fixedDeal } from './pok-test-deck';
 import type { Card } from '../packages/shared/src/index';
 import type { PokerSnapshot } from '../packages/shared/src/poker';
 
@@ -257,6 +258,34 @@ describe('Poker bot integration with the betting state machine', () => {
     await flush();
     expect(g.snapshot()).toEqual(before);
   });
+
+  it('defends nonpremium hands against a human open through real betting rules', async () => {
+    const decisions: { id: string; action: Decision }[] = [];
+    const c = (rank: number, suit: Card['suit']): Card => ({ rank, suit });
+    const strategy: Decide = async (view, options) => {
+      const action = await choosePokerBotAction(view, {
+        ...options, iterations: 96, yieldControl: async () => {},
+      });
+      decisions.push({ id: view.heroId, action });
+      return action;
+    };
+    const g = new PokerGame('DEFENCE', { changed() {}, privateHand() {} }, fixedDeal([
+      c(2, 'clubs'), c(6, 'clubs'), c(1, 'clubs'), c(9, 'hearts'), c(10, 'spades'), c(12, 'diamonds'),
+      c(5, 'diamonds'), c(7, 'diamonds'), c(13, 'clubs'), c(8, 'hearts'), c(9, 'spades'), c(11, 'diamonds'),
+    ]), { deal: 5, turn: 1000, reveal: 5, bot: 25 }, 8000, { decide: strategy, random: seeded(700) });
+    games.push(g);
+    for (let seat = 0; seat < 6; seat++) g.add('Player ' + seat, seat === 3 ? 'human' : 'bot-' + seat, seat !== 3);
+    await start(g);
+    expect(g.turnId).toBe('human');
+    act(g, 'human', 'raise', 60);
+    for (let step = 0; step < 6 && g.phase === 'PREFLOP' && g.turnId !== 'human'; step++) await botActs();
+    const defended = decisions.filter(d => ['bot-4', 'bot-5', 'bot-0'].includes(d.id)
+      && ['call', 'raise'].includes(d.action.type));
+    expect(defended.length).toBeGreaterThan(0);
+    for (const d of defended) expect(g.players.get(d.id)!.contribution).toBeGreaterThanOrEqual(60);
+    assertConserved(g.snapshot(), 6000);
+    await finish(g, 6000);
+  }, 30000);
 
   it('runs actual strategy through a six-seat hand without exposing hands or losing chips', async () => {
     const { g } = create(undefined, { seed: 121 });

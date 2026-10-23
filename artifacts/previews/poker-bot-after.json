@@ -1,0 +1,156 @@
+{
+  "runs": 24,
+  "iterations": 96,
+  "rows": [
+    {
+      "name": "98s-unacted-table-3bb",
+      "runs": 24,
+      "counts": {
+        "fold": 12,
+        "check": 0,
+        "call": 11,
+        "raise": 1,
+        "allIn": 0
+      },
+      "continueRate": 0.5,
+      "equity": 0.20703125,
+      "potOdds": 0.4,
+      "milliseconds": 592
+    },
+    {
+      "name": "T9s-unacted-table-3bb",
+      "runs": 24,
+      "counts": {
+        "fold": 14,
+        "check": 0,
+        "call": 8,
+        "raise": 2,
+        "allIn": 0
+      },
+      "continueRate": 0.41666666666666663,
+      "equity": 0.15625,
+      "potOdds": 0.4,
+      "milliseconds": 598
+    },
+    {
+      "name": "QJs-unacted-table-3bb",
+      "runs": 24,
+      "counts": {
+        "fold": 1,
+        "check": 0,
+        "call": 23,
+        "raise": 0,
+        "allIn": 0
+      },
+      "continueRate": 0.9583333333333334,
+      "equity": 0.2747395833333333,
+      "potOdds": 0.4,
+      "milliseconds": 559
+    },
+    {
+      "name": "98s-big-blind-3bb",
+      "runs": 24,
+      "counts": {
+        "fold": 0,
+        "check": 0,
+        "call": 22,
+        "raise": 2,
+        "allIn": 0
+      },
+      "continueRate": 1,
+      "equity": 0.41015625,
+      "potOdds": 0.3076923076923077,
+      "milliseconds": 160
+    },
+    {
+      "name": "75s-big-blind-minraise",
+      "runs": 24,
+      "counts": {
+        "fold": 0,
+        "check": 0,
+        "call": 22,
+        "raise": 2,
+        "allIn": 0
+      },
+      "continueRate": 1,
+      "equity": 0.3984375,
+      "potOdds": 0.2222222222222222,
+      "milliseconds": 172
+    },
+    {
+      "name": "JTo-big-blind-3bb",
+      "runs": 24,
+      "counts": {
+        "fold": 0,
+        "check": 0,
+        "call": 24,
+        "raise": 0,
+        "allIn": 0
+      },
+      "continueRate": 1,
+      "equity": 0.42578125,
+      "potOdds": 0.3076923076923077,
+      "milliseconds": 172
+    },
+    {
+      "name": "72o-facing-25bb",
+      "runs": 24,
+      "counts": {
+        "fold": 24,
+        "check": 0,
+        "call": 0,
+        "raise": 0,
+        "allIn": 0
+      },
+      "continueRate": 0,
+      "equity": 0.08333333333333334,
+      "potOdds": 0.4854368932038835,
+      "milliseconds": 486
+    },
+    {
+      "name": "middle-pair-small-flop-bet",
+      "runs": 24,
+      "counts": {
+        "fold": 0,
+        "check": 0,
+        "call": 24,
+        "raise": 0,
+        "allIn": 0
+      },
+      "continueRate": 1,
+      "equity": 0.375,
+      "potOdds": 0.10810810810810811,
+      "milliseconds": 398
+    },
+    {
+      "name": "combo-draw-small-flop-bet",
+      "runs": 24,
+      "counts": {
+        "fold": 0,
+        "check": 0,
+        "call": 20,
+        "raise": 4,
+        "allIn": 0
+      },
+      "continueRate": 1,
+      "equity": 0.59765625,
+      "potOdds": 0.10810810810810811,
+      "milliseconds": 465
+    },
+    {
+      "name": "air-facing-river-overbet",
+      "runs": 24,
+      "counts": {
+        "fold": 24,
+        "check": 0,
+        "call": 0,
+        "raise": 0,
+        "allIn": 0
+      },
+      "continueRate": 0,
+      "equity": 0,
+      "potOdds": 0.42328042328042326,
+      "milliseconds": 808
+    }
+  ]
+}

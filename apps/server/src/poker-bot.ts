@@ -1,3 +1,5 @@
+import { pokerBotTuning } from './poker-bot-style.js';
+import type { PokerBotStyle } from './poker-bot-style.js';
 import { setImmediate } from 'node:timers/promises';
 import { deck } from '../../../packages/shared/src/index.js';
 import type { Card } from '../../../packages/shared/src/index.js';
@@ -21,6 +23,7 @@ export interface PokerBotOptions {
   random: (max: number) => number;
   signal?: AbortSignal;
   iterations?: number;
+  style?: PokerBotStyle;
   yieldEvery?: number;
   yieldControl?: () => Promise<void>;
 }
@@ -30,6 +33,8 @@ export interface PokerBotAnalysis {
   potOdds: number; callCost: number; contestablePot: number; position: number;
   preflopStrength: number; madeStrength: number; drawStrength: number;
   effectiveStack: number; spr: number; samples: number;
+  /** Forecast when unacted preflop seats may fold/call; actual pot fields stay unchanged. */
+  continuationEquity: number; projectedPot: number; expectedOpponents: number;
 }
 interface Layer { amount: number; opponents: string[] }
 const clamp = (n: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, n));
@@ -120,10 +125,36 @@ function rangeModel(view: PokerBotView, opponent: PokerPlayer) {
   // Public price/lastAction are fallbacks for snapshots without recorded history.
   const pressure = last ? last.paid / Math.max(view.snapshot.bigBlind, last.potBefore) :
     /Raise|All-in/i.test(opponent.lastAction) ? Math.min(2, price / 5) : 0;
+  const lastPreRaise = preRaises.at(-1);
+  const normalOpen = preRaises.length <= 1 && (lastPreRaise?.to ?? opponent.streetBet) <= view.snapshot.bigBlind * 4;
   return { preflop: preRaises.length > 0 || view.snapshot.phase === 'PREFLOP' && price > .1,
-    tightness: clamp(.53 + preRaises.length * .065 + Math.log2(1 + price) * .04, .53, .84),
+    tightness: clamp(.53 + preRaises.length * .065 + Math.log2(1 + price) * .04
+      - (normalOpen ? .025 + position(view, opponent) * .035 : 0), .50, .84),
+    preflopFloor: normalOpen ? .085 : undefined,
     pressure: clamp(pressure, 0, 3), called: actions.some(a => a.type === 'call'),
     postflop: view.snapshot.board.length >= 3 && (streetRaises.length > 0 || pressure > 0) };
+}
+
+/** Forecast only unknown responses to a preflop raise, never actual hidden cards.
+ * Sampled strong hands tend to continue; cheap blind defence can be wider.
+ * If a simulated seat folds, its already-posted chips remain in the pot.
+ */
+function continuationChance(view: PokerBotView, player: PokerPlayer, cards: readonly Card[]) {
+  const s = view.snapshot, call = Math.max(0, s.currentBet - player.streetBet);
+  const price = s.currentBet / Math.max(1, s.bigBlind);
+  const strength = pokerStartingStrength(cards), style = pokerBotTuning(player.seat);
+  const threshold = .46 + Math.log2(Math.max(1, price)) * .035
+    + Math.min(1, call / Math.max(1, player.points)) * .18
+    - (player.id === s.bigBlindId ? .045 : 0);
+  return clamp(.13 + (strength - threshold) * 2 + (player.isBot ? style.callTolerance : .01), .015, .96);
+}
+function speculativeValue(hole: readonly Card[]) {
+  const [high, low] = hole.map(rank).sort((a, b) => b - a);
+  const suited = hole[0].suit === hole[1].suit;
+  if (high === low) return low <= 9 ? .045 : 0;
+  if (suited && low >= 5 && high - low <= 2) return .045;
+  if (low >= 10) return suited ? .035 : .02;
+  return suited && high === 14 && low <= 5 ? .025 : 0;
 }
 
 interface RangeTable { cumulative: Float64Array; total: number }
@@ -201,7 +232,7 @@ export async function analyzePokerBot(view: PokerBotView, options: PokerBotOptio
         const table = ranges[i]; if (!table) continue;
         const model = models[i]; let weight = 1;
         if (model.preflop) {
-          const looseWeight = .045 - .035 * clamp((model.tightness - .58) / .26);
+          const looseWeight = model.preflopFloor ?? .045 - .035 * clamp((model.tightness - .58) / .26);
           weight *= looseWeight + (1 - looseWeight) * clamp((pre - model.tightness + .13) / .28);
         } else if (model.called) weight *= .35 + .65 * clamp((pre - .30) / .4);
         if (model.postflop) {
@@ -214,7 +245,10 @@ export async function analyzePokerBot(view: PokerBotView, options: PokerBotOptio
       if (pairs.length % 32 === 0 && pairs.length < pairCount) { await yieldControl(); abort(options.signal); }
     }
   }
+  const pendingPreflop = snapshot.phase === 'PREFLOP' && snapshot.currentBet > snapshot.bigBlind && callCost > 0
+    ? opponents.filter(p => !p.allIn && p.streetBet < snapshot.currentBet) : [];
   let returns = 0, showdown = 0, wins = 0, ties = 0;
+  let projectedReturns = 0, projectedPot = 0, projectedOpponents = 0;
   for (let trial = 0; trial < trials; trial++) {
     abort(options.signal);
     const available = new Uint8Array(unseen.length).fill(1);
@@ -244,6 +278,22 @@ export async function analyzePokerBot(view: PokerBotView, options: PokerBotOptio
       const comparisons = layer.opponents.map(id => compared.get(id) ?? 1);
       if (comparisons.every(n => n >= 0)) returns += layer.amount / (1 + comparisons.filter(n => n === 0).length);
     }
+    // A seat that has not responded to the raise is not a guaranteed showdown
+    // opponent. Forecast its response and credit extra chips only in call trials.
+    const projected = pendingPreflop.length ? snapshot.players.map(p => {
+      if (!pendingPreflop.some(other => other.id === p.id)) return p;
+      const calls = integer(options.random, 1_000_000) / 1_000_000 < continuationChance(view, p, hands.get(p.id)!);
+      if (!calls) return { ...p, folded: true };
+      const paid = Math.min(p.points, Math.max(0, snapshot.currentBet - p.streetBet));
+      return { ...p, contribution: p.contribution + paid, streetBet: p.streetBet + paid, points: p.points - paid };
+    }) : snapshot.players;
+    const projectedLayers = pendingPreflop.length ? callLayers(projected, hero, callCost) : layers;
+    projectedOpponents += projected.filter(p => p.id !== hero.id && p.inHand && !p.folded).length;
+    for (const layer of projectedLayers) {
+      projectedPot += layer.amount;
+      const comparisons = layer.opponents.map(id => compared.get(id) ?? 1);
+      if (comparisons.every(n => n >= 0)) projectedReturns += layer.amount / (1 + comparisons.filter(n => n === 0).length);
+    }
     if ((trial + 1) % batch === 0 && trial + 1 < trials) { await yieldControl(); abort(options.signal); }
   }
   return { equity: contestablePot > 0 ? returns / trials / contestablePot : showdown / trials,
@@ -251,7 +301,9 @@ export async function analyzePokerBot(view: PokerBotView, options: PokerBotOptio
     potOdds: contestablePot > 0 ? callCost / contestablePot : 0, callCost, contestablePot,
     position: position(view, hero), preflopStrength: pokerStartingStrength(hole),
     madeStrength: madeStrength(hole, snapshot.board, currentMade, boardHand), drawStrength: drawStrength(hole, snapshot.board),
-    effectiveStack, spr: effectiveStack / Math.max(snapshot.bigBlind, contestablePot - callCost), samples: trials };
+    effectiveStack, spr: effectiveStack / Math.max(snapshot.bigBlind, contestablePot - callCost), samples: trials,
+    continuationEquity: projectedPot > 0 ? projectedReturns / projectedPot : showdown / trials,
+    projectedPot: projectedPot / trials, expectedOpponents: projectedOpponents / trials };
 }
 
 function raiseDecision(view: PokerBotView, analysis: PokerBotAnalysis, random: PokerBotOptions['random'], bluff: boolean): PokerBotDecision | undefined {
@@ -288,21 +340,25 @@ export async function choosePokerBotAction(view: PokerBotView, options: PokerBot
   const s = view.snapshot, hero = s.players.find(p => p.id === view.heroId)!;
   const opponents = s.players.filter(p => p.id !== hero.id && p.inHand && !p.folded);
   const fallback: PokerBotDecision = { type: a.callCost > 0 ? 'call' : 'check' };
+  const style = pokerBotTuning(hero.seat, options.style);
   const roll = integer(options.random, 1_000_000) / 1_000_000;
   const history = view.history ?? [];
   const preflop = s.phase === 'PREFLOP', river = s.phase === 'RIVER';
   // Betting cannot make money when everyone is guaranteed to play the same board.
   if (river && a.tieRate > .98) return fallback;
   const noFutureBetting = hero.points <= a.callCost || opponents.every(p => p.allIn || p.points === 0);
-  const realization = river || noFutureBetting ? 1 : clamp(.88 + a.position * .09 - Math.max(0, opponents.length - 1) * .025 + a.drawStrength * .04, .78, 1);
-  const edge = a.equity * realization - a.potOdds;
+  const modeledOpponents = preflop ? a.expectedOpponents : opponents.length;
+  const realization = river || noFutureBetting ? 1 : clamp(.88 + a.position * .09 - Math.max(0, modeledOpponents - 1) * .025 + a.drawStrength * .04, .78, 1);
+  const price = preflop && a.projectedPot > 0 ? a.callCost / a.projectedPot : a.potOdds;
+  const equity = preflop ? a.continuationEquity : a.equity;
+  const edge = equity * realization - price;
   const opening = preflop && s.currentBet <= s.bigBlind && !history.some(aggressive);
   const aces = preflop && view.hole.every(c => c.rank === 1);
-  const openingThreshold = .63 - a.position * .11 + Math.max(0, opponents.length - 2) * .012;
+  const openingThreshold = .63 - a.position * .11 + Math.max(0, opponents.length - 2) * .012 + style.openingAdjustment;
   const value = preflop
     ? opening ? a.preflopStrength >= openingThreshold : a.preflopStrength >= .78 && a.showdownEquity > 1 / (opponents.length + 1) + .10
     : a.showdownEquity >= (a.callCost ? .70 : .60) + Math.max(0, opponents.length - 1) * .025 && a.madeStrength >= .48;
-  if ((value || aces) && (opening || aces || edge > -.01) && roll < (a.showdownEquity > .9 ? .98 : .86)) {
+  if ((value || aces) && (opening || aces || edge > -.01) && roll < (a.showdownEquity > .9 ? .98 : style.aggression)) {
     const raise = raiseDecision(view, a, options.random, false); if (raise) return raise;
   }
   const lastAggressor = [...history].reverse().find(aggressive)?.id;
@@ -310,8 +366,12 @@ export async function choosePokerBotAction(view: PokerBotView, options: PokerBot
   const blocker = river && view.hole.some(c => c.rank === 1 && s.board.filter(b => b.suit === c.suit).length >= 3);
   const continuation = !preflop && !a.callCost && opponents.length === 1 && lastAggressor === hero.id && a.position > .5;
   const steal = opening && a.position > .65 && a.preflopStrength > .42;
-  const bluffFrequency = a.callCost > 0 ? semiBluff && a.callCost < hero.points * .2 ? .075 : blocker && opponents.length === 1 ? .035 : 0
-    : semiBluff ? .18 + a.drawStrength * .12 : continuation ? .16 : steal ? .10 : blocker && opponents.length === 1 ? .10 : 0;
+  const reSteal = preflop && !opening && history.filter(a => a.phase === 'PREFLOP' && aggressive(a)).length === 1
+    && opponents.filter(p => p.streetBet >= s.currentBet || p.allIn).length === 1
+    && a.callCost <= s.bigBlind * 4 && hero.points >= s.bigBlind * 25
+    && speculativeValue(view.hole) > .02 && (a.position > .5 || hero.id === s.bigBlindId);
+  const bluffFrequency = (a.callCost > 0 ? reSteal ? .06 : semiBluff && a.callCost < hero.points * .2 ? .10 : blocker && opponents.length === 1 ? .035 : 0
+    : semiBluff ? .18 + a.drawStrength * .12 : continuation ? .16 : steal ? .10 : blocker && opponents.length === 1 ? .10 : 0) * style.bluffMultiplier;
   if (roll < bluffFrequency) { const raise = raiseDecision(view, a, options.random, true); if (raise) return raise; }
   if (!a.callCost) return fallback;
   // Unacted players have not yet funded the pot: equity vs all five cannot price an unopened blind call.
@@ -319,6 +379,16 @@ export async function choosePokerBotAction(view: PokerBotView, options: PokerBot
   if (preflop && view.hole.every(c => c.rank === 1)) return fallback;
   // Resist dominated, out-of-position limps even when a blind looks superficially cheap.
   if (opening && a.preflopStrength < .35 + (1 - a.position) * .08 && hero.id !== s.bigBlindId) return { type: 'fold' };
-  const margin = noFutureBetting || river ? 0 : .015 + (1 - a.position) * .015;
-  return edge >= margin ? fallback : { type: 'fold' };
+  const singleRaise = history.filter(a => a.phase === 'PREFLOP' && aggressive(a)).length <= 1;
+  const speculative = preflop && singleRaise && !noFutureBetting && s.currentBet <= s.bigBlind * 4
+    && a.callCost <= hero.points * .08 && a.effectiveStack >= a.callCost * 12
+    ? speculativeValue(view.hole) : 0;
+  // Broader, mixed defence at a small price; never turns a costly, weak all-in
+  // or an empty river hand into a speculative call.
+  const tolerance = noFutureBetting || river ? 0 : style.callTolerance;
+  const margin = (noFutureBetting || river ? 0 : .015 + (1 - a.position) * .015) - tolerance - speculative;
+  if (edge >= margin + .025 || aces) return fallback;
+  if (edge < margin - .025) return { type: 'fold' };
+  const continueChance = clamp(.5 + (edge - margin) * 16, .1, .9);
+  return roll < continueChance ? fallback : { type: 'fold' };
 }
