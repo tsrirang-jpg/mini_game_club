@@ -14,8 +14,8 @@ export function UnderRoster({players,playerId,turnId='',hostId='',lobby=false}:{
  })}{Array.from({length:Math.max(0,UNDER_MAX_PLAYERS-players.length)},(_,i)=><div key={`empty-${i}`} className="under-lobby-empty" role="listitem"><span aria-hidden="true">＋</span><p>รอเพื่อนเข้าร่วม</p></div>)}</div>;
  return <div className="under-roster-list">{players.map(p=><article key={p.id} className={`under-player${p.id===playerId?' own':''}${p.id===turnId?' current':''}${!p.alive?' eliminated':''}`}><span className="club-avatar" aria-hidden="true">{p.name.slice(0,1)}</span><strong title={p.name}>{p.name}{p.id===playerId&&<small>คุณ</small>}</strong><span>{!p.connected?'เชื่อมต่อใหม่':!p.alive?'ออกจากรอบ':'อยู่ในรอบ'}</span></article>)}</div>;
 }
-export function UnderWord({secret,revealed,onToggle}:{secret:UnderSecret|null;revealed:boolean;onToggle():void}){
- return <section className={`under-word${revealed?' revealed':''}`} aria-label="คำลับของคุณ"><span>คำลับของคุณ</span><strong>{revealed?(secret?secret.word??'ไม่ได้รับคำลับ':'กำลังรับคำลับ…'):'••••••'}</strong><button className="small ghost" aria-pressed={revealed} onClick={onToggle}>{revealed?'ซ่อนคำลับ':'เปิดคำลับ'}</button>{revealed&&<small>อย่าพูดคำนี้ตรง ๆ</small>}</section>;
+export function UnderWord({secret}:{secret:UnderSecret|null}){
+ return <section className="under-word" aria-label="คำลับของคุณ"><span>คำลับของคุณ</span><strong>{secret?secret.word??'ไม่ได้รับคำลับ':'กำลังรับคำลับ…'}</strong><small>อย่าพูดคำนี้ตรง ๆ</small></section>;
 }
 export function UnderHistory({hints,cycle}:{hints:UnderSnapshot['hints'];cycle:number}){
  const log=useRef<HTMLDivElement>(null);

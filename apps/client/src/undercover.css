@@ -100,7 +100,6 @@
  .under-word,.phase-WORD .under-main>.under-word {min-height:65px;gap:4px;padding:6px;}
  .under-word>strong,.phase-WORD .under-word>strong {font-size:26px;}
  .under-word>span,.under-word>small {font-size:10px;}
- .under-word button {min-height:28px;padding:3px 9px;font-size:10px;}
  .under-ack {min-height:30px;padding:4px;font-size:12px;}
  .under-main>.fine {font-size:9px;margin:0;}
  .under-history article {padding:4px 8px;margin-bottom:4px;}
@@ -116,10 +115,8 @@
 }
 
 /* Private information is text only. Artwork is mounted exclusively on reveal. */
-.under-word,.under-word.revealed {background:#17181b;color:#faf8f2;box-shadow:none;border-color:var(--club-accent);}
+.under-word {background:#17181b;color:#faf8f2;box-shadow:none;border-color:var(--club-accent);}
 .under-word>strong {color:var(--club-accent);font-size:clamp(28px,3vw,44px);}
-.theme-undercover .under-word.revealed button {color:#faf8f2;border-color:var(--club-edge);}
-.theme-undercover .under-word.revealed button:hover:not(:disabled) {background:var(--club-felt);}
 .theme-undercover .under-dialog::backdrop {background:#050505c9;backdrop-filter:blur(9px);}
 .theme-undercover .under-dialog {border-color:var(--club-accent);background:linear-gradient(140deg,#222327,#141519);color:#faf8f2;box-shadow:0 20px 80px #0009;}
 .under-dialog>h2 {color:#faf8f2;line-height:1.4;}

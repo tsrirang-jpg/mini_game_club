@@ -47,7 +47,7 @@ function ReadyVoteDock({s,playerId,connected,error,onReady}:{s:UnderSnapshot;pla
 }
 
 const emptyChat:UnderSnapshot['chat']=[];
-export function UndercoverDiscussion({s,playerId,secret,connected,seconds,revealed,onToggle,hint,onHint,pending,onSubmit,error,onChat,onReadyVote}:{s:UnderSnapshot;playerId:string;secret:UnderSecret|null;connected:boolean;seconds:number;revealed:boolean;onToggle():void;hint:string;onHint(value:string):void;pending:boolean;onSubmit():void;error:string;onChat(text:string):void;onReadyVote():void}) {
+export function UndercoverDiscussion({s,playerId,secret,connected,seconds,hint,onHint,pending,onSubmit,error,onChat,onReadyVote}:{s:UnderSnapshot;playerId:string;secret:UnderSecret|null;connected:boolean;seconds:number;hint:string;onHint(value:string):void;pending:boolean;onSubmit():void;error:string;onChat(text:string):void;onReadyVote():void}) {
  const me=s.players.find(p=>p.id===playerId),own=s.phase==='DESCRIBE'&&s.turnId===playerId;
  const turnName=s.players.find(p=>p.id===s.turnId)?.name??'ผู้เล่น';
  const title=s.phase!=='DESCRIBE'?s.phase==='VOTING'?'กำลังโหวต':s.phase==='REVEAL'?'ผลโหวต':'รอคำตอบก่อนสรุปผล':own?'ถึงตาคุณ · เขียนคำใบ้':s.describedIds.includes(playerId)?`ส่งคำใบ้แล้ว · รอ ${turnName}`:`ถึงตา ${turnName}`;
@@ -57,13 +57,13 @@ export function UndercoverDiscussion({s,playerId,secret,connected,seconds,reveal
  const progress=Math.max(0,Math.min(100,seconds/(s.turnMinutes*60)*100));
  return <div className={`under-discussion${discussion?' awaiting-vote':''}`}>
   <div className="under-discussion-main">
-   {discussion?<section className="under-discussion-complete" aria-label="ส่งคำใบ้ครบแล้ว"><LobbyIcon name="check"/><div><h1>ส่งคำใบ้ครบแล้ว</h1><p>ทุกคนส่งคำใบ้เรียบร้อย พูดคุยก่อนกดพร้อมโหวต</p></div><strong>{s.players.filter(p=>p.alive&&s.describedIds.includes(p.id)).length}/{s.players.filter(p=>p.alive).length}</strong><div className="under-complete-clue"><small>คำใบ้ของคุณ</small><p>{s.hints.find(h=>h.playerId===playerId&&h.cycle===s.cycle)?.text??'คุณออกจากรอบแล้ว · รอติดตามผล'}</p></div><div className="under-complete-word"><UnderWord secret={secret} revealed={revealed} onToggle={onToggle}/></div></section>:<section className={`under-writing${own?' own-turn':''}`} aria-label="พื้นที่เขียนคำใบ้">
+   {discussion?<section className="under-discussion-complete" aria-label="ส่งคำใบ้ครบแล้ว"><LobbyIcon name="check"/><div><h1>ส่งคำใบ้ครบแล้ว</h1><p>ทุกคนส่งคำใบ้เรียบร้อย พูดคุยก่อนกดพร้อมโหวต</p></div><strong>{s.players.filter(p=>p.alive&&s.describedIds.includes(p.id)).length}/{s.players.filter(p=>p.alive).length}</strong><div className="under-complete-clue"><small>คำใบ้ของคุณ</small><p>{s.hints.find(h=>h.playerId===playerId&&h.cycle===s.cycle)?.text??'คุณออกจากรอบแล้ว · รอติดตามผล'}</p></div><div className="under-complete-word"><UnderWord secret={secret}/></div></section>:<section className={`under-writing${own?' own-turn':''}`} aria-label="พื้นที่เขียนคำใบ้">
     <header><LobbyIcon name={own?'pencil':s.describedIds.includes(playerId)?'check':'clock'}/><div><h1>{title}</h1><p>{me?.alive?'เขียนคำอธิบายให้เพื่อน ๆ เดา ห้ามเขียนคำตอบโดยตรง':'คุณออกจากรอบแล้ว · รอติดตามผล'}</p></div><div className="under-writing-clock"><LobbyIcon name="clock"/><span role="timer">{String(Math.floor(seconds/60)).padStart(2,'0')}:{String(seconds%60).padStart(2,'0')}</span><i aria-hidden="true" style={{background:`conic-gradient(var(--club-accent) ${progress}%,#42464c 0)`}}/></div></header>
     {own?<form className="under-compose" onSubmit={e=>{e.preventDefault();if(!locked&&hint.trim())onSubmit();}}>
      <label><span className="sr-only">คำใบ้ของคุณ</span><textarea aria-label="คำใบ้ของคุณ" maxLength={120} rows={2} value={hint} disabled={locked} onChange={e=>onHint(e.target.value)} placeholder="อธิบายคำโดยไม่พูดคำตรง ๆ"/><small>{hint.length}/120</small></label>
      <button className="primary" disabled={locked||!hint.trim()}><LobbyIcon name="send"/>{pending?'กำลังส่ง…':'ส่งคำใบ้'}</button>
     </form>:<p className="under-writing-status" role="status">{!connected?'กำลังเชื่อมต่อใหม่…':s.phase==='DESCRIBE'?'คำใบ้ที่ส่งแล้วจะแสดงในกระดานด้านล่าง':'รอผลพร้อมกันทุกคน'}</p>}
-    {canShowWord&&<div className="under-writing-private"><UnderWord secret={secret} revealed={revealed} onToggle={onToggle}/><small>เห็นเฉพาะคุณเท่านั้น</small></div>}
+    {canShowWord&&<div className="under-writing-private"><UnderWord secret={secret}/><small>เห็นเฉพาะคุณเท่านั้น</small></div>}
    </section>}
    <ClueBoard key={s.cycle} s={s} playerId={playerId}/>
   </div>

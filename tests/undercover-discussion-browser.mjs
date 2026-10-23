@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {previewPath} from './helpers/preview-path.mjs';
+const url=process.env.GAME_URL||'http://127.0.0.1:5188';
 const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:1366,height:768},reducedMotion:'reduce'}),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[844,390],[667,375],[568,320]];
@@ -23,7 +24,7 @@ async function fits(label){
  });assert.deepEqual(report,{outside:[],pageScroll:false,overflow:[]},label+' '+JSON.stringify(report));
 }
 try{
- await page.goto('http://127.0.0.1:5188/undercover/rooms/create');
+ await page.goto(url+'/undercover/rooms/create');
  for(const count of[3,6,8]){
   await fixture({count});
   for(const[width,height]of sizes){
@@ -33,11 +34,11 @@ try{
    if(count===6&&width>=1000&&height>=900)assert.equal(await page.locator('.under-clue-grid').evaluate(e=>e.scrollHeight<=e.clientHeight+1),true,'all six clues visible on desktop '+width);
    if(width>=1000&&height>=651){assert.equal(await page.locator('.under-chat-sidebar').isVisible(),true);assert.equal(await page.getByLabel('ข้อความแชท',{exact:true}).count(),1);}
    else {await page.getByRole('button',{name:/แชทห้อง/}).click();await page.getByRole('dialog',{name:'แชทห้อง',exact:true}).waitFor();await fits('chat '+count+' '+width);assert.equal(await page.locator('.under-chat-log').count(),1);assert.ok((await page.getByRole('button',{name:'ส่งข้อความแชท',exact:true}).boundingBox()).height>=44);await page.keyboard.press('Escape');await page.getByRole('dialog',{name:'แชทห้อง',exact:true}).waitFor({state:'hidden'});assert.equal(await page.getByRole('button',{name:/แชทห้อง/}).evaluate(e=>document.activeElement===e),true);}
-   if(count===6&&[1366,390,568].includes(width)){await page.getByLabel('คำใบ้ของคุณ',{exact:true}).fill('ใส่นมได้');if(await page.getByRole('button',{name:'เปิดคำลับ',exact:true}).count())await page.getByRole('button',{name:'เปิดคำลับ',exact:true}).click();await page.screenshot({path:previewPath(`preview-undercover-discussion-chat-${width}x${height}.png`)});if(width===390){await page.getByRole('button',{name:/แชทห้อง/}).click();await page.screenshot({path:previewPath('preview-undercover-discussion-chat-mobile-sheet.png')});await page.keyboard.press('Escape');}}
+   if(count===6&&[1366,390,568].includes(width)){await page.getByLabel('คำใบ้ของคุณ',{exact:true}).fill('ใส่นมได้');await page.screenshot({path:previewPath(`preview-undercover-discussion-chat-${width}x${height}.png`)});if(width===390){await page.getByRole('button',{name:/แชทห้อง/}).click();await page.screenshot({path:previewPath('preview-undercover-discussion-chat-mobile-sheet.png')});await page.keyboard.press('Escape');}}
   }
  }
  await page.setViewportSize({width:1366,height:768});await fixture();
- if(await page.getByRole('button',{name:'เปิดคำลับ',exact:true}).count())await page.getByRole('button',{name:'เปิดคำลับ',exact:true}).click();assert.equal(await page.locator('.under-word strong').textContent(),'กาแฟ');
+ assert.equal(await page.locator('.under-word strong').textContent(),'กาแฟ');assert.equal(await page.locator('.under-word button').count(),0);
  await page.getByLabel('คำใบ้ของคุณ',{exact:true}).fill('ใส่นมได้');await page.getByRole('button',{name:'ส่งคำใบ้',exact:true}).click();assert.deepEqual(await page.evaluate(()=>window.discussionActions.at(-1)),{type:'hint',value:'ใส่นมได้'});assert.doesNotMatch(await page.locator('.under-clue-grid').textContent(),/ใส่นมได้|กาแฟ/);
  await page.getByLabel('ข้อความแชท',{exact:true}).fill('<b>คุยกัน</b>');await page.getByRole('button',{name:'ส่งข้อความแชท',exact:true}).click();assert.deepEqual(await page.evaluate(()=>window.discussionActions.at(-1)),{type:'chat',value:'<b>คุยกัน</b>'});
  await page.evaluate(async()=>{const{underSession}=await import('/src/session.ts'),s=underSession.getSnapshot().snapshot;underSession.update({snapshot:{...s,chat:[...s.chat,{id:3,playerId:'p2',name:'มะนาว',text:'<b>คุยกัน</b>',timestamp:Date.now()}]}});});await page.getByLabel('ข้อความแชท',{exact:true}).waitFor();assert.equal(await page.getByLabel('ข้อความแชท',{exact:true}).inputValue(),'');assert.equal(await page.locator('.under-chat-log b').count(),0);

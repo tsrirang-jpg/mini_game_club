@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {previewPath} from './helpers/preview-path.mjs';
+const url=process.env.GAME_URL||'http://127.0.0.1:5188';
 const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:1366,height:768},reducedMotion:'reduce'}),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 const sizes=[[1920,1080],[1366,768],[1024,768],[768,1024],[390,844],[375,667],[320,568],[320,480],[844,390],[667,375],[568,320]];
@@ -27,13 +28,13 @@ async function fits(label){
  for(const selector of['.under-ready-dock>button','.spy-voting-confirm'])if(await page.locator(selector).count()){const rect=await page.locator(selector).boundingBox();assert.ok(rect.height>=44,label+' touch target');assert.equal(await page.locator(selector).evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),true,label+' reachable action');}
 }
 try{
- await page.goto('http://127.0.0.1:5188/undercover/rooms/create');
+ await page.goto(url+'/undercover/rooms/create');
  for(const count of[3,6,8])for(const phase of['DISCUSS','VOTING']){
   await fixture(phase,count);
   for(const [width,height]of sizes){
    await page.setViewportSize({width,height});await settle();await fits(`${phase} ${count} players ${width}x${height}`);
    if(phase==='DISCUSS'){
-    assert.equal(await page.locator('.under-clue-grid').evaluate(e=>e.getBoundingClientRect().height>=70),true,'clue board stays visible '+width+'x'+height);assert.equal(await page.locator('.under-vote-dialog').count(),0);assert.equal(await page.locator('.under-compose').count(),0);assert.equal(await page.getByRole('button',{name:'พร้อมโหวต',exact:true}).isEnabled(),true);
+    assert.equal(await page.locator('.under-word strong').textContent(),'กาแฟ');assert.equal(await page.locator('.under-word button').count(),0);assert.equal(await page.locator('.under-clue-grid').evaluate(e=>e.getBoundingClientRect().height>=70),true,'clue board stays visible '+width+'x'+height);assert.equal(await page.locator('.under-vote-dialog').count(),0);assert.equal(await page.locator('.under-compose').count(),0);assert.equal(await page.getByRole('button',{name:'พร้อมโหวต',exact:true}).isEnabled(),true);
     if(width>=1000&&height>=651)assert.equal(await page.getByLabel('ข้อความแชท',{exact:true}).isEnabled(),true);
    }else{
     assert.equal(await page.locator('.spy-vote-clue').count(),count);assert.equal(await page.locator('.spy-voting-list button').count(),count);assert.doesNotMatch(await page.locator('.under-vote-dialog').textContent(),/OLD clue|กาแฟ/);
